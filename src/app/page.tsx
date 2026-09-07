@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Hero } from '@/components/sections/Hero';
@@ -9,39 +10,26 @@ import { ProductModal } from '@/components/sections/ProductModal';
 import { CartDrawer } from '@/components/sections/CartDrawer';
 import { RitualSection } from '@/components/sections/RitualSection';
 import { PerfumeProduct, CartItem } from '@/types';
-import { siteConfig } from '@/config/site';
+import { ArrowRight, Sparkles, Award } from 'lucide-react';
 
 export default function HomePage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<PerfumeProduct | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedBrand, setSelectedBrand] = useState('all');
-
-  // Extract distinct brands dynamically
-  const brands = useMemo(() => {
-    return Array.from(new Set(siteConfig.products.map(p => p.brand).filter(Boolean))) as string[];
-  }, []);
 
   // Load cart from localStorage
   useEffect(() => {
     try {
       const saved = localStorage.getItem('mg_perfume_cart');
-      if (saved) {
-        setCartItems(JSON.parse(saved));
-      }
-    } catch {
-      // ignore
-    }
+      if (saved) setCartItems(JSON.parse(saved));
+    } catch {}
   }, []);
 
   // Save cart to localStorage
   useEffect(() => {
     try {
       localStorage.setItem('mg_perfume_cart', JSON.stringify(cartItems));
-    } catch {
-      // ignore
-    }
+    } catch {}
   }, [cartItems]);
 
   const handleAddToCart = (product: PerfumeProduct) => {
@@ -49,9 +37,7 @@ export default function HomePage() {
       const existing = prev.find(item => item.product.id === product.id);
       if (existing) {
         return prev.map(item =>
-          item.product.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
+          item.product.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
       return [...prev, { product, quantity: 1 }];
@@ -72,61 +58,87 @@ export default function HomePage() {
     );
   };
 
-  const handleRemoveItem = (productId: string) => {
-    setCartItems(prev => prev.filter(item => item.product.id !== productId));
-  };
-
-  const handleClearCart = () => {
-    setCartItems([]);
-  };
-
   const totalCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
-
-  const scrollToCatalog = () => {
-    const el = document.getElementById('catalogue');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-[#171513]">
       <Header
         cartCount={totalCount}
         onOpenCart={() => setIsCartOpen(true)}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        selectedBrand={selectedBrand}
-        onSelectBrand={brand => {
-          setSelectedBrand(brand);
-          scrollToCatalog();
-        }}
-        brands={brands}
       />
 
       <main className="flex-grow">
-        <Hero onExploreClick={scrollToCatalog} />
-        <Catalog
-          onAddToCart={handleAddToCart}
-          onSelectProduct={product => setSelectedProduct(product)}
-          searchQuery={searchQuery}
-          selectedBrand={selectedBrand}
-        />
+        <Hero />
+
+        {/* Featured Showcase on Home */}
+        <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+            <div>
+              <span className="text-[11px] font-bold text-[#967120] uppercase tracking-widest flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5" />
+                Sélection du Moment
+              </span>
+              <h2 className="font-luxury text-2xl sm:text-3xl font-bold text-[#171513] mt-0.5">
+                Les Parfums en Vedette
+              </h2>
+            </div>
+
+            <Link
+              href="/boutique"
+              className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#967120] hover:text-[#171513] transition-colors"
+            >
+              <span>Voir tout le catalogue</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <Catalog
+            onAddToCart={handleAddToCart}
+            onSelectProduct={p => setSelectedProduct(p)}
+            showFilters={false}
+          />
+        </section>
+
+        {/* Brand Banner */}
+        <section className="py-12 bg-white border-y border-[#E8DCC2] px-4 text-center">
+          <div className="max-w-3xl mx-auto space-y-4">
+            <Award className="w-8 h-8 text-[#C59B3F] mx-auto" />
+            <h2 className="font-luxury text-2xl font-bold text-[#171513]">
+              L’Art du Parfum Oriental à Dakar
+            </h2>
+            <p className="text-xs sm:text-sm text-[#6B655E] leading-relaxed">
+              Chez MG Perfume, nous croyons qu’un parfum est bien plus qu’un accessoire : 
+              c’est une signature personnelle. Profitez d'une livraison rapide à domicile partout à Dakar 
+              avec le paiement à la livraison en toute tranquillité.
+            </p>
+            <div className="pt-2">
+              <Link
+                href="/a-propos"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#171513] hover:text-[#967120] border-b border-[#171513] pb-0.5"
+              >
+                <span>Découvrir notre engagement</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+        </section>
+
         <RitualSection />
       </main>
 
       <Footer />
 
-      {/* Interactive Drawers & Modals */}
+      {/* Cart Drawer */}
       <CartDrawer
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
         items={cartItems}
         onUpdateQuantity={handleUpdateQuantity}
-        onRemoveItem={handleRemoveItem}
-        onClearCart={handleClearCart}
+        onRemoveItem={id => setCartItems(prev => prev.filter(i => i.product.id !== id))}
+        onClearCart={() => setCartItems([])}
       />
 
+      {/* Product Modal */}
       <ProductModal
         product={selectedProduct}
         onClose={() => setSelectedProduct(null)}
