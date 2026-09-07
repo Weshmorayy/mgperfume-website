@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { X, Plus, Minus, Trash2, Send, ShoppingBag, MapPin, CheckCircle } from 'lucide-react';
 import { CartItem, ShippingZone } from '@/types';
@@ -25,6 +25,17 @@ export function CartDrawer({
   const [selectedZoneId, setSelectedZoneId] = useState<string>(siteConfig.shippingZones[0].id);
   const [clientName, setClientName] = useState<string>('');
   const [clientAddress, setClientAddress] = useState<string>('');
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -58,9 +69,15 @@ export function CartDrawer({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="absolute inset-y-0 right-0 max-w-full flex pl-6">
-        <div className="w-screen max-w-md bg-white border-l border-[#E8DCC2] flex flex-col shadow-2xl text-[#171513]">
+    <div className="fixed inset-0 !z-[999999] overflow-hidden">
+      {/* Backdrop */}
+      <div 
+        className="fixed inset-0 bg-black/70 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+        onClick={onClose}
+      />
+
+      <div className="fixed inset-y-0 right-0 max-w-full flex pl-6">
+        <div className="w-screen max-w-md bg-white border-l border-[#E8DCC2] flex flex-col shadow-2xl text-[#171513] relative z-10 animate-in slide-in-from-right duration-300">
           
           {/* Drawer Header */}
           <div className="p-5 border-b border-[#E8DCC2] flex items-center justify-between bg-[#FAF8F5]">
@@ -146,7 +163,7 @@ export function CartDrawer({
             )}
           </div>
 
-          {/* Drawer Footer & Checkout (Refined, perfectly sized) */}
+          {/* Drawer Footer & Checkout */}
           {items.length > 0 && (
             <div className="p-5 border-t border-[#E8DCC2] bg-[#FAF8F5] space-y-3.5">
               
@@ -203,7 +220,7 @@ export function CartDrawer({
                 </div>
               </div>
 
-              {/* Refined WhatsApp Button (Clean & Compact) */}
+              {/* WhatsApp Button */}
               <a
                 href={generateWhatsAppMessage()}
                 target="_blank"

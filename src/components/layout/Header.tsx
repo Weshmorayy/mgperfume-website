@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -23,6 +23,23 @@ export function Header({
   const pathname = usePathname();
   const [isNavDrawerOpen, setIsNavDrawerOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Lock body scroll when drawer is open
+  useEffect(() => {
+    if (isNavDrawerOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isNavDrawerOpen]);
 
   const navLinks = [
     { href: '/', label: 'Accueil' },
@@ -33,138 +50,146 @@ export function Header({
   ];
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-[#E8DCC2] shadow-xs">
-      {/* Top micro banner */}
-      <div className="bg-[#171513] text-[#F3E5AB] text-[11px] py-1.5 px-4 text-center border-b border-[#C59B3F]/20 flex items-center justify-center gap-2">
-        <Sparkles className="w-3.5 h-3.5 text-[#C59B3F] flex-shrink-0 animate-pulse" />
-        <span className="font-medium tracking-wide">
-          Livraison Express Dakar (2h-4h) • 100% Parfums Originaux & Certifiés
-        </span>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="h-20 flex items-center justify-between gap-4">
-          
-          {/* Left: Contact Direct (Desktop only) */}
-          <div className="hidden lg:flex items-center gap-4 text-xs text-[#6B655E]">
-            <a 
-              href={`tel:${siteConfig.contact.phone}`}
-              className="flex items-center gap-1.5 hover:text-[#171513] font-semibold transition-colors"
-            >
-              <Phone className="w-3.5 h-3.5 text-[#C59B3F]" />
-              <span>{siteConfig.contact.phoneFormatted}</span>
-            </a>
-            <div className="flex items-center gap-1 text-[#9E968D]">
-              <MapPin className="w-3 h-3 text-[#C59B3F]" />
-              <span>Dakar, Sénégal</span>
-            </div>
-          </div>
-
-          {/* Center (or Left on mobile): Perfect Logo & Brand Title */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-12 h-12 flex-shrink-0 transition-transform duration-300 group-hover:scale-105">
-              <Image
-                src="/images/brand/logo.png"
-                alt="MG Perfume Logo"
-                fill
-                className="object-contain"
-                priority
-              />
-            </div>
-            <div className="flex flex-col text-left">
-              <span className="font-luxury text-xl sm:text-2xl font-bold tracking-widest text-[#171513] uppercase leading-tight">
-                MG Perfume
-              </span>
-              <span className="text-[10px] tracking-[0.25em] text-[#967120] uppercase font-semibold">
-                Haute Parfumerie
-              </span>
-            </div>
-          </Link>
-
-          {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-6 text-xs font-semibold uppercase tracking-wider text-[#6B655E]">
-            {navLinks.map(link => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`hover:text-[#171513] transition-colors py-1 ${
-                  pathname === link.href ? 'text-[#967120] font-bold border-b-2 border-[#C59B3F]' : ''
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-
-          {/* Right Actions: Search, Cart & Mobile Menu */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            
-            {/* Search Trigger */}
-            {onSearchChange && (
-              <button
-                onClick={() => setIsSearchOpen(!isSearchOpen)}
-                className="p-2 text-[#171513] hover:text-[#C59B3F] transition-colors"
-                aria-label="Rechercher"
-              >
-                <Search className="w-5 h-5" />
-              </button>
-            )}
-
-            {/* Cart Button */}
-            <button
-              onClick={onOpenCart}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-[#171513] text-white hover:bg-[#2A2621] transition-all shadow-xs"
-              aria-label="Ouvrir le panier"
-            >
-              <ShoppingBag className="w-4 h-4 text-[#C59B3F]" />
-              <span className="text-xs font-bold hidden sm:inline">Panier</span>
-              <span className="inline-flex items-center justify-center w-5 h-5 text-[11px] font-bold text-[#171513] bg-[#C59B3F] rounded-full">
-                {cartCount}
-              </span>
-            </button>
-
-            {/* Hamburger Button */}
-            <button
-              onClick={() => setIsNavDrawerOpen(true)}
-              className="md:hidden p-2 text-[#171513] hover:text-[#C59B3F] transition-colors"
-              aria-label="Ouvrir le menu"
-            >
-              <Menu className="w-6 h-6" />
-            </button>
-          </div>
+    <>
+      <header className="sticky top-0 z-30 w-full bg-white/95 backdrop-blur-md border-b border-[#E8DCC2] shadow-xs">
+        {/* Top micro banner */}
+        <div className="bg-[#171513] text-[#F3E5AB] text-[11px] py-1.5 px-4 text-center border-b border-[#C59B3F]/20 flex items-center justify-center gap-2">
+          <Sparkles className="w-3.5 h-3.5 text-[#C59B3F] flex-shrink-0 animate-pulse" />
+          <span className="font-medium tracking-wide">
+            Livraison Express Dakar (2h-4h) • 100% Parfums Originaux & Certifiés
+          </span>
         </div>
 
-        {/* Dropdown Search Bar */}
-        {isSearchOpen && onSearchChange && (
-          <div className="pb-4 pt-1 animate-in fade-in duration-150">
-            <div className="relative max-w-md mx-auto">
-              <Search className="w-4 h-4 text-[#9E968D] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                type="text"
-                placeholder="Rechercher un parfum, une note olfactive..."
-                value={searchQuery}
-                onChange={e => onSearchChange(e.target.value)}
-                className="w-full text-xs pl-10 pr-9 py-2.5 rounded-full bg-[#FAF8F5] border border-[#E8DCC2] text-[#171513] focus:outline-none focus:border-[#C59B3F] focus:bg-white shadow-sm"
-                autoFocus
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => onSearchChange('')}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#9E968D]"
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="h-20 flex items-center justify-between gap-4">
+            
+            {/* Left: Contact Direct (Desktop only) */}
+            <div className="hidden lg:flex items-center gap-4 text-xs text-[#6B655E]">
+              <a 
+                href={`tel:${siteConfig.contact.phone}`}
+                className="flex items-center gap-1.5 hover:text-[#171513] font-semibold transition-colors"
+              >
+                <Phone className="w-3.5 h-3.5 text-[#C59B3F]" />
+                <span>{siteConfig.contact.phoneFormatted}</span>
+              </a>
+              <div className="flex items-center gap-1 text-[#9E968D]">
+                <MapPin className="w-3 h-3 text-[#C59B3F]" />
+                <span>Dakar, Sénégal</span>
+              </div>
+            </div>
+
+            {/* Logo & Brand Title */}
+            <Link href="/" className="flex items-center gap-3 group">
+              <div className="relative w-12 h-12 flex-shrink-0 transition-transform duration-300 group-hover:scale-105">
+                <Image
+                  src="/images/brand/logo.png"
+                  alt="MG Perfume Logo"
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </div>
+              <div className="flex flex-col text-left">
+                <span className="font-luxury text-xl sm:text-2xl font-bold tracking-widest text-[#171513] uppercase leading-tight">
+                  MG Perfume
+                </span>
+                <span className="text-[10px] tracking-[0.25em] text-[#967120] uppercase font-semibold">
+                  Haute Parfumerie
+                </span>
+              </div>
+            </Link>
+
+            {/* Desktop Navigation Links */}
+            <nav className="hidden md:flex items-center gap-6 text-xs font-semibold uppercase tracking-wider text-[#6B655E]">
+              {navLinks.map(link => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`hover:text-[#171513] transition-colors py-1 ${
+                    pathname === link.href ? 'text-[#967120] font-bold border-b-2 border-[#C59B3F]' : ''
+                  }`}
                 >
-                  <X className="w-4 h-4" />
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+
+            {/* Right Actions: Search, Cart & Mobile Menu */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* Search Trigger */}
+              {onSearchChange && (
+                <button
+                  onClick={() => setIsSearchOpen(!isSearchOpen)}
+                  className="p-2 text-[#171513] hover:text-[#C59B3F] transition-colors"
+                  aria-label="Rechercher"
+                >
+                  <Search className="w-5 h-5" />
                 </button>
               )}
+
+              {/* Cart Button */}
+              <button
+                onClick={onOpenCart}
+                className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-[#171513] text-white hover:bg-[#2A2621] transition-all shadow-xs"
+                aria-label="Ouvrir le panier"
+              >
+                <ShoppingBag className="w-4 h-4 text-[#C59B3F]" />
+                <span className="text-xs font-bold hidden sm:inline">Panier</span>
+                <span className="inline-flex items-center justify-center w-5 h-5 text-[11px] font-bold text-[#171513] bg-[#C59B3F] rounded-full">
+                  {cartCount}
+                </span>
+              </button>
+
+              {/* Hamburger Button */}
+              <button
+                onClick={() => setIsNavDrawerOpen(true)}
+                className="md:hidden p-2 text-[#171513] hover:text-[#C59B3F] transition-colors"
+                aria-label="Ouvrir le menu"
+              >
+                <Menu className="w-6 h-6" />
+              </button>
             </div>
           </div>
-        )}
-      </div>
 
-      {/* Right-Side Navigation Drawer with z-[100] */}
+          {/* Dropdown Search Bar */}
+          {isSearchOpen && onSearchChange && (
+            <div className="pb-4 pt-1 animate-in fade-in duration-150">
+              <div className="relative max-w-md mx-auto">
+                <Search className="w-4 h-4 text-[#9E968D] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  placeholder="Rechercher un parfum, une note olfactive..."
+                  value={searchQuery}
+                  onChange={e => onSearchChange(e.target.value)}
+                  className="w-full text-xs pl-10 pr-9 py-2.5 rounded-full bg-[#FAF8F5] border border-[#E8DCC2] text-[#171513] focus:outline-none focus:border-[#C59B3F] focus:bg-white shadow-sm"
+                  autoFocus
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => onSearchChange('')}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#9E968D]"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </header>
+
+      {/* FIXED PORTAL-LEVEL RIGHT-SIDE DRAWER OUTSIDE HEADER DOM */}
       {isNavDrawerOpen && (
-        <div className="fixed inset-0 z-[100] overflow-hidden bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
-            <div className="w-screen max-w-xs bg-white border-l border-[#E8DCC2] flex flex-col justify-between shadow-2xl p-6">
+        <div className="fixed inset-0 !z-[999999] overflow-hidden">
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black/70 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+            onClick={() => setIsNavDrawerOpen(false)}
+          />
+
+          {/* Sliding Panel */}
+          <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
+            <div className="w-screen max-w-xs bg-white border-l border-[#E8DCC2] flex flex-col justify-between shadow-2xl p-6 relative z-10 animate-in slide-in-from-right duration-300">
               
               <div>
                 {/* Header in Drawer */}
@@ -245,6 +270,6 @@ export function Header({
           </div>
         </div>
       )}
-    </header>
+    </>
   );
 }
