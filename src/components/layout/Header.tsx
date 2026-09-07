@@ -4,30 +4,17 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShoppingBag, Search, Phone, Menu, X, Sparkles, ChevronRight, MapPin } from 'lucide-react';
+import { ShoppingBag, Phone, Menu, X, Sparkles, ChevronRight, MapPin } from 'lucide-react';
 import { siteConfig } from '@/config/site';
 
 interface HeaderProps {
   cartCount: number;
   onOpenCart: () => void;
-  searchQuery?: string;
-  onSearchChange?: (q: string) => void;
 }
 
-export function Header({
-  cartCount,
-  onOpenCart,
-  searchQuery = '',
-  onSearchChange,
-}: HeaderProps) {
+export function Header({ cartCount, onOpenCart }: HeaderProps) {
   const pathname = usePathname();
   const [isNavDrawerOpen, setIsNavDrawerOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Lock body scroll when drawer is open
   useEffect(() => {
@@ -63,7 +50,7 @@ export function Header({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="h-20 flex items-center justify-between gap-4">
             
-            {/* Left: Contact Direct (Desktop only) */}
+            {/* Left: Direct Phone (Desktop) */}
             <div className="hidden lg:flex items-center gap-4 text-xs text-[#6B655E]">
               <a 
                 href={`tel:${siteConfig.contact.phone}`}
@@ -114,20 +101,8 @@ export function Header({
               ))}
             </nav>
 
-            {/* Right Actions: Search, Cart & Mobile Menu */}
+            {/* Right: Cart Button & Mobile Menu Trigger */}
             <div className="flex items-center gap-2 sm:gap-3">
-              {/* Search Trigger */}
-              {onSearchChange && (
-                <button
-                  onClick={() => setIsSearchOpen(!isSearchOpen)}
-                  className="p-2 text-[#171513] hover:text-[#C59B3F] transition-colors"
-                  aria-label="Rechercher"
-                >
-                  <Search className="w-5 h-5" />
-                </button>
-              )}
-
-              {/* Cart Button */}
               <button
                 onClick={onOpenCart}
                 className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-[#171513] text-white hover:bg-[#2A2621] transition-all shadow-xs"
@@ -140,7 +115,6 @@ export function Header({
                 </span>
               </button>
 
-              {/* Hamburger Button */}
               <button
                 onClick={() => setIsNavDrawerOpen(true)}
                 className="md:hidden p-2 text-[#171513] hover:text-[#C59B3F] transition-colors"
@@ -150,49 +124,21 @@ export function Header({
               </button>
             </div>
           </div>
-
-          {/* Dropdown Search Bar */}
-          {isSearchOpen && onSearchChange && (
-            <div className="pb-4 pt-1 animate-in fade-in duration-150">
-              <div className="relative max-w-md mx-auto">
-                <Search className="w-4 h-4 text-[#9E968D] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <input
-                  type="text"
-                  placeholder="Rechercher un parfum, une note olfactive..."
-                  value={searchQuery}
-                  onChange={e => onSearchChange(e.target.value)}
-                  className="w-full text-xs pl-10 pr-9 py-2.5 rounded-full bg-[#FAF8F5] border border-[#E8DCC2] text-[#171513] focus:outline-none focus:border-[#C59B3F] focus:bg-white shadow-sm"
-                  autoFocus
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => onSearchChange('')}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#9E968D]"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
         </div>
       </header>
 
-      {/* FIXED PORTAL-LEVEL RIGHT-SIDE DRAWER OUTSIDE HEADER DOM */}
+      {/* PORTAL-LEVEL RIGHT-SIDE DRAWER */}
       {isNavDrawerOpen && (
         <div className="fixed inset-0 !z-[999999] overflow-hidden">
-          {/* Backdrop */}
           <div 
             className="fixed inset-0 bg-black/70 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
             onClick={() => setIsNavDrawerOpen(false)}
           />
 
-          {/* Sliding Panel */}
           <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
             <div className="w-screen max-w-xs bg-white border-l border-[#E8DCC2] flex flex-col justify-between shadow-2xl p-6 relative z-10 animate-in slide-in-from-right duration-300">
               
               <div>
-                {/* Header in Drawer */}
                 <div className="flex items-center justify-between pb-5 border-b border-[#E8DCC2]">
                   <div className="flex items-center gap-2.5">
                     <div className="relative w-8 h-8">
@@ -216,7 +162,6 @@ export function Header({
                   </button>
                 </div>
 
-                {/* Nav Links */}
                 <nav className="py-6 space-y-1.5">
                   {navLinks.map(link => (
                     <Link
@@ -236,7 +181,6 @@ export function Header({
                 </nav>
               </div>
 
-              {/* Drawer Footer info */}
               <div className="pt-6 border-t border-[#E8DCC2] space-y-3 text-xs text-[#6B655E]">
                 <a 
                   href={`tel:${siteConfig.contact.phone}`} 

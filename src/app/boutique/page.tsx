@@ -12,7 +12,6 @@ export default function BoutiquePage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<PerfumeProduct | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     try {
@@ -60,25 +59,22 @@ export default function BoutiquePage() {
       <Header
         cartCount={totalCount}
         onOpenCart={() => setIsCartOpen(true)}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
       />
 
       <main className="flex-grow">
-        {/* Page Title */}
-        <div className="bg-white border-b border-[#E8DCC2] py-8 px-4 text-center">
+        {/* Page Title Header */}
+        <div className="bg-white border-b border-[#E8DCC2] py-8 sm:py-10 px-4 text-center space-y-1">
           <h1 className="font-luxury text-3xl sm:text-4xl font-bold text-[#171513]">
-            La Boutique Complète
+            La Boutique des Fragrances
           </h1>
-          <p className="text-xs sm:text-sm text-[#6B655E] mt-1">
-            Explorez l'intégralité de nos fragrances certifiées originales.
+          <p className="text-xs sm:text-sm text-[#6B655E] max-w-lg mx-auto">
+            Trouvez votre signature olfactive parmi nos parfums orientaux et créations originales.
           </p>
         </div>
 
         <Catalog
           onAddToCart={handleAddToCart}
           onSelectProduct={product => setSelectedProduct(product)}
-          searchQuery={searchQuery}
           showFilters={true}
         />
       </main>
