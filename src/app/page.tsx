@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Hero } from '@/components/sections/Hero';
@@ -9,13 +9,21 @@ import { ProductModal } from '@/components/sections/ProductModal';
 import { CartDrawer } from '@/components/sections/CartDrawer';
 import { RitualSection } from '@/components/sections/RitualSection';
 import { PerfumeProduct, CartItem } from '@/types';
+import { siteConfig } from '@/config/site';
 
 export default function HomePage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<PerfumeProduct | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedBrand, setSelectedBrand] = useState('all');
 
-  // Load cart from localStorage on mount
+  // Extract distinct brands dynamically
+  const brands = useMemo(() => {
+    return Array.from(new Set(siteConfig.products.map(p => p.brand).filter(Boolean))) as string[];
+  }, []);
+
+  // Load cart from localStorage
   useEffect(() => {
     try {
       const saved = localStorage.getItem('mg_perfume_cart');
@@ -82,10 +90,18 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0A0908] text-[#FBF8F3]">
+    <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-[#171513]">
       <Header
         cartCount={totalCount}
         onOpenCart={() => setIsCartOpen(true)}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        selectedBrand={selectedBrand}
+        onSelectBrand={brand => {
+          setSelectedBrand(brand);
+          scrollToCatalog();
+        }}
+        brands={brands}
       />
 
       <main className="flex-grow">
@@ -93,6 +109,8 @@ export default function HomePage() {
         <Catalog
           onAddToCart={handleAddToCart}
           onSelectProduct={product => setSelectedProduct(product)}
+          searchQuery={searchQuery}
+          selectedBrand={selectedBrand}
         />
         <RitualSection />
       </main>

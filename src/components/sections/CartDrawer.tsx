@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { X, Plus, Minus, Trash2, Send, ShoppingBag, MapPin, Sparkles } from 'lucide-react';
+import { X, Plus, Minus, Trash2, Send, ShoppingBag, MapPin, CheckCircle } from 'lucide-react';
 import { CartItem, ShippingZone } from '@/types';
 import { siteConfig } from '@/config/site';
 
@@ -40,61 +40,61 @@ export function CartDrawer({
     );
 
     const message = [
-      '👑 *NOUVELLE COMMANDE — MG PERFUME*',
+      '👑 *COMMANDE — MG PERFUME DAKAR*',
       '━━━━━━━━━━━━━━━━━━━━━',
-      ...(clientName ? [`👤 *Client :* ${clientName}`] : []),
-      ...(clientAddress ? [`📍 *Adresse précise :* ${clientAddress}`] : []),
-      `🚚 *Zone de livraison :* ${currentZone.name} (+${currentZone.price.toLocaleString('fr-FR')} FCFA)`,
+      ...(clientName ? [`👤 *Nom :* ${clientName}`] : []),
+      ...(clientAddress ? [`📍 *Adresse / Quartier :* ${clientAddress}`] : []),
+      `🚚 *Livraison :* ${currentZone.name} (+${currentZone.price.toLocaleString('fr-FR')} FCFA)`,
       '',
-      '🛍️ *Parfums commandés :*',
+      '🛍️ *Articles :*',
       ...orderLines,
       '━━━━━━━━━━━━━━━━━━━━━',
       `💰 *TOTAL À PAYER : ${grandTotal.toLocaleString('fr-FR')} FCFA*`,
       '',
-      'Merci de me confirmer la prise en charge et le créneau de livraison ! 🙏',
+      'Bonjour, je souhaite valider cette commande svp ! 🙏',
     ].join('\n');
 
     return `https://wa.me/${siteConfig.contact.whatsappNumber}?text=${encodeURIComponent(message)}`;
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-[#13110E] border-l border-[#D4AF37]/30 flex flex-col shadow-2xl text-[#FBF8F3]">
+    <div className="fixed inset-0 z-50 overflow-hidden bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className="absolute inset-y-0 right-0 max-w-full flex pl-6">
+        <div className="w-screen max-w-md bg-white border-l border-[#E8DCC2] flex flex-col shadow-2xl text-[#171513]">
           
           {/* Drawer Header */}
-          <div className="p-6 border-b border-[#D4AF37]/20 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <ShoppingBag className="w-5 h-5 text-[#D4AF37]" />
-              <h2 className="font-luxury text-xl font-bold tracking-wide">Votre Panier</h2>
-              <span className="text-xs text-[#A8A196] font-mono">({items.reduce((a, b) => a + b.quantity, 0)} articles)</span>
+          <div className="p-5 border-b border-[#E8DCC2] flex items-center justify-between bg-[#FAF8F5]">
+            <div className="flex items-center gap-2">
+              <ShoppingBag className="w-4 h-4 text-[#C59B3F]" />
+              <h2 className="font-luxury text-lg font-bold">Votre Panier</h2>
+              <span className="text-xs text-[#9E968D] font-mono">({items.reduce((a, b) => a + b.quantity, 0)})</span>
             </div>
             <button
               onClick={onClose}
-              className="p-2 rounded-full bg-[#1C1A17] text-[#A8A196] hover:text-[#FBF8F3] hover:bg-[#2A2621] transition-colors"
+              className="p-1.5 rounded-full bg-white border border-[#E8DCC2] text-[#6B655E] hover:text-[#171513] transition-colors"
               aria-label="Fermer le panier"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
 
           {/* Drawer Items List */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          <div className="flex-1 overflow-y-auto p-5 space-y-3">
             {items.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center space-y-3 py-12">
-                <ShoppingBag className="w-12 h-12 text-[#D4AF37]/40" />
-                <p className="font-luxury text-lg text-[#FBF8F3]">Votre panier est vide</p>
-                <p className="text-xs text-[#A8A196] max-w-xs">
-                  Choisissez une création parmi notre collection pour commencer votre commande.
+              <div className="h-full flex flex-col items-center justify-center text-center space-y-2 py-12">
+                <ShoppingBag className="w-10 h-10 text-[#C59B3F]/40" />
+                <p className="font-luxury text-base font-bold text-[#171513]">Votre panier est vide</p>
+                <p className="text-xs text-[#6B655E] max-w-xs">
+                  Ajoutez un parfum depuis le catalogue pour préparer votre commande.
                 </p>
               </div>
             ) : (
               items.map(({ product, quantity }) => (
                 <div
                   key={product.id}
-                  className="flex gap-4 p-3.5 rounded-2xl bg-[#0C0B0A] border border-[#D4AF37]/20 items-center justify-between"
+                  className="flex gap-3 p-3 rounded-2xl bg-[#FAF8F5] border border-[#E8DCC2]/80 items-center justify-between"
                 >
-                  <div className="relative w-16 h-16 rounded-xl bg-[#141210] p-1 flex-shrink-0 flex items-center justify-center">
+                  <div className="relative w-14 h-14 rounded-xl bg-white border border-[#E8DCC2]/60 p-1 flex-shrink-0 flex items-center justify-center">
                     <Image
                       src={product.image}
                       alt={product.name}
@@ -103,30 +103,30 @@ export function CartDrawer({
                     />
                   </div>
 
-                  <div className="flex-1 min-w-0 space-y-1">
-                    <h4 className="font-luxury text-sm font-bold text-[#FBF8F3] truncate">
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-luxury text-xs font-bold text-[#171513] truncate">
                       {product.name}
                     </h4>
-                    <p className="text-xs text-[#D4AF37] font-semibold">
+                    <p className="text-xs font-extrabold text-[#967120]">
                       {(product.price * quantity).toLocaleString('fr-FR')} FCFA
                     </p>
-                    <p className="text-[10px] text-[#A8A196]">{product.brand}</p>
+                    <p className="text-[10px] text-[#9E968D]">{product.brand}</p>
                   </div>
 
-                  {/* Quantity Actions */}
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center rounded-lg bg-[#181512] border border-[#D4AF37]/20 p-1">
+                  {/* Quantity Controls */}
+                  <div className="flex items-center gap-1.5">
+                    <div className="flex items-center rounded-lg bg-white border border-[#E8DCC2] p-0.5">
                       <button
                         onClick={() => onUpdateQuantity(product.id, -1)}
-                        className="p-1 text-[#A8A196] hover:text-[#FBF8F3]"
+                        className="p-1 text-[#6B655E] hover:text-[#171513]"
                         aria-label="Diminuer"
                       >
                         <Minus className="w-3 h-3" />
                       </button>
-                      <span className="px-2 text-xs font-bold text-[#FBF8F3]">{quantity}</span>
+                      <span className="px-1.5 text-xs font-bold">{quantity}</span>
                       <button
                         onClick={() => onUpdateQuantity(product.id, 1)}
-                        className="p-1 text-[#A8A196] hover:text-[#FBF8F3]"
+                        className="p-1 text-[#6B655E] hover:text-[#171513]"
                         aria-label="Augmenter"
                       >
                         <Plus className="w-3 h-3" />
@@ -135,10 +135,10 @@ export function CartDrawer({
 
                     <button
                       onClick={() => onRemoveItem(product.id)}
-                      className="p-2 text-rose-400 hover:text-rose-300"
+                      className="p-1.5 text-rose-500 hover:text-rose-700"
                       aria-label="Supprimer"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
@@ -146,76 +146,78 @@ export function CartDrawer({
             )}
           </div>
 
-          {/* Drawer Footer & Checkout */}
+          {/* Drawer Footer & Checkout (Refined, perfectly sized) */}
           {items.length > 0 && (
-            <div className="p-6 border-t border-[#D4AF37]/20 bg-[#0E0C0A] space-y-4">
+            <div className="p-5 border-t border-[#E8DCC2] bg-[#FAF8F5] space-y-3.5">
+              
               {/* Delivery Zone Selector */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#D4AF37] flex items-center gap-1.5 uppercase tracking-wider">
-                  <MapPin className="w-3.5 h-3.5" />
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-[#171513] flex items-center gap-1 uppercase tracking-wider">
+                  <MapPin className="w-3 h-3 text-[#C59B3F]" />
                   Zone de Livraison (Dakar & Régions)
                 </label>
                 <select
                   value={selectedZoneId}
                   onChange={e => setSelectedZoneId(e.target.value)}
-                  className="w-full text-xs p-3 rounded-xl bg-[#181512] border border-[#D4AF37]/30 text-[#FBF8F3] focus:outline-none focus:border-[#D4AF37]"
+                  className="w-full text-xs p-2.5 rounded-xl bg-white border border-[#E8DCC2] text-[#171513] focus:outline-none focus:border-[#C59B3F]"
                 >
                   {siteConfig.shippingZones.map(zone => (
-                    <option key={zone.id} value={zone.id} className="bg-[#181512]">
+                    <option key={zone.id} value={zone.id}>
                       {zone.name} (+{zone.price.toLocaleString('fr-FR')} FCFA) — {zone.delay}
                     </option>
                   ))}
                 </select>
               </div>
 
-              {/* Optional Client Inputs */}
+              {/* Client Info Inputs */}
               <div className="grid grid-cols-2 gap-2">
                 <input
                   type="text"
                   placeholder="Votre Nom"
                   value={clientName}
                   onChange={e => setClientName(e.target.value)}
-                  className="text-xs p-2.5 rounded-xl bg-[#181512] border border-[#D4AF37]/20 text-[#FBF8F3] placeholder-[#A8A196]/60 focus:outline-none focus:border-[#D4AF37]"
+                  className="text-xs p-2 rounded-xl bg-white border border-[#E8DCC2] text-[#171513] placeholder-[#9E968D] focus:outline-none focus:border-[#C59B3F]"
                 />
                 <input
                   type="text"
-                  placeholder="Quartier / Repère"
+                  placeholder="Quartier / Adresse"
                   value={clientAddress}
                   onChange={e => setClientAddress(e.target.value)}
-                  className="text-xs p-2.5 rounded-xl bg-[#181512] border border-[#D4AF37]/20 text-[#FBF8F3] placeholder-[#A8A196]/60 focus:outline-none focus:border-[#D4AF37]"
+                  className="text-xs p-2 rounded-xl bg-white border border-[#E8DCC2] text-[#171513] placeholder-[#9E968D] focus:outline-none focus:border-[#C59B3F]"
                 />
               </div>
 
               {/* Totals Breakdown */}
-              <div className="pt-2 border-t border-[#D4AF37]/15 space-y-1.5 text-xs text-[#A8A196]">
+              <div className="pt-2 border-t border-[#E8DCC2] space-y-1 text-xs text-[#6B655E]">
                 <div className="flex justify-between">
                   <span>Sous-total parfums</span>
-                  <span className="text-[#FBF8F3] font-semibold">{itemsSubtotal.toLocaleString('fr-FR')} FCFA</span>
+                  <span className="text-[#171513] font-semibold">{itemsSubtotal.toLocaleString('fr-FR')} FCFA</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Frais de livraison ({currentZone.delay})</span>
-                  <span className="text-[#FBF8F3] font-semibold">+{currentZone.price.toLocaleString('fr-FR')} FCFA</span>
+                  <span>Livraison ({currentZone.delay})</span>
+                  <span className="text-[#171513] font-semibold">+{currentZone.price.toLocaleString('fr-FR')} FCFA</span>
                 </div>
-                <div className="flex justify-between text-sm font-bold text-[#D4AF37] pt-1 border-t border-[#D4AF37]/10">
-                  <span>Total à la livraison</span>
-                  <span>{grandTotal.toLocaleString('fr-FR')} FCFA</span>
+                <div className="flex justify-between text-sm font-extrabold text-[#171513] pt-1.5 border-t border-[#E8DCC2]">
+                  <span>Total commande</span>
+                  <span className="text-[#967120]">{grandTotal.toLocaleString('fr-FR')} FCFA</span>
                 </div>
               </div>
 
-              {/* Order via WhatsApp CTA */}
+              {/* Refined WhatsApp Button (Clean & Compact) */}
               <a
                 href={generateWhatsAppMessage()}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-4 rounded-full bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-bold text-sm tracking-wider uppercase shadow-xl shadow-emerald-900/40 hover:scale-[1.02] transition-transform flex items-center justify-center gap-2"
+                className="w-full py-3 rounded-full bg-[#171513] hover:bg-[#25D366] text-white font-bold text-xs tracking-wider uppercase transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
               >
-                <Send className="w-4 h-4" />
-                Commander sur WhatsApp ({grandTotal.toLocaleString('fr-FR')} FCFA)
+                <Send className="w-3.5 h-3.5 text-[#25D366] group-hover:text-white" />
+                <span>Commander sur WhatsApp • {grandTotal.toLocaleString('fr-FR')} FCFA</span>
               </a>
 
-              <p className="text-[11px] text-center text-[#A8A196]">
-                Paiement à la livraison (Espèces, Wave ou Orange Money)
-              </p>
+              <div className="flex items-center justify-center gap-1.5 text-[10px] text-[#9E968D] text-center">
+                <CheckCircle className="w-3 h-3 text-emerald-600" />
+                <span>Paiement à la livraison (Espèces, Wave ou Orange Money)</span>
+              </div>
             </div>
           )}
         </div>

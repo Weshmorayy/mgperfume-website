@@ -7,45 +7,46 @@
     --font-heading: 'Cinzel', 'Playfair Display', Georgia, serif;
     --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
 
-    --bg-dark: #0A0908;
-    --bg-card: #131210;
-    --bg-card-hover: #1A1815;
+    /* Thème Parfumerie Luxe Clair / Ivoire */
+    --bg-main: #FAF8F5;
+    --bg-surface: #FFFFFF;
+    --bg-warm: #F3ECE2;
+    --bg-dark: #12100E;
     
-    --gold-primary: #D4AF37;
-    --gold-light: #F3E5AB;
-    --gold-dim: rgba(212, 175, 55, 0.15);
-    --gold-border: rgba(212, 175, 55, 0.3);
+    --gold-primary: #C59B3F;
+    --gold-dark: #967120;
+    --gold-light: #FBF4E2;
+    --gold-border: #E8DCC2;
 
-    --text-main: #FBF8F3;
-    --text-muted: #A8A196;
+    --text-primary: #171513;
+    --text-secondary: #6B655E;
+    --text-muted: #9E968D;
   }
 
   body {
-    background-color: var(--bg-dark);
-    color: var(--text-main);
+    background-color: var(--bg-main);
+    color: var(--text-primary);
     font-family: var(--font-body);
     overflow-x: hidden;
-    selection-background-color: var(--gold-primary);
-    selection-color: #000;
   }
 
   h1, h2, h3, h4, .font-luxury {
     font-family: var(--font-heading);
-    letter-spacing: 0.03em;
+    letter-spacing: 0.02em;
   }
 }
 
-/* Custom subtle scrollbar */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0A0908;
+  background: #F3ECE2;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2A2620;
+  background: #D8CCB5;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #D4AF37;
+  background: #C59B3F;
 }

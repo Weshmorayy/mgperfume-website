@@ -1,57 +1,57 @@
 import React from 'react';
-import { Sparkles, Layers, ShieldCheck, Clock } from 'lucide-react';
+import { Sparkles, Layers, Clock, ShieldCheck } from 'lucide-react';
 
 export function RitualSection() {
   const steps = [
     {
       icon: Layers,
       num: '01',
-      title: 'Le Layering Parfumé',
-      desc: 'Pour un sillage qui dure toute la journée, associez votre musc crémeux à votre eau de parfum sur les points de pulsation.',
+      title: 'Le Layering Solaire',
+      desc: 'Associez une touche de musc ou d’huile parfumée sur les points chauds avant de vaporiser votre eau de parfum pour décupler la tenue.',
     },
     {
       icon: Sparkles,
       num: '02',
-      title: 'Les Points Clés',
-      desc: 'Vaporisez sur le cou, l’arrière des oreilles et les poignets sans frotter afin de préserver l’intégrité des molécules olfactives.',
+      title: 'Les Points de Pulsation',
+      desc: 'Appliquez sur les poignets, la base du cou et l’arrière des oreilles sans frotter pour laisser les molécules s’épanouir naturellement.',
     },
     {
       icon: Clock,
       num: '03',
-      title: 'Évolution & Tenue',
-      desc: 'Laissez les notes de tête s’ouvrir pendant 15 minutes pour découvrir le cœur opulent et la signature de fond.',
+      title: 'Laisser Respirer',
+      desc: 'Laissez les notes de tête pétiller 10 à 15 minutes pour apprécier toute la richesse du cœur et du sillage de fond.',
     },
   ];
 
   return (
-    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#0A0908] via-[#12100E] to-[#0A0908] border-y border-[#D4AF37]/15">
-      <div className="max-w-7xl mx-auto space-y-12">
-        <div className="text-center space-y-3 max-w-2xl mx-auto">
-          <span className="text-xs font-semibold text-[#D4AF37] uppercase tracking-widest">
-            Conseil des Maîtres Parfumeurs
+    <section className="py-16 px-4 sm:px-6 lg:px-8 bg-[#F3ECE2] border-t border-[#E8DCC2]">
+      <div className="max-w-7xl mx-auto space-y-10">
+        <div className="text-center space-y-2 max-w-xl mx-auto">
+          <span className="text-[11px] font-bold text-[#967120] uppercase tracking-widest">
+            Conseils Parfumerie
           </span>
-          <h2 className="font-luxury text-3xl sm:text-4xl font-bold text-[#FBF8F3]">
-            L’Art de Porter son Parfum
+          <h2 className="font-luxury text-2xl sm:text-3xl font-bold text-[#171513]">
+            Sublimer votre sillage
           </h2>
-          <p className="text-sm text-[#A8A196]">
-            Des gestes simples pour magnifier la projection et faire de chaque fragrance une signature inoubliable.
+          <p className="text-xs sm:text-sm text-[#6B655E]">
+            Des rituels simples pour maximiser la présence et la diffusion de votre parfum à Dakar.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {steps.map((step, idx) => (
             <div
               key={idx}
-              className="p-6 rounded-3xl bg-[#151310] border border-[#D4AF37]/20 relative space-y-4 hover:border-[#D4AF37]/50 transition-colors"
+              className="p-6 rounded-3xl bg-white border border-[#E8DCC2] space-y-3 shadow-xs"
             >
               <div className="flex items-center justify-between">
-                <div className="p-3 rounded-2xl bg-[#0A0908] border border-[#D4AF37]/30 text-[#D4AF37]">
-                  <step.icon className="w-6 h-6" />
+                <div className="p-2.5 rounded-xl bg-[#FAF8F5] border border-[#E8DCC2] text-[#C59B3F]">
+                  <step.icon className="w-5 h-5" />
                 </div>
-                <span className="font-mono text-2xl font-bold text-[#D4AF37]/30">{step.num}</span>
+                <span className="font-mono text-xl font-bold text-[#D8CCB5]">{step.num}</span>
               </div>
-              <h3 className="font-luxury text-lg font-bold text-[#FBF8F3]">{step.title}</h3>
-              <p className="text-xs text-[#A8A196] leading-relaxed">{step.desc}</p>
+              <h3 className="font-luxury text-base font-bold text-[#171513]">{step.title}</h3>
+              <p className="text-xs text-[#6B655E] leading-relaxed">{step.desc}</p>
             </div>
           ))}
         </div>
