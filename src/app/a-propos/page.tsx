@@ -43,7 +43,7 @@ export default function AProposPage() {
             Notre Histoire & Notre Mission
           </h2>
           <p className="text-xs sm:text-sm text-[#6B655E] leading-relaxed">
-            Fondée avec la passion des essences rares, **MG Perfume** est née d’un constat simple : 
+            Fondée avec la passion des essences rares, <strong className="font-bold text-[#171513]">MG Perfume</strong> est née d’un constat simple : 
             les amoureux du parfum à Dakar méritent d'accéder à des fragrances authentiques, 
             de haute concentration et aux sillages longue durée, sans compromis sur la qualité.
           </p>

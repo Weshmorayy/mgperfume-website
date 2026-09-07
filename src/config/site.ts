@@ -18,7 +18,7 @@ export const siteConfig: SiteConfig = {
     hours: 'Lun - Sam : 09h00 - 20h00',
   },
   social: {
-    facebook: 'https://www.facebook.com/MGPERFUM',
+    facebook: 'https://www.facebook.com/MGPERFUMEE/',
   },
   shippingZones: [
     { id: 'dakar-centre', name: 'Dakar Centre / Plateau / Fann / Mermoz', price: 2000, delay: 'Sous 2h à 4h' },

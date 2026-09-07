@@ -11,7 +11,7 @@ export function Footer() {
         {/* Col 1 */}
         <div className="space-y-4 md:col-span-2">
           <div className="flex items-center gap-3">
-            <div className="relative w-9 h-9">
+            <div className="relative w-10 h-10">
               <Image
                 src="/images/brand/logo.png"
                 alt="MG Perfume"
@@ -19,14 +19,32 @@ export function Footer() {
                 className="object-contain"
               />
             </div>
-            <span className="font-luxury text-lg font-bold tracking-widest text-[#FBF8F3] uppercase">
-              MG Perfume
-            </span>
+            <div className="flex flex-col">
+              <span className="font-luxury text-lg font-bold tracking-widest text-[#FBF8F3] uppercase leading-none">
+                MG Perfume
+              </span>
+              <span className="text-[9px] tracking-[0.2em] text-[#C59B3F] uppercase font-semibold mt-1">
+                Haute Parfumerie Dakar
+              </span>
+            </div>
           </div>
           <p className="text-xs text-[#A8A196] max-w-sm leading-relaxed">
             Haute parfumerie, créations orientales et fragrances de caractère à Dakar. 
             Flacons authentiques sélectionnés pour leur tenue exceptionnelle.
           </p>
+          {siteConfig.social.facebook && (
+            <div className="pt-1">
+              <a
+                href={siteConfig.social.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-xs font-semibold text-[#F3E5AB] hover:text-[#C59B3F] transition-colors"
+              >
+                <span>Rejoignez-nous sur Facebook</span>
+                <span>→</span>
+              </a>
+            </div>
+          )}
         </div>
 
         {/* Col 2 */}
