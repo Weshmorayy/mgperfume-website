@@ -80,7 +80,7 @@ export function Header({ cartCount, onOpenCart }: HeaderProps) {
                 <span className="font-luxury text-xl sm:text-2xl font-bold tracking-widest text-[#171513] uppercase leading-tight">
                   MG Perfume
                 </span>
-                <span className="text-[10px] tracking-[0.25em] text-[#967120] uppercase font-semibold">
+                <span className="text-[9px] sm:text-[10px] tracking-[0.15em] sm:tracking-[0.2em] text-[#967120] uppercase font-semibold whitespace-nowrap">
                   Parfumeur Créateur
                 </span>
               </div>
