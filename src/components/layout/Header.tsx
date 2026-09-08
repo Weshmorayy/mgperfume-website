@@ -77,7 +77,7 @@ export function Header({ cartCount, onOpenCart }: HeaderProps) {
                 />
               </div>
               <div className="flex flex-col text-left">
-                <span className="font-luxury text-xl sm:text-2xl font-bold tracking-widest text-[#171513] uppercase leading-tight">
+                <span className="font-luxury text-lg sm:text-2xl font-bold tracking-widest text-[#171513] uppercase leading-tight whitespace-nowrap">
                   MG Perfume
                 </span>
                 <span className="text-[9px] sm:text-[10px] tracking-[0.15em] sm:tracking-[0.2em] text-[#967120] uppercase font-semibold whitespace-nowrap">

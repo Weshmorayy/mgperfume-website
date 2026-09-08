@@ -31,6 +31,17 @@ export interface ShippingZone {
   delay: string;
 }
 
+export interface EditorialBanner {
+  id: string;
+  tag: string;
+  title: string;
+  image: string;
+  alt: string;
+  linkText: string;
+  href: string;
+  bgColor: string;
+}
+
 export interface SiteConfig {
   name: string;
   brandName: string;
@@ -54,5 +65,6 @@ export interface SiteConfig {
     whatsappChannel?: string;
   };
   shippingZones: ShippingZone[];
+  editorialBanners?: EditorialBanner[];
   products: PerfumeProduct[];
 }

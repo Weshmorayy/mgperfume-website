@@ -27,6 +27,48 @@ export const siteConfig: SiteConfig = {
     { id: 'banlieue-eloignee', name: 'Guédiawaye / Pikine / Rufisque / Keur Massar', price: 3000, delay: '24h' },
     { id: 'regions', name: 'Régions (Thiès, Mbour, Saint-Louis...)', price: 4000, delay: '24h à 48h (GP)' },
   ],
+  editorialBanners: [
+    {
+      id: 'naimez-que-moi',
+      tag: 'Senteurs d’Orient',
+      title: 'ÉLIXIRS & GOUTTES INTIMES',
+      image: '/images/shooting/naimez-que-moi-model.jpg',
+      alt: 'Mannequin MG Perfume N’aimez Que Moi',
+      linkText: 'Découvrir la collection',
+      href: '/boutique',
+      bgColor: '#0E2A1A',
+    },
+    {
+      id: 'rose-desir',
+      tag: 'Élixirs du Moment',
+      title: 'FRAGRANCES FÉMININES',
+      image: '/images/shooting/rose-desir-model.jpg',
+      alt: 'Shooting Rose Désir MG Perfume',
+      linkText: 'Explorer les créations',
+      href: '/boutique',
+      bgColor: '#350B14',
+    },
+    {
+      id: 'un-amour',
+      tag: 'Le Geste & Le Sillage',
+      title: 'L’ART DU VAPORISATEUR',
+      image: '/images/shooting/un-amour-spray.jpg',
+      alt: 'Vaporisation Parfum Un Amour MG Perfume',
+      linkText: 'Voir la boutique',
+      href: '/boutique',
+      bgColor: '#250810',
+    },
+    {
+      id: 'gamme-gouttes',
+      tag: 'Rituel de Layering',
+      title: 'HUILES & MUSCS INTENSES',
+      image: '/images/shooting/gamme-gouttes.jpg',
+      alt: 'Podium Huiles et Muscs MG Perfume',
+      linkText: 'Découvrir les muscs',
+      href: '/boutique',
+      bgColor: '#0E1E38',
+    },
+  ],
   products: [
     // --- PARFUMERIE DE CRÉATEURS ORIENTAUX ---
     {
