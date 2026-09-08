@@ -728,14 +728,6 @@ export default function AdminDashboardPage() {
                 <span>Ajouter une Bannière (Max 6)</span>
               </button>
             )}
-
-            <button
-              onClick={() => setIsNavDrawerOpen(true)}
-              className="px-3.5 py-2 rounded-full border text-xs font-semibold flex items-center gap-1.5 hover:border-[#C59B3F]"
-            >
-              <Menu className="w-3.5 h-3.5 text-[#967120]" />
-              <span>Changer de Module</span>
-            </button>
           </div>
         </div>
 
