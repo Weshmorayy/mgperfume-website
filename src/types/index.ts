@@ -40,6 +40,7 @@ export interface EditorialBanner {
   linkText: string;
   href: string;
   bgColor: string;
+  objectPosition?: string;
 }
 
 export interface FAQItem {

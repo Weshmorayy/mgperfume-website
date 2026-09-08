@@ -33,25 +33,33 @@ import {
   Upload,
   Sun,
   Moon,
-  ExternalLink,
   AlertTriangle,
-  X
+  X,
+  Menu,
+  ChevronRight,
+  Database,
+  CloudUpload,
+  RefreshCw
 } from 'lucide-react';
 import { siteConfig } from '@/config/site';
 import { PerfumeProduct, EditorialBanner, ShippingZone, FAQItem, ScentFamily } from '@/types';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 export default function AdminDashboardPage() {
-  // Theme Toggle: 'dark' (luxury obsidian) or 'light' (clean cream white)
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  // Theme Toggle: default is 'light' (clean luxury cream white), switchable to 'dark'
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
-  // Authentication State
+  // Authentication State with @mgperfume.store
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [adminEmail, setAdminEmail] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
   const [authError, setAuthError] = useState('');
 
+  // Drawer Menu State (Portal level slide-in drawer from right side)
+  const [isNavDrawerOpen, setIsNavDrawerOpen] = useState(false);
+
   // Active Tab & Unsaved Changes Detection
-  const [activeTab, setActiveTab] = useState<'products' | 'promotions' | 'banners' | 'shipping' | 'faq' | 'settings'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'promotions' | 'banners' | 'shipping' | 'faq' | 'supabase' | 'settings'>('products');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [pendingTabSwitch, setPendingTabSwitch] = useState<string | null>(null);
 
@@ -66,6 +74,9 @@ export default function AdminDashboardPage() {
   const [contactInfo, setContactInfo] = useState(siteConfig.contact);
   const [socialInfo, setSocialInfo] = useState(siteConfig.social);
 
+  // Supabase Sync State
+  const [isSyncingSupabase, setIsSyncingSupabase] = useState(false);
+
   // Edit Product Modal State
   const [editingProduct, setEditingProduct] = useState<PerfumeProduct | null>(null);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
@@ -73,9 +84,23 @@ export default function AdminDashboardPage() {
 
   // Image Upload Ref for direct file selection
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const bannerFileInputRef = useRef<HTMLInputElement>(null);
+  const [activeBannerIndexForUpload, setActiveBannerIndexForUpload] = useState<number | null>(null);
 
   // Global Feedback Message
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+
+  // Lock body scroll when drawer is open
+  useEffect(() => {
+    if (isNavDrawerOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isNavDrawerOpen]);
 
   // Check Local Auth Session
   useEffect(() => {
@@ -90,21 +115,26 @@ export default function AdminDashboardPage() {
     const cleanEmail = adminEmail.trim().toLowerCase();
     const cleanPass = adminPassword.trim();
 
-    // Strong Auth: Email + Password validation
-    if (
-      (cleanEmail === 'admin@mgperfume.sn' || cleanEmail === 'mourtada@mgperfume.sn' || cleanEmail === 'admin') &&
-      (cleanPass === 'MGPerfume@2026!' || cleanPass === 'DakarParfum2026' || cleanPass === '2026')
-    ) {
+    // Required domain: @mgperfume.store (or admin)
+    const isStoreEmail = cleanEmail.endsWith('@mgperfume.store') || cleanEmail === 'admin';
+    const isCorrectPassword = cleanPass === 'MGPerfume@2026!' || cleanPass === 'DakarParfum2026' || cleanPass === '2026';
+
+    if (isStoreEmail && isCorrectPassword) {
       setIsAuthenticated(true);
       sessionStorage.setItem('mg_admin_auth', 'true');
       setAuthError('');
     } else {
-      setAuthError('Identifiants incorrects. Veuillez saisir un email administrateur et un mot de passe valide.');
+      if (!isStoreEmail) {
+        setAuthError('Veuillez utiliser votre adresse officielle avec l’extension @mgperfume.store (ex: contact@mgperfume.store).');
+      } else {
+        setAuthError('Mot de passe incorrect.');
+      }
     }
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
+    setIsNavDrawerOpen(false);
     sessionStorage.removeItem('mg_admin_auth');
   };
 
@@ -116,6 +146,7 @@ export default function AdminDashboardPage() {
 
   // Safe Tab Switcher with Unsaved Warning
   const handleTabClick = (tab: typeof activeTab) => {
+    setIsNavDrawerOpen(false);
     if (hasUnsavedChanges && tab !== activeTab) {
       setPendingTabSwitch(tab);
     } else {
@@ -123,7 +154,7 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // Product Image Upload (Convert to base64 or URL preview)
+  // Product Image Upload (Convert to base64 preview)
   const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && editingProduct) {
@@ -133,6 +164,19 @@ export default function AdminDashboardPage() {
           ...editingProduct,
           image: reader.result as string
         });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Banner Image Upload
+  const handleBannerFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && activeBannerIndexForUpload !== null) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setBanners(prev => prev.map((b, i) => i === activeBannerIndexForUpload ? { ...b, image: reader.result as string } : b));
+        setHasUnsavedChanges(true);
       };
       reader.readAsDataURL(file);
     }
@@ -189,18 +233,71 @@ export default function AdminDashboardPage() {
     }
   };
 
+  // Banner Handlers (Max 6 banners limit)
+  const handleAddBanner = () => {
+    if (banners.length >= 6) {
+      alert('Limite maximale de 6 bannières atteinte.');
+      return;
+    }
+    const newBanner: EditorialBanner = {
+      id: `banner-${Date.now()}`,
+      tag: 'Nouvelle Collection',
+      title: 'TITRE DE LA BANNIÈRE',
+      image: '/images/shooting/naimez-que-moi-model.jpg',
+      alt: 'Nouvelle bannière shooting',
+      linkText: 'Découvrir',
+      href: '/boutique',
+      bgColor: '#171513',
+      objectPosition: 'center',
+    };
+    setBanners(prev => [...prev, newBanner]);
+    setHasUnsavedChanges(true);
+  };
+
+  const handleDeleteBanner = (id: string) => {
+    if (confirm('Voulez-vous supprimer cette bannière de shooting ?')) {
+      setBanners(prev => prev.filter(b => b.id !== id));
+      setHasUnsavedChanges(true);
+      showFeedback('Bannière supprimée');
+    }
+  };
+
+  // Sync to Supabase Cloud
+  const handleSyncSupabase = async () => {
+    if (!supabase) {
+      alert('Supabase n’est pas configuré. Veuillez renseigner vos variables NEXT_PUBLIC_SUPABASE_URL et NEXT_PUBLIC_SUPABASE_ANON_KEY dans votre fichier .env.');
+      return;
+    }
+
+    setIsSyncingSupabase(true);
+    try {
+      // Upsert products table
+      const { error: prodError } = await supabase
+        .from('products')
+        .upsert(products, { onConflict: 'id' });
+
+      if (prodError) throw prodError;
+
+      showFeedback('Catalogue synchronisé avec Supabase Cloud !');
+    } catch (err: any) {
+      alert(`Erreur lors de la synchronisation Supabase: ${err.message || err}`);
+    } finally {
+      setIsSyncingSupabase(false);
+    }
+  };
+
   const filteredProducts = products.filter(p => 
     p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
     (p.brand && p.brand.toLowerCase().includes(productSearch.toLowerCase()))
   );
 
   // ----------------------------------------------------
-  // LOGIN SCREEN (Enhanced Strong Credentials & Theme)
+  // LOGIN SCREEN (White default or Dark with @mgperfume.store)
   // ----------------------------------------------------
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#110F0D] text-[#FAF8F5] flex flex-col justify-center items-center px-4">
-        <div className="w-full max-w-md bg-[#171513] border border-[#C59B3F]/30 rounded-3xl p-8 sm:p-10 shadow-2xl space-y-6 text-center relative overflow-hidden">
+      <div className="min-h-screen bg-[#FAF8F5] text-[#171513] flex flex-col justify-center items-center px-4">
+        <div className="w-full max-w-md bg-white border border-[#E8DCC2] rounded-3xl p-8 sm:p-10 shadow-xl space-y-6 text-center relative overflow-hidden">
           
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#C59B3F] to-transparent" />
 
@@ -214,53 +311,53 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="space-y-1">
-            <h1 className="font-luxury text-2xl font-bold uppercase tracking-widest text-[#FAF8F5]">
-              Administration Sécurisée
+            <h1 className="font-luxury text-2xl font-bold uppercase tracking-widest text-[#171513]">
+              Administration
             </h1>
-            <p className="text-xs text-[#A8A196]">
-              MG Perfume • Authentification Renforcée
+            <p className="text-xs text-[#6B655E]">
+              MG Perfume • Authentification <strong>@mgperfume.store</strong>
             </p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4 text-left">
             <div>
-              <label className="text-[11px] font-bold text-[#C59B3F] uppercase tracking-wider block mb-1.5">
-                Email Administrateur
+              <label className="text-[11px] font-bold text-[#967120] uppercase tracking-wider block mb-1.5">
+                Email Professionnel (@mgperfume.store)
               </label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-[#A8A196] absolute left-4 top-1/2 -translate-y-1/2" />
+                <Mail className="w-4 h-4 text-[#9E968D] absolute left-4 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={adminEmail}
                   onChange={e => setAdminEmail(e.target.value)}
-                  placeholder="admin@mgperfume.sn (ou admin)"
-                  className="w-full pl-11 pr-4 py-3 rounded-2xl bg-[#221F1B] border border-[#C59B3F]/30 text-white placeholder-[#6B655E] text-xs focus:outline-none focus:border-[#C59B3F] transition-all"
+                  placeholder="contact@mgperfume.store (ou admin)"
+                  className="w-full pl-11 pr-4 py-3 rounded-2xl bg-[#FAF8F5] border border-[#E8DCC2] text-[#171513] placeholder-[#9E968D] text-xs focus:outline-none focus:border-[#C59B3F] focus:bg-white transition-all"
                   autoFocus
                 />
               </div>
             </div>
 
             <div>
-              <label className="text-[11px] font-bold text-[#C59B3F] uppercase tracking-wider block mb-1.5">
+              <label className="text-[11px] font-bold text-[#967120] uppercase tracking-wider block mb-1.5">
                 Mot de Passe Sécurisé
               </label>
               <div className="relative">
-                <KeyRound className="w-4 h-4 text-[#A8A196] absolute left-4 top-1/2 -translate-y-1/2" />
+                <KeyRound className="w-4 h-4 text-[#9E968D] absolute left-4 top-1/2 -translate-y-1/2" />
                 <input
                   type="password"
                   value={adminPassword}
                   onChange={e => setAdminPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="w-full pl-11 pr-4 py-3 rounded-2xl bg-[#221F1B] border border-[#C59B3F]/30 text-white placeholder-[#6B655E] text-xs focus:outline-none focus:border-[#C59B3F] transition-all"
+                  className="w-full pl-11 pr-4 py-3 rounded-2xl bg-[#FAF8F5] border border-[#E8DCC2] text-[#171513] placeholder-[#9E968D] text-xs focus:outline-none focus:border-[#C59B3F] focus:bg-white transition-all"
                 />
               </div>
-              <p className="text-[10px] text-[#857E74] mt-1">
-                Accès de test rapide : <strong>2026</strong> ou <strong>MGPerfume@2026!</strong>
+              <p className="text-[10px] text-[#9E968D] mt-1">
+                Accès de démonstration : <strong>admin</strong> / <strong>2026</strong> ou <strong>MGPerfume@2026!</strong>
               </p>
             </div>
 
             {authError && (
-              <div className="p-3 rounded-xl bg-red-950/50 border border-red-800/60 text-red-300 text-xs flex items-center gap-2">
+              <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 <span>{authError}</span>
               </div>
@@ -268,7 +365,7 @@ export default function AdminDashboardPage() {
 
             <button
               type="submit"
-              className="w-full py-3.5 rounded-full bg-[#C59B3F] hover:bg-[#D8AE4D] text-[#171513] font-bold text-xs uppercase tracking-widest transition-all shadow-md flex items-center justify-center gap-2"
+              className="w-full py-3.5 rounded-full bg-[#171513] hover:bg-[#C59B3F] text-white font-bold text-xs uppercase tracking-widest transition-all shadow-md flex items-center justify-center gap-2"
             >
               <Lock className="w-4 h-4" />
               <span>Connexion au Dashboard</span>
@@ -278,7 +375,7 @@ export default function AdminDashboardPage() {
           <div className="pt-2">
             <Link
               href="/"
-              className="inline-flex items-center gap-1.5 text-xs text-[#A8A196] hover:text-[#C59B3F] transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs text-[#6B655E] hover:text-[#171513] transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Retourner sur la boutique</span>
@@ -290,7 +387,7 @@ export default function AdminDashboardPage() {
     );
   }
 
-  // Theme-dependent styles
+  // Theme-dependent styles (White default)
   const isDark = theme === 'dark';
   const bgClass = isDark ? 'bg-[#110F0D] text-[#FAF8F5]' : 'bg-[#FAF8F5] text-[#171513]';
   const cardBgClass = isDark ? 'bg-[#171513] border-[#C59B3F]/20' : 'bg-white border-[#E8DCC2] shadow-xs';
@@ -300,8 +397,8 @@ export default function AdminDashboardPage() {
   return (
     <div className={`min-h-screen ${bgClass} flex flex-col font-sans transition-colors duration-200`}>
       
-      {/* Top Admin Header Bar */}
-      <header className={`sticky top-0 z-40 ${isDark ? 'bg-[#171513]/95 border-[#C59B3F]/20' : 'bg-white/95 border-[#E8DCC2] shadow-xs'} backdrop-blur-md border-b px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between`}>
+      {/* Top Header Bar */}
+      <header className={`sticky top-0 z-30 ${isDark ? 'bg-[#171513]/95 border-[#C59B3F]/20' : 'bg-white/95 border-[#E8DCC2] shadow-xs'} backdrop-blur-md border-b px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between`}>
         <div className="flex items-center gap-3">
           <div className="relative w-8 h-8 flex-shrink-0">
             <Image src="/images/brand/logo.png" alt="MG Perfume" fill className="object-contain" />
@@ -315,7 +412,7 @@ export default function AdminDashboardPage() {
                 Admin
               </span>
               {hasUnsavedChanges && (
-                <span className="flex items-center gap-1 text-[10px] font-bold text-amber-500 animate-pulse">
+                <span className="flex items-center gap-1 text-[10px] font-bold text-amber-600 animate-pulse">
                   <AlertTriangle className="w-3 h-3" />
                   <span className="hidden sm:inline">Modifications non enregistrées</span>
                 </span>
@@ -344,32 +441,196 @@ export default function AdminDashboardPage() {
             <span>Voir le site</span>
           </Link>
 
+          {/* Drawer Trigger Button */}
           <button
-            onClick={handleLogout}
-            className="p-2 rounded-full border border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white transition-colors"
-            title="Se déconnecter"
-            aria-label="Se déconnecter"
+            onClick={() => setIsNavDrawerOpen(true)}
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#171513] hover:bg-[#C59B3F] text-white text-xs font-bold transition-all shadow-xs"
+            aria-label="Ouvrir le menu de navigation admin"
           >
-            <LogOut className="w-4 h-4" />
+            <Menu className="w-4 h-4 text-[#C59B3F]" />
+            <span className="hidden sm:inline">Onglets & Modules</span>
           </button>
         </div>
       </header>
+
+      {/* PORTAL-LEVEL RIGHT-SIDE DRAWER (Rule 7.2: Root level !z-[999999], scroll locked, includes Logout) */}
+      {isNavDrawerOpen && (
+        <div className="fixed inset-0 !z-[999999] overflow-hidden">
+          <div 
+            className="fixed inset-0 bg-black/70 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+            onClick={() => setIsNavDrawerOpen(false)}
+          />
+
+          <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
+            <div className={`w-screen max-w-xs border-l flex flex-col justify-between shadow-2xl p-6 relative z-10 animate-in slide-in-from-right duration-300 ${isDark ? 'bg-[#171513] border-[#C59B3F]/30 text-white' : 'bg-white border-[#E8DCC2] text-[#171513]'}`}>
+              
+              <div>
+                <div className="flex items-center justify-between pb-5 border-b border-[#E8DCC2]">
+                  <div className="flex items-center gap-2.5">
+                    <div className="relative w-8 h-8">
+                      <Image src="/images/brand/logo.png" alt="MG Perfume" fill className="object-contain" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-luxury text-sm font-bold uppercase tracking-wider">
+                        MG Perfume
+                      </span>
+                      <span className="text-[8px] tracking-widest text-[#967120] uppercase font-semibold">
+                        Menu Admin
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setIsNavDrawerOpen(false)}
+                    className="p-1.5 rounded-full border border-[#E8DCC2] text-[#6B655E] hover:text-[#171513]"
+                    aria-label="Fermer le tiroir"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Drawer Tab Navigation Links */}
+                <nav className="py-6 space-y-2">
+                  <button
+                    onClick={() => handleTabClick('products')}
+                    className={`w-full flex items-center justify-between py-3 px-3.5 rounded-xl text-xs font-bold tracking-wide transition-colors ${
+                      activeTab === 'products'
+                        ? 'bg-[#171513] text-white shadow-xs font-bold'
+                        : 'hover:bg-black/5'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Package className="w-4 h-4 text-[#C59B3F]" />
+                      <span>Catalogue Parfums ({products.length})</span>
+                    </div>
+                    <ChevronRight className="w-3.5 h-3.5 opacity-60" />
+                  </button>
+
+                  <button
+                    onClick={() => handleTabClick('promotions')}
+                    className={`w-full flex items-center justify-between py-3 px-3.5 rounded-xl text-xs font-bold tracking-wide transition-colors ${
+                      activeTab === 'promotions'
+                        ? 'bg-[#171513] text-white shadow-xs font-bold'
+                        : 'hover:bg-black/5'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Percent className="w-4 h-4 text-[#C59B3F]" />
+                      <span>Promos & Badges</span>
+                    </div>
+                    <ChevronRight className="w-3.5 h-3.5 opacity-60" />
+                  </button>
+
+                  <button
+                    onClick={() => handleTabClick('banners')}
+                    className={`w-full flex items-center justify-between py-3 px-3.5 rounded-xl text-xs font-bold tracking-wide transition-colors ${
+                      activeTab === 'banners'
+                        ? 'bg-[#171513] text-white shadow-xs font-bold'
+                        : 'hover:bg-black/5'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <ImageIcon className="w-4 h-4 text-[#C59B3F]" />
+                      <span>Bannières Shooting ({banners.length})</span>
+                    </div>
+                    <ChevronRight className="w-3.5 h-3.5 opacity-60" />
+                  </button>
+
+                  <button
+                    onClick={() => handleTabClick('shipping')}
+                    className={`w-full flex items-center justify-between py-3 px-3.5 rounded-xl text-xs font-bold tracking-wide transition-colors ${
+                      activeTab === 'shipping'
+                        ? 'bg-[#171513] text-white shadow-xs font-bold'
+                        : 'hover:bg-black/5'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Truck className="w-4 h-4 text-[#C59B3F]" />
+                      <span>Frais de Livraison</span>
+                    </div>
+                    <ChevronRight className="w-3.5 h-3.5 opacity-60" />
+                  </button>
+
+                  <button
+                    onClick={() => handleTabClick('faq')}
+                    className={`w-full flex items-center justify-between py-3 px-3.5 rounded-xl text-xs font-bold tracking-wide transition-colors ${
+                      activeTab === 'faq'
+                        ? 'bg-[#171513] text-white shadow-xs font-bold'
+                        : 'hover:bg-black/5'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <HelpCircle className="w-4 h-4 text-[#C59B3F]" />
+                      <span>Foire Aux Questions</span>
+                    </div>
+                    <ChevronRight className="w-3.5 h-3.5 opacity-60" />
+                  </button>
+
+                  <button
+                    onClick={() => handleTabClick('supabase')}
+                    className={`w-full flex items-center justify-between py-3 px-3.5 rounded-xl text-xs font-bold tracking-wide transition-colors ${
+                      activeTab === 'supabase'
+                        ? 'bg-[#171513] text-white shadow-xs font-bold'
+                        : 'hover:bg-black/5'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Database className="w-4 h-4 text-[#3ECF8E]" />
+                      <span>Supabase Cloud</span>
+                    </div>
+                    <ChevronRight className="w-3.5 h-3.5 opacity-60" />
+                  </button>
+
+                  <button
+                    onClick={() => handleTabClick('settings')}
+                    className={`w-full flex items-center justify-between py-3 px-3.5 rounded-xl text-xs font-bold tracking-wide transition-colors ${
+                      activeTab === 'settings'
+                        ? 'bg-[#171513] text-white shadow-xs font-bold'
+                        : 'hover:bg-black/5'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Settings className="w-4 h-4 text-[#C59B3F]" />
+                      <span>Contact & Réseaux</span>
+                    </div>
+                    <ChevronRight className="w-3.5 h-3.5 opacity-60" />
+                  </button>
+                </nav>
+              </div>
+
+              {/* Drawer Bottom: Logout & Session info */}
+              <div className="pt-6 border-t border-[#E8DCC2] space-y-3 text-xs">
+                <button
+                  onClick={handleLogout}
+                  className="w-full py-3 rounded-full bg-red-50 text-red-600 hover:bg-red-600 hover:text-white border border-red-200 font-bold transition-all flex items-center justify-center gap-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Se Déconnecter</span>
+                </button>
+                <p className="text-[10px] text-center opacity-60">
+                  Connecté : {adminEmail || 'admin@mgperfume.store'}
+                </p>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Unsaved Changes Confirmation Modal */}
       {pendingTabSwitch && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
           <div className={`p-6 rounded-3xl border max-w-sm w-full space-y-4 shadow-2xl ${cardBgClass}`}>
-            <div className="flex items-center gap-3 text-amber-500 font-bold text-sm">
+            <div className="flex items-center gap-3 text-amber-600 font-bold text-sm">
               <AlertTriangle className="w-5 h-5" />
               <span>Modifications non enregistrées</span>
             </div>
-            <p className="text-xs text-[#A8A196]">
+            <p className="text-xs opacity-75">
               Vous avez des modifications en cours. Voulez-vous continuer sans enregistrer ?
             </p>
             <div className="flex items-center justify-end gap-2 pt-2">
               <button
                 onClick={() => setPendingTabSwitch(null)}
-                className="px-4 py-2 rounded-full bg-transparent border border-white/20 text-xs font-bold"
+                className="px-4 py-2 rounded-full border text-xs font-bold"
               >
                 Annuler
               </button>
@@ -396,150 +657,102 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
+      {/* Hidden File Input for Banner Uploads */}
+      <input
+        type="file"
+        ref={bannerFileInputRef}
+        onChange={handleBannerFileChange}
+        accept="image/*"
+        className="hidden"
+      />
+
       {/* Main Container */}
-      <div className="flex-grow flex flex-col md:flex-row max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 gap-6 sm:gap-8">
+      <div className="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
         
-        {/* Navigation Sidebar Tabs */}
-        <aside className="w-full md:w-64 flex-shrink-0 space-y-2">
-          <div className={`p-3 rounded-3xl border space-y-1 ${cardBgClass}`}>
-            
-            <button
-              onClick={() => handleTabClick('products')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all ${
-                activeTab === 'products'
-                  ? 'bg-[#C59B3F] text-[#171513] shadow-md'
-                  : 'hover:opacity-80'
-              }`}
-            >
-              <Package className="w-4 h-4" />
-              <span>Catalogue Parfums ({products.length})</span>
-            </button>
-
-            <button
-              onClick={() => handleTabClick('promotions')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all ${
-                activeTab === 'promotions'
-                  ? 'bg-[#C59B3F] text-[#171513] shadow-md'
-                  : 'hover:opacity-80'
-              }`}
-            >
-              <Percent className="w-4 h-4" />
-              <span>Promos & Badges</span>
-            </button>
-
-            <button
-              onClick={() => handleTabClick('banners')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all ${
-                activeTab === 'banners'
-                  ? 'bg-[#C59B3F] text-[#171513] shadow-md'
-                  : 'hover:opacity-80'
-              }`}
-            >
-              <ImageIcon className="w-4 h-4" />
-              <span>Bannières Shooting ({banners.length})</span>
-            </button>
-
-            <button
-              onClick={() => handleTabClick('shipping')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all ${
-                activeTab === 'shipping'
-                  ? 'bg-[#C59B3F] text-[#171513] shadow-md'
-                  : 'hover:opacity-80'
-              }`}
-            >
-              <Truck className="w-4 h-4" />
-              <span>Frais de Livraison</span>
-            </button>
-
-            <button
-              onClick={() => handleTabClick('faq')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all ${
-                activeTab === 'faq'
-                  ? 'bg-[#C59B3F] text-[#171513] shadow-md'
-                  : 'hover:opacity-80'
-              }`}
-            >
-              <HelpCircle className="w-4 h-4" />
-              <span>Foire Aux Questions</span>
-            </button>
-
-            <button
-              onClick={() => handleTabClick('settings')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all ${
-                activeTab === 'settings'
-                  ? 'bg-[#C59B3F] text-[#171513] shadow-md'
-                  : 'hover:opacity-80'
-              }`}
-            >
-              <Settings className="w-4 h-4" />
-              <span>Contact & Réseaux</span>
-            </button>
-
-          </div>
-
-          {/* Cloud Persist Box */}
-          <div className={`p-4 rounded-2xl border text-[11px] space-y-1.5 ${cardBgClass}`}>
-            <div className="flex items-center gap-2 text-[#967120] font-bold">
-              <ShieldCheck className="w-4 h-4" />
-              <span>Prêt pour Supabase Cloud</span>
+        {/* Module Header Bar with Current Active Tab Title */}
+        <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-3xl border ${cardBgClass}`}>
+          <div>
+            <div className="flex items-center gap-2 text-xs font-bold text-[#967120] uppercase tracking-wider">
+              <span>Module Actif :</span>
+              <span className="capitalize">{activeTab}</span>
             </div>
-            <p className="leading-relaxed opacity-75">
-              Stockage des images & base PostgreSQL synchronisables en direct.
-            </p>
+            <h1 className="font-luxury text-xl sm:text-2xl font-bold mt-0.5">
+              {activeTab === 'products' && 'Catalogue des Parfums Orientaux'}
+              {activeTab === 'promotions' && 'Promotions & Badges'}
+              {activeTab === 'banners' && 'Bannières de Shooting & Visuels'}
+              {activeTab === 'shipping' && 'Frais & Délais de Livraison'}
+              {activeTab === 'faq' && 'Questions Fréquentes'}
+              {activeTab === 'supabase' && 'Synchronisation Supabase Cloud'}
+              {activeTab === 'settings' && 'Coordonnées & Réseaux Sociaux'}
+            </h1>
           </div>
-        </aside>
 
-        {/* Dynamic Admin Body Content */}
-        <main className="flex-grow space-y-6">
+          <div className="flex items-center gap-2 self-stretch sm:self-auto">
+            {activeTab === 'products' && (
+              <div className="flex items-center gap-2">
+                <div className={`flex items-center p-1 rounded-full border ${subCardBg}`}>
+                  <button
+                    onClick={() => setProductsViewMode('cards')}
+                    className={`p-1.5 rounded-full transition-colors ${productsViewMode === 'cards' ? 'bg-[#C59B3F] text-[#171513]' : 'opacity-60'}`}
+                    title="Vue Grille"
+                    aria-label="Vue Grille"
+                  >
+                    <LayoutGrid className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => setProductsViewMode('list')}
+                    className={`p-1.5 rounded-full transition-colors ${productsViewMode === 'list' ? 'bg-[#C59B3F] text-[#171513]' : 'opacity-60'}`}
+                    title="Vue Liste"
+                    aria-label="Vue Liste"
+                  >
+                    <List className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                <button
+                  onClick={handleOpenAddProduct}
+                  className="px-4 py-2 rounded-full bg-[#171513] hover:bg-[#C59B3F] text-white font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-sm"
+                >
+                  <Plus className="w-4 h-4 text-[#C59B3F]" />
+                  <span>Nouveau Parfum</span>
+                </button>
+              </div>
+            )}
+
+            {activeTab === 'banners' && (
+              <button
+                onClick={handleAddBanner}
+                className="px-4 py-2 rounded-full bg-[#171513] hover:bg-[#C59B3F] text-white font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-sm"
+              >
+                <Plus className="w-4 h-4 text-[#C59B3F]" />
+                <span>Ajouter une Bannière (Max 6)</span>
+              </button>
+            )}
+
+            <button
+              onClick={() => setIsNavDrawerOpen(true)}
+              className="px-3.5 py-2 rounded-full border text-xs font-semibold flex items-center gap-1.5 hover:border-[#C59B3F]"
+            >
+              <Menu className="w-3.5 h-3.5 text-[#967120]" />
+              <span>Changer de Module</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Dynamic Content Body */}
+        <main className="space-y-6">
           
           {/* ============================================================ */}
-          {/* TAB 1: CATALOGUE PRODUITS (Cards & List Views) */}
+          {/* TAB 1: CATALOGUE PRODUITS */}
           {/* ============================================================ */}
           {activeTab === 'products' && (
             <div className="space-y-6">
-              <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-3xl border ${cardBgClass}`}>
-                <div>
-                  <h2 className="font-luxury text-xl font-bold">Gestion du Catalogue</h2>
-                  <p className="text-xs opacity-75">Ajoutez, modifiez ou supprimez vos parfums.</p>
-                </div>
-
-                <div className="flex items-center gap-2 self-stretch sm:self-auto">
-                  {/* View Mode Toggle: Cards vs List */}
-                  <div className={`flex items-center p-1 rounded-full border ${subCardBg}`}>
-                    <button
-                      onClick={() => setProductsViewMode('cards')}
-                      className={`p-1.5 rounded-full transition-colors ${productsViewMode === 'cards' ? 'bg-[#C59B3F] text-[#171513]' : 'opacity-60'}`}
-                      title="Vue Grille"
-                      aria-label="Vue Grille"
-                    >
-                      <LayoutGrid className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => setProductsViewMode('list')}
-                      className={`p-1.5 rounded-full transition-colors ${productsViewMode === 'list' ? 'bg-[#C59B3F] text-[#171513]' : 'opacity-60'}`}
-                      title="Vue Liste"
-                      aria-label="Vue Liste"
-                    >
-                      <List className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-
-                  <button
-                    onClick={handleOpenAddProduct}
-                    className="px-4 py-2 rounded-full bg-[#C59B3F] hover:bg-[#D8AE4D] text-[#171513] font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-sm flex-1 sm:flex-initial justify-center"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Nouveau Parfum</span>
-                  </button>
-                </div>
-              </div>
-
               {/* Search bar inside admin */}
               <div className="relative">
                 <Search className="w-4 h-4 opacity-50 absolute left-4 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
-                  placeholder="Rechercher un parfum dans l'administration..."
+                  placeholder="Rechercher un parfum dans l'administration (Lattafa, Afnan, etc.)..."
                   value={productSearch}
                   onChange={e => setProductSearch(e.target.value)}
                   className={`w-full pl-11 pr-4 py-2.5 rounded-2xl border text-xs focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
@@ -577,7 +790,7 @@ export default function AdminDashboardPage() {
                           <p className="text-xs opacity-70 line-clamp-1">{product.tagline}</p>
                         </div>
 
-                        <div className="mt-2 pt-2 border-t border-white/10 flex items-center justify-between">
+                        <div className="mt-2 pt-2 border-t border-[#E8DCC2]/60 flex items-center justify-between">
                           <div className="text-sm font-extrabold">
                             {product.price.toLocaleString('fr-FR')} <span className="text-xs text-[#967120]">FCFA</span>
                           </div>
@@ -590,13 +803,13 @@ export default function AdminDashboardPage() {
                       </div>
 
                       {/* Actions */}
-                      <div className="flex items-center gap-2 pt-2 border-t border-white/10">
+                      <div className="flex items-center gap-2 pt-2 border-t border-[#E8DCC2]/60">
                         <button
                           onClick={() => {
                             setEditingProduct(product);
                             setIsProductModalOpen(true);
                           }}
-                          className={`flex-1 py-2 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5 border ${subCardBg} hover:bg-[#C59B3F] hover:text-[#171513]`}
+                          className={`flex-1 py-2 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5 border ${subCardBg} hover:bg-[#171513] hover:text-white`}
                         >
                           <Edit3 className="w-3.5 h-3.5" />
                           <span>Modifier</span>
@@ -604,7 +817,7 @@ export default function AdminDashboardPage() {
 
                         <button
                           onClick={() => handleDeleteProduct(product.id)}
-                          className="p-2 rounded-xl bg-red-950/20 hover:bg-red-900 border border-red-800/40 text-red-500 hover:text-white transition-colors"
+                          className="p-2 rounded-xl bg-red-50 hover:bg-red-600 border border-red-200 text-red-500 hover:text-white transition-colors"
                           title="Supprimer"
                           aria-label="Supprimer"
                         >
@@ -630,9 +843,9 @@ export default function AdminDashboardPage() {
                           <th className="p-3.5 text-right">Actions</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-white/10">
+                      <tbody className="divide-y divide-[#E8DCC2]/60">
                         {filteredProducts.map(product => (
-                          <tr key={product.id} className="hover:bg-white/5 transition-colors">
+                          <tr key={product.id} className="hover:bg-black/5 transition-colors">
                             <td className="p-3.5 flex items-center gap-2.5">
                               <div className="relative w-9 h-9 bg-white rounded-lg p-0.5 border flex-shrink-0">
                                 <Image src={product.image} alt={product.name} fill className="object-contain" />
@@ -660,13 +873,13 @@ export default function AdminDashboardPage() {
                                   setEditingProduct(product);
                                   setIsProductModalOpen(true);
                                 }}
-                                className="p-1.5 rounded-lg border hover:bg-[#C59B3F] hover:text-[#171513] transition-colors"
+                                className="p-1.5 rounded-lg border hover:bg-[#171513] hover:text-white transition-colors"
                               >
                                 <Edit3 className="w-3.5 h-3.5" />
                               </button>
                               <button
                                 onClick={() => handleDeleteProduct(product.id)}
-                                className="p-1.5 rounded-lg border border-red-500/30 text-red-500 hover:bg-red-600 hover:text-white transition-colors"
+                                className="p-1.5 rounded-lg border border-red-300 text-red-500 hover:bg-red-600 hover:text-white transition-colors"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
@@ -696,7 +909,7 @@ export default function AdminDashboardPage() {
                 </p>
               </div>
 
-              <div className="divide-y divide-white/10">
+              <div className="divide-y divide-[#E8DCC2]/60">
                 {products.map(product => (
                   <div key={product.id} className="py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
@@ -755,10 +968,10 @@ export default function AdminDashboardPage() {
                 ))}
               </div>
 
-              <div className="pt-4 border-t border-white/10 flex justify-end">
+              <div className="pt-4 border-t border-[#E8DCC2] flex justify-end">
                 <button
                   onClick={() => showFeedback('Promotions enregistrées')}
-                  className="px-5 py-2.5 rounded-full bg-[#C59B3F] text-[#171513] font-bold text-xs uppercase tracking-wider hover:bg-[#D8AE4D] flex items-center gap-2"
+                  className="px-5 py-2.5 rounded-full bg-[#171513] text-white font-bold text-xs uppercase tracking-wider hover:bg-[#C59B3F] flex items-center gap-2"
                 >
                   <Save className="w-4 h-4" />
                   <span>Enregistrer les promotions</span>
@@ -768,7 +981,7 @@ export default function AdminDashboardPage() {
           )}
 
           {/* ============================================================ */}
-          {/* TAB 3: BANNIÈRES SHOOTING EDITORIAL (With dynamic links & image path) */}
+          {/* TAB 3: BANNIÈRES SHOOTING EDITORIAL (With Image Upload & ObjectPosition) */}
           {/* ============================================================ */}
           {activeTab === 'banners' && (
             <div className="space-y-6">
@@ -780,56 +993,52 @@ export default function AdminDashboardPage() {
                       Bannières Éditoriales de Shooting
                     </h2>
                     <p className="text-xs opacity-75">
-                      Gérez les visuels, titres, tags et liens de destination des cartes de l'accueil.
+                      Gérez les visuels, titres, tags, liens et cadrages photos (Position de l'image).
                     </p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {banners.map((banner, index) => (
-                    <div key={banner.id} className={`p-4 rounded-2xl border space-y-3 ${subCardBg}`}>
-                      <div className="relative w-full h-48 rounded-xl overflow-hidden border">
-                        <Image src={banner.image} alt={banner.alt} fill className="object-cover" />
-                      </div>
-
-                      <div className="space-y-2">
-                        <div>
-                          <label className="text-[10px] text-[#967120] uppercase font-bold">Tag Supérieur</label>
-                          <input
-                            type="text"
-                            value={banner.tag}
-                            onChange={e => {
-                              const val = e.target.value;
-                              setBanners(prev => prev.map((b, i) => i === index ? { ...b, tag: val } : b));
-                              setHasUnsavedChanges(true);
-                            }}
-                            className={`w-full px-3 py-1.5 text-xs rounded-xl border focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
+                {banners.length === 0 ? (
+                  <div className="p-8 text-center rounded-2xl border border-dashed border-[#E8DCC2] space-y-3">
+                    <ImageIcon className="w-8 h-8 text-[#9E968D] mx-auto" />
+                    <p className="text-xs opacity-70">Aucune bannière de shooting configurée. La page d’accueil s’adapte automatiquement sans bannière.</p>
+                    <button
+                      onClick={handleAddBanner}
+                      className="px-4 py-2 rounded-full bg-[#171513] text-white text-xs font-bold"
+                    >
+                      Ajouter une bannière
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {banners.map((banner, index) => (
+                      <div key={banner.id} className={`p-4 rounded-2xl border space-y-3 ${subCardBg}`}>
+                        <div className="relative w-full h-48 rounded-xl overflow-hidden border">
+                          <Image 
+                            src={banner.image} 
+                            alt={banner.alt} 
+                            fill 
+                            style={{ objectPosition: banner.objectPosition || 'center' }}
+                            className="object-cover" 
                           />
+                          <button
+                            onClick={() => handleDeleteBanner(banner.id)}
+                            className="absolute top-2 right-2 p-1.5 rounded-full bg-red-600 text-white shadow-md hover:bg-red-700"
+                            title="Supprimer la bannière"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </div>
 
-                        <div>
-                          <label className="text-[10px] text-[#967120] uppercase font-bold">Titre Principal</label>
-                          <input
-                            type="text"
-                            value={banner.title}
-                            onChange={e => {
-                              const val = e.target.value;
-                              setBanners(prev => prev.map((b, i) => i === index ? { ...b, title: val } : b));
-                              setHasUnsavedChanges(true);
-                            }}
-                            className={`w-full px-3 py-1.5 text-xs rounded-xl border focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
-                          />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="space-y-2">
                           <div>
-                            <label className="text-[10px] text-[#967120] uppercase font-bold">Texte Bouton</label>
+                            <label className="text-[10px] text-[#967120] uppercase font-bold">Tag Supérieur</label>
                             <input
                               type="text"
-                              value={banner.linkText}
+                              value={banner.tag}
                               onChange={e => {
                                 const val = e.target.value;
-                                setBanners(prev => prev.map((b, i) => i === index ? { ...b, linkText: val } : b));
+                                setBanners(prev => prev.map((b, i) => i === index ? { ...b, tag: val } : b));
                                 setHasUnsavedChanges(true);
                               }}
                               className={`w-full px-3 py-1.5 text-xs rounded-xl border focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
@@ -837,42 +1046,95 @@ export default function AdminDashboardPage() {
                           </div>
 
                           <div>
-                            <label className="text-[10px] text-[#967120] uppercase font-bold">Lien Cible (URL / Page)</label>
+                            <label className="text-[10px] text-[#967120] uppercase font-bold">Titre Principal</label>
                             <input
                               type="text"
-                              value={banner.href}
+                              value={banner.title}
                               onChange={e => {
                                 const val = e.target.value;
-                                setBanners(prev => prev.map((b, i) => i === index ? { ...b, href: val } : b));
+                                setBanners(prev => prev.map((b, i) => i === index ? { ...b, title: val } : b));
                                 setHasUnsavedChanges(true);
                               }}
                               className={`w-full px-3 py-1.5 text-xs rounded-xl border focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
                             />
                           </div>
-                        </div>
 
-                        <div>
-                          <label className="text-[10px] text-[#967120] uppercase font-bold">Image URL / Chemin</label>
-                          <input
-                            type="text"
-                            value={banner.image}
-                            onChange={e => {
-                              const val = e.target.value;
-                              setBanners(prev => prev.map((b, i) => i === index ? { ...b, image: val } : b));
-                              setHasUnsavedChanges(true);
-                            }}
-                            className={`w-full px-3 py-1.5 text-xs rounded-xl border focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
-                          />
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="text-[10px] text-[#967120] uppercase font-bold">Texte Bouton</label>
+                              <input
+                                type="text"
+                                value={banner.linkText}
+                                onChange={e => {
+                                  const val = e.target.value;
+                                  setBanners(prev => prev.map((b, i) => i === index ? { ...b, linkText: val } : b));
+                                  setHasUnsavedChanges(true);
+                                }}
+                                className={`w-full px-3 py-1.5 text-xs rounded-xl border focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
+                              />
+                            </div>
+
+                            <div>
+                              <label className="text-[10px] text-[#967120] uppercase font-bold">Lien Cible</label>
+                              <input
+                                type="text"
+                                value={banner.href}
+                                onChange={e => {
+                                  const val = e.target.value;
+                                  setBanners(prev => prev.map((b, i) => i === index ? { ...b, href: val } : b));
+                                  setHasUnsavedChanges(true);
+                                }}
+                                className={`w-full px-3 py-1.5 text-xs rounded-xl border focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Image position (cadrage) */}
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="text-[10px] text-[#967120] uppercase font-bold">Cadrage / Position</label>
+                              <select
+                                value={banner.objectPosition || 'center'}
+                                onChange={e => {
+                                  const val = e.target.value;
+                                  setBanners(prev => prev.map((b, i) => i === index ? { ...b, objectPosition: val } : b));
+                                  setHasUnsavedChanges(true);
+                                }}
+                                className={`w-full px-3 py-1.5 text-xs rounded-xl border focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
+                              >
+                                <option value="center">Centré (Center)</option>
+                                <option value="top">Haut (Top)</option>
+                                <option value="bottom">Bas (Bottom)</option>
+                                <option value="left">Gauche (Left)</option>
+                                <option value="right">Droite (Right)</option>
+                              </select>
+                            </div>
+
+                            <div>
+                              <label className="text-[10px] text-[#967120] uppercase font-bold">Changer la Photo</label>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setActiveBannerIndexForUpload(index);
+                                  bannerFileInputRef.current?.click();
+                                }}
+                                className="w-full py-1.5 px-3 rounded-xl bg-[#171513] text-white hover:bg-[#C59B3F] text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+                              >
+                                <Upload className="w-3.5 h-3.5" />
+                                <span>Uploader</span>
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
 
-                <div className="pt-4 border-t border-white/10 flex justify-end">
+                <div className="pt-4 border-t border-[#E8DCC2] flex justify-end">
                   <button
                     onClick={() => showFeedback('Bannières shooting enregistrées')}
-                    className="px-5 py-2.5 rounded-full bg-[#C59B3F] text-[#171513] font-bold text-xs uppercase tracking-wider hover:bg-[#D8AE4D] flex items-center gap-2"
+                    className="px-5 py-2.5 rounded-full bg-[#171513] text-white font-bold text-xs uppercase tracking-wider hover:bg-[#C59B3F] flex items-center gap-2"
                   >
                     <Save className="w-4 h-4" />
                     <span>Enregistrer les bannières</span>
@@ -934,10 +1196,10 @@ export default function AdminDashboardPage() {
                 ))}
               </div>
 
-              <div className="pt-4 border-t border-white/10 flex justify-end">
+              <div className="pt-4 border-t border-[#E8DCC2] flex justify-end">
                 <button
                   onClick={() => showFeedback('Frais de livraison mis à jour')}
-                  className="px-5 py-2.5 rounded-full bg-[#C59B3F] text-[#171513] font-bold text-xs uppercase tracking-wider hover:bg-[#D8AE4D] flex items-center gap-2"
+                  className="px-5 py-2.5 rounded-full bg-[#171513] text-white font-bold text-xs uppercase tracking-wider hover:bg-[#C59B3F] flex items-center gap-2"
                 >
                   <Save className="w-4 h-4" />
                   <span>Enregistrer les tarifs</span>
@@ -965,9 +1227,9 @@ export default function AdminDashboardPage() {
                     setFaqs(prev => [...prev, { q: 'Nouvelle Question ?', a: 'Réponse détaillée ici...' }]);
                     setHasUnsavedChanges(true);
                   }}
-                  className="px-3.5 py-1.5 rounded-full bg-[#C59B3F] hover:bg-[#D8AE4D] text-[#171513] text-xs font-bold transition-colors flex items-center gap-1.5"
+                  className="px-3.5 py-1.5 rounded-full bg-[#171513] hover:bg-[#C59B3F] text-white text-xs font-bold transition-colors flex items-center gap-1.5"
                 >
-                  <Plus className="w-3.5 h-3.5" />
+                  <Plus className="w-3.5 h-3.5 text-[#C59B3F]" />
                   <span>Ajouter une question</span>
                 </button>
               </div>
@@ -1012,10 +1274,10 @@ export default function AdminDashboardPage() {
                 ))}
               </div>
 
-              <div className="pt-4 border-t border-white/10 flex justify-end">
+              <div className="pt-4 border-t border-[#E8DCC2] flex justify-end">
                 <button
                   onClick={() => showFeedback('FAQ enregistrée avec succès')}
-                  className="px-5 py-2.5 rounded-full bg-[#C59B3F] text-[#171513] font-bold text-xs uppercase tracking-wider hover:bg-[#D8AE4D] flex items-center gap-2"
+                  className="px-5 py-2.5 rounded-full bg-[#171513] text-white font-bold text-xs uppercase tracking-wider hover:bg-[#C59B3F] flex items-center gap-2"
                 >
                   <Save className="w-4 h-4" />
                   <span>Enregistrer la FAQ</span>
@@ -1025,7 +1287,66 @@ export default function AdminDashboardPage() {
           )}
 
           {/* ============================================================ */}
-          {/* TAB 6: CONTACT & RÉSEAUX */}
+          {/* TAB 6: SUPABASE CLOUD SYNC */}
+          {/* ============================================================ */}
+          {activeTab === 'supabase' && (
+            <div className={`rounded-3xl p-6 border space-y-6 ${cardBgClass}`}>
+              <div>
+                <h2 className="font-luxury text-xl font-bold flex items-center gap-2">
+                  <Database className="w-5 h-5 text-[#3ECF8E]" />
+                  Configuration & Synchronisation Supabase Cloud
+                </h2>
+                <p className="text-xs opacity-75">
+                  Connectez votre base de données PostgreSQL Supabase pour une persistance 100% en temps réel.
+                </p>
+              </div>
+
+              <div className={`p-4 rounded-2xl border space-y-3 ${subCardBg}`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 font-bold text-xs">
+                    <span className={`w-2.5 h-2.5 rounded-full ${isSupabaseConfigured ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
+                    <span>Statut Supabase : {isSupabaseConfigured ? 'Connecté & Prêt' : 'En attente de clés .env'}</span>
+                  </div>
+                </div>
+
+                <p className="text-xs opacity-75 leading-relaxed">
+                  Pour relier votre projet Supabase, ajoutez simplement vos identifiants dans votre fichier <code>.env.local</code> :
+                </p>
+
+                <pre className="p-3 rounded-xl bg-black text-[#3ECF8E] text-[11px] font-mono overflow-x-auto">
+                  NEXT_PUBLIC_SUPABASE_URL=https://votre-projet.supabase.co{'\n'}
+                  NEXT_PUBLIC_SUPABASE_ANON_KEY=votre_cle_anon_publique
+                </pre>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+                <p className="text-xs opacity-70">
+                  Transférez vos {products.length} parfums actuels vers la base Supabase Cloud en un clic.
+                </p>
+
+                <button
+                  onClick={handleSyncSupabase}
+                  disabled={isSyncingSupabase}
+                  className="px-6 py-3 rounded-full bg-[#3ECF8E] hover:bg-[#34b27b] text-black font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-md transition-all disabled:opacity-50"
+                >
+                  {isSyncingSupabase ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <span>Synchronisation en cours...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CloudUpload className="w-4 h-4" />
+                      <span>Synchroniser avec Supabase</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ============================================================ */}
+          {/* TAB 7: CONTACT & RÉSEAUX */}
           {/* ============================================================ */}
           {activeTab === 'settings' && (
             <div className={`rounded-3xl p-6 border space-y-6 ${cardBgClass}`}>
@@ -1106,10 +1427,10 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-white/10 flex justify-end">
+              <div className="pt-4 border-t border-[#E8DCC2] flex justify-end">
                 <button
                   onClick={() => showFeedback('Coordonnées enregistrées avec succès')}
-                  className="px-5 py-2.5 rounded-full bg-[#C59B3F] text-[#171513] font-bold text-xs uppercase tracking-wider hover:bg-[#D8AE4D] flex items-center gap-2"
+                  className="px-5 py-2.5 rounded-full bg-[#171513] text-white font-bold text-xs uppercase tracking-wider hover:bg-[#C59B3F] flex items-center gap-2"
                 >
                   <Save className="w-4 h-4" />
                   <span>Enregistrer les coordonnées</span>
@@ -1122,7 +1443,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* ============================================================ */}
-      {/* MODAL: AJOUTER / MODIFIER UN PRODUIT (With Sticky Close & Image Upload) */}
+      {/* MODAL: AJOUTER / MODIFIER UN PRODUIT (With Sticky Close Bar) */}
       {/* ============================================================ */}
       {isProductModalOpen && editingProduct && (
         <div 
@@ -1152,7 +1473,7 @@ export default function AdminDashboardPage() {
             <form onSubmit={handleSaveProduct} className="p-6 sm:p-8 space-y-6 text-xs">
               
               {/* Image Upload Area with Pure White Box */}
-              <div className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-2xl border border-dashed border-[#C59B3F]/40 bg-white/5">
+              <div className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-2xl border border-dashed border-[#C59B3F]/40 bg-black/5">
                 <div className="relative w-24 h-28 bg-white rounded-xl p-1 border flex-shrink-0 flex items-center justify-center">
                   {editingProduct.image ? (
                     <Image src={editingProduct.image} alt="Preview" fill className="object-contain p-1" />
@@ -1174,12 +1495,12 @@ export default function AdminDashboardPage() {
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="px-3.5 py-1.5 rounded-full bg-[#C59B3F] text-[#171513] font-bold text-xs flex items-center gap-1.5 hover:bg-[#D8AE4D]"
+                      className="px-3.5 py-1.5 rounded-full bg-[#171513] text-white font-bold text-xs flex items-center gap-1.5 hover:bg-[#C59B3F]"
                     >
-                      <Upload className="w-3.5 h-3.5" />
+                      <Upload className="w-3.5 h-3.5 text-[#C59B3F]" />
                       <span>Uploader une photo</span>
                     </button>
-                    <span className="text-[10px] opacity-70">ou spécifier l'URL ci-dessous</span>
+                    <span className="text-[10px] opacity-70">ou saisir le chemin</span>
                   </div>
                   <input
                     type="text"
@@ -1342,7 +1663,7 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-3">
+              <div className="pt-3 border-t border-[#E8DCC2] flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => setIsProductModalOpen(false)}
@@ -1353,7 +1674,7 @@ export default function AdminDashboardPage() {
 
                 <button
                   type="submit"
-                  className="px-6 py-2 rounded-full bg-[#C59B3F] hover:bg-[#D8AE4D] text-[#171513] font-bold text-xs uppercase tracking-wider shadow-sm"
+                  className="px-6 py-2 rounded-full bg-[#171513] hover:bg-[#C59B3F] text-white font-bold text-xs uppercase tracking-wider shadow-sm"
                 >
                   Enregistrer
                 </button>

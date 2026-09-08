@@ -33,13 +33,14 @@ export function EditorialBanners() {
             style={{ backgroundColor: banner.bgColor }}
             className="group relative rounded-3xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-500 flex flex-col justify-between aspect-[4/5] sm:aspect-[3/4] md:min-h-[480px]"
           >
-            {/* Real Photo — 100% crystal clear */}
+            {/* Real Photo — 100% crystal clear with custom object position */}
             <div className="absolute inset-0 z-0">
               <Image
                 src={banner.image}
                 alt={banner.alt}
                 fill
-                className="object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
+                style={{ objectPosition: banner.objectPosition || 'center' }}
+                className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                 priority={index < 2}
               />
             </div>
