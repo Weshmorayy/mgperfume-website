@@ -42,6 +42,11 @@ export interface EditorialBanner {
   bgColor: string;
 }
 
+export interface FAQItem {
+  q: string;
+  a: string;
+}
+
 export interface SiteConfig {
   name: string;
   brandName: string;
@@ -66,5 +71,6 @@ export interface SiteConfig {
   };
   shippingZones: ShippingZone[];
   editorialBanners?: EditorialBanner[];
+  faqs?: FAQItem[];
   products: PerfumeProduct[];
 }

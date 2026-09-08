@@ -69,6 +69,24 @@ export const siteConfig: SiteConfig = {
       bgColor: '#0E1E38',
     },
   ],
+  faqs: [
+    {
+      q: 'Comment s’effectue la livraison à Dakar ?',
+      a: 'Nos livreurs vous remettent votre commande directement en main propre à domicile ou au bureau dans un délai de 2h à 4h.',
+    },
+    {
+      q: 'Quels sont les modes de paiement acceptés ?',
+      a: 'Vous réglez à la livraison en espèces, par Wave ou via Orange Money après vérification de votre colis.',
+    },
+    {
+      q: 'Livrez-vous dans les régions du Sénégal ?',
+      a: 'Oui, nous expédions dans toutes les régions (Thiès, Saint-Louis, Mbour, Ziguinchor...) via les services GP ou transporteurs partenaires en 24h à 48h.',
+    },
+    {
+      q: 'Les parfums sont-ils des originaux ?',
+      a: 'Absolument. Tous nos parfums sont 100% originaux, neufs et scellés dans leur boîte d’origine.',
+    },
+  ],
   products: [
     // --- PARFUMERIE DE CRÉATEURS ORIENTAUX ---
     {
