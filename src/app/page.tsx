@@ -9,6 +9,7 @@ import { Catalog } from '@/components/sections/Catalog';
 import { ProductModal } from '@/components/sections/ProductModal';
 import { CartDrawer } from '@/components/sections/CartDrawer';
 import { RitualSection } from '@/components/sections/RitualSection';
+import { EditorialBanners } from '@/components/sections/EditorialBanners';
 import { PerfumeProduct, CartItem } from '@/types';
 import { ArrowRight, Sparkles, Award } from 'lucide-react';
 
@@ -69,6 +70,9 @@ export default function HomePage() {
 
       <main className="flex-grow">
         <Hero />
+
+        {/* Editorial Visual Banners (Shooting Studio & Olfea style inspiration) */}
+        <EditorialBanners />
 
         {/* Featured Showcase on Home */}
         <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
