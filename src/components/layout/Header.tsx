@@ -81,7 +81,7 @@ export function Header({ cartCount, onOpenCart }: HeaderProps) {
                   MG Perfume
                 </span>
                 <span className="text-[10px] tracking-[0.25em] text-[#967120] uppercase font-semibold">
-                  Haute Parfumerie
+                  Parfumeur Créateur
                 </span>
               </div>
             </Link>
@@ -149,7 +149,7 @@ export function Header({ cartCount, onOpenCart }: HeaderProps) {
                         MG Perfume
                       </span>
                       <span className="text-[8px] tracking-widest text-[#967120] uppercase font-semibold">
-                        Haute Parfumerie
+                        Parfumeur Créateur
                       </span>
                     </div>
                   </div>
