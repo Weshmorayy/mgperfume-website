@@ -5,11 +5,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { siteConfig } from '@/config/site';
+import { useStore } from '@/context/StoreContext';
 
 export function EditorialBanners() {
-  const banners = siteConfig.editorialBanners || [];
+  const { banners } = useStore();
 
-  if (banners.length === 0) return null;
+  if (!banners || banners.length === 0) return null;
 
   return (
     <section className="py-8 sm:py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">

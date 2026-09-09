@@ -17,6 +17,20 @@ export interface PerfumeProduct {
   baseNotes: string[];
   description: string;
   isPopular?: boolean;
+  isHero?: boolean;
+}
+
+export interface SiteBackup {
+  id: string;
+  backup_name: string;
+  products_data: PerfumeProduct[];
+  banners_data: EditorialBanner[];
+  shipping_data: ShippingZone[];
+  faqs_data: FAQItem[];
+  contact_data: SiteConfig['contact'];
+  social_data: SiteConfig['social'];
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface CartItem {

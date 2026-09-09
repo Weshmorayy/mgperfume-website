@@ -12,8 +12,10 @@ import { RitualSection } from '@/components/sections/RitualSection';
 import { EditorialBanners } from '@/components/sections/EditorialBanners';
 import { PerfumeProduct, CartItem } from '@/types';
 import { ArrowRight, Sparkles, Award } from 'lucide-react';
+import { useStore } from '@/context/StoreContext';
 
 export default function HomePage() {
+  const { selectionDuMoment } = useStore();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<PerfumeProduct | null>(null);
@@ -80,7 +82,7 @@ export default function HomePage() {
             <div>
               <span className="text-[11px] font-bold text-[#967120] uppercase tracking-widest flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5" />
-                Sélection du Moment
+                Sélection du Moment ({selectionDuMoment.length} Parfums)
               </span>
               <h2 className="font-luxury text-2xl sm:text-3xl font-bold text-[#171513] mt-0.5">
                 Les Parfums en Vedette
@@ -97,6 +99,7 @@ export default function HomePage() {
           </div>
 
           <Catalog
+            products={selectionDuMoment}
             onAddToCart={handleAddToCart}
             onSelectProduct={p => setSelectedProduct(p)}
             showFilters={false}

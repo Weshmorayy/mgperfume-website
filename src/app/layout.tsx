@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { SchemaOrg } from '@/components/seo/SchemaOrg';
 import { generatePageMetadata } from '@/lib/seo';
+import { StoreProvider } from '@/context/StoreContext';
 import './globals.css';
 
 export const viewport: Viewport = {
@@ -29,7 +30,9 @@ export default function RootLayout({
         <SchemaOrg />
       </head>
       <body className="min-h-screen bg-[#0A0908] text-[#FBF8F3] antialiased">
-        {children}
+        <StoreProvider>
+          {children}
+        </StoreProvider>
       </body>
     </html>
   );

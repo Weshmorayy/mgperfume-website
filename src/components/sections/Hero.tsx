@@ -1,14 +1,19 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Sparkles, ShieldCheck, Truck, ArrowRight } from 'lucide-react';
 import { siteConfig } from '@/config/site';
+import { useStore } from '@/context/StoreContext';
 
 interface HeroProps {
   onExploreClick?: () => void;
 }
 
 export function Hero({ onExploreClick }: HeroProps) {
+  const { heroProduct } = useStore();
+
   return (
     <section className="relative bg-[#FAF8F5] border-b border-[#E8DCC2] px-4 py-12 sm:py-16">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
@@ -67,20 +72,23 @@ export function Hero({ onExploreClick }: HeroProps) {
           </div>
         </div>
 
-        {/* Right Column: Pure White Card */}
+        {/* Right Column: Dynamic Pure White Card (Édition Phare) */}
         <div className="lg:col-span-5 flex justify-center">
-          <div className="relative w-full max-w-xs bg-white rounded-3xl p-5 border border-[#E8DCC2] shadow-sm space-y-3">
+          <Link 
+            href={`/boutique`}
+            className="block relative w-full max-w-xs bg-white rounded-3xl p-5 border border-[#E8DCC2] shadow-sm hover:shadow-md transition-shadow space-y-3"
+          >
             <div className="flex justify-between items-center text-[10px] font-bold tracking-widest text-[#967120] uppercase">
               <span className="px-2.5 py-0.5 rounded bg-[#FBF4E2] border border-[#E8DCC2]">Édition Phare</span>
-              <span className="text-[#9E968D]">Lattafa Paris</span>
+              <span className="text-[#9E968D]">{heroProduct.brand || 'MG Perfume'}</span>
             </div>
 
-            {/* Pure white container */}
+            {/* Pure white container (Rule 7.1) */}
             <div className="relative w-full h-56 flex items-center justify-center bg-white rounded-2xl">
               <div className="relative w-44 h-52">
                 <Image
-                  src="/images/products/khamrah-waha.jpg"
-                  alt="Khamrah Waha"
+                  src={heroProduct.image}
+                  alt={heroProduct.name}
                   fill
                   className="object-contain"
                   priority
@@ -89,13 +97,20 @@ export function Hero({ onExploreClick }: HeroProps) {
             </div>
 
             <div className="space-y-0.5 text-center">
-              <h3 className="font-luxury text-base font-bold text-[#171513]">Khamrah Waha</h3>
-              <p className="text-xs text-[#6B655E]">Yuzu • Concombre • Sel marin • Tonka</p>
-              <div className="pt-1 text-sm font-extrabold text-[#967120]">
-                35 000 FCFA
+              <h3 className="font-luxury text-base font-bold text-[#171513]">{heroProduct.name}</h3>
+              <p className="text-xs text-[#6B655E] line-clamp-1">{heroProduct.tagline || heroProduct.categoryLabel}</p>
+              <div className="pt-1 flex items-center justify-center gap-2">
+                <span className="text-sm font-extrabold text-[#967120]">
+                  {heroProduct.price.toLocaleString('fr-FR')} FCFA
+                </span>
+                {heroProduct.originalPrice && (
+                  <span className="text-xs text-red-500 line-through">
+                    {heroProduct.originalPrice.toLocaleString('fr-FR')} FCFA
+                  </span>
+                )}
               </div>
             </div>
-          </div>
+          </Link>
         </div>
 
       </div>

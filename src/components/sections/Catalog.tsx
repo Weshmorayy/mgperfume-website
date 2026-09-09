@@ -5,11 +5,13 @@ import Image from 'next/image';
 import { Plus, Eye, Check, Sparkles, ArrowUpDown, Search, X } from 'lucide-react';
 import { PerfumeProduct, ScentFamily } from '@/types';
 import { siteConfig } from '@/config/site';
+import { useStore } from '@/context/StoreContext';
 
 interface CatalogProps {
   onAddToCart: (product: PerfumeProduct) => void;
   onSelectProduct: (product: PerfumeProduct) => void;
   showFilters?: boolean;
+  products?: PerfumeProduct[];
 }
 
 const CATEGORIES: { id: ScentFamily; label: string }[] = [
@@ -25,7 +27,11 @@ export function Catalog({
   onAddToCart,
   onSelectProduct,
   showFilters = true,
+  products: overrideProducts,
 }: CatalogProps) {
+  const { products: storeProducts } = useStore();
+  const rawProducts = overrideProducts || storeProducts;
+
   const [selectedFamily, setSelectedFamily] = useState<ScentFamily>('all');
   const [selectedBrand, setSelectedBrand] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -34,12 +40,12 @@ export function Catalog({
 
   // Extract brands dynamically
   const brands = useMemo(() => {
-    return Array.from(new Set(siteConfig.products.map(p => p.brand).filter(Boolean))) as string[];
-  }, []);
+    return Array.from(new Set(rawProducts.map(p => p.brand).filter(Boolean))) as string[];
+  }, [rawProducts]);
 
   // Filter & Search Logic
   const filteredProducts = useMemo(() => {
-    let result = siteConfig.products;
+    let result = rawProducts;
 
     // Filter by Brand
     if (selectedBrand !== 'all') {
