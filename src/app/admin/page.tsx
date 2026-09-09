@@ -1273,7 +1273,7 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                   {filteredProducts.map(product => (
                     <div 
                       key={product.id}
-                      className={`rounded-2xl p-4 border flex flex-col justify-between space-y-4 hover:border-[#C59B3F]/60 transition-all ${cardBgClass}`}
+                      className={`relative rounded-2xl p-4 border flex flex-col justify-between space-y-4 hover:border-[#C59B3F]/60 transition-all ${cardBgClass}`}
                     >
                       <div>
                         {/* Product Thumbnail on Pure White Box (Rule 7.1) */}
