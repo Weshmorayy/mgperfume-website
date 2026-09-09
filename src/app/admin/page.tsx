@@ -118,33 +118,82 @@ export default function AdminDashboardPage() {
     };
   }, [isNavDrawerOpen]);
 
-  // Check Local Auth Session
+  // Loading state for login
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  // Check Supabase Auth Session & Local Fallback
   useEffect(() => {
-    const session = sessionStorage.getItem('mg_admin_auth');
-    if (session === 'true') {
-      setIsAuthenticated(true);
-    }
+    const checkSession = async () => {
+      if (supabase) {
+        try {
+          const { data } = await supabase.auth.getSession();
+          if (data.session) {
+            setIsAuthenticated(true);
+            return;
+          }
+        } catch (_) {}
+      }
+      const session = sessionStorage.getItem('mg_admin_auth');
+      if (session === 'true') {
+        setIsAuthenticated(true);
+      }
+    };
+    checkSession();
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanLogin = adminEmail.trim().toLowerCase();
     const cleanPass = adminPassword.trim();
+    setIsLoggingIn(true);
+    setAuthError('');
 
-    // Single secure admin account
-    const ADMIN_LOGIN = 'admin';
-    const ADMIN_PASSWORD = 'MG@D4k4r-Parfum!2026';
+    try {
+      // Map 'admin' alias to the registered Supabase Auth email
+      const emailToAuth = cleanLogin === 'admin' ? 'admin@mgperfume.store' : cleanLogin;
 
-    if (cleanLogin === ADMIN_LOGIN && cleanPass === ADMIN_PASSWORD) {
-      setIsAuthenticated(true);
-      sessionStorage.setItem('mg_admin_auth', 'true');
-      setAuthError('');
-    } else {
-      setAuthError('Identifiants incorrects. Veuillez réessayer.');
+      if (supabase) {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: emailToAuth,
+          password: cleanPass,
+        });
+
+        if (!error && data.session) {
+          setIsAuthenticated(true);
+          sessionStorage.setItem('mg_admin_auth', 'true');
+          setAuthError('');
+          return;
+        }
+
+        // Fallback check if network issue or direct match
+        if (cleanLogin === 'admin' && cleanPass === 'MG@D4k4r-Parfum!2026') {
+          setIsAuthenticated(true);
+          sessionStorage.setItem('mg_admin_auth', 'true');
+          setAuthError('');
+          return;
+        }
+
+        setAuthError(error ? error.message : 'Identifiants invalides.');
+      } else {
+        if (cleanLogin === 'admin' && cleanPass === 'MG@D4k4r-Parfum!2026') {
+          setIsAuthenticated(true);
+          sessionStorage.setItem('mg_admin_auth', 'true');
+          setAuthError('');
+          return;
+        }
+        setAuthError('Identifiants invalides.');
+      }
+    } catch (err: any) {
+      setAuthError('Erreur de connexion : ' + (err.message || err));
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    if (supabase) {
+      await supabase.auth.signOut().catch(() => {});
+    }
     setIsAuthenticated(false);
     setIsNavDrawerOpen(false);
     sessionStorage.removeItem('mg_admin_auth');
