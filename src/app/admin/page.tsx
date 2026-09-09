@@ -39,7 +39,14 @@ import {
   ChevronRight,
   Database,
   CloudUpload,
-  RefreshCw
+  RefreshCw,
+  Download,
+  FileJson,
+  Filter,
+  Copy,
+  SlidersHorizontal,
+  FolderSync,
+  ExternalLink
 } from 'lucide-react';
 import { siteConfig } from '@/config/site';
 import { PerfumeProduct, EditorialBanner, ShippingZone, FAQItem, ScentFamily } from '@/types';
@@ -66,6 +73,12 @@ export default function AdminDashboardPage() {
   // Products View Mode: 'cards' or 'list'
   const [productsViewMode, setProductsViewMode] = useState<'cards' | 'list'>('cards');
 
+  // Products Filters & Sorting
+  const [filterFamily, setFilterFamily] = useState<string>('all');
+  const [filterBrand, setFilterBrand] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<string>('default');
+
   // Editable States
   const [products, setProducts] = useState<PerfumeProduct[]>(siteConfig.products);
   const [banners, setBanners] = useState<EditorialBanner[]>(siteConfig.editorialBanners || []);
@@ -74,17 +87,20 @@ export default function AdminDashboardPage() {
   const [contactInfo, setContactInfo] = useState(siteConfig.contact);
   const [socialInfo, setSocialInfo] = useState(siteConfig.social);
 
-  // Supabase Sync State
+  // Supabase Sync State & Cloud Backups
   const [isSyncingSupabase, setIsSyncingSupabase] = useState(false);
+  const [cloudBackupState, setCloudBackupState] = useState<'idle' | 'saving' | 'restoring'>('idle');
+  const [hasCopiedSql, setHasCopiedSql] = useState(false);
 
   // Edit Product Modal State
   const [editingProduct, setEditingProduct] = useState<PerfumeProduct | null>(null);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [productSearch, setProductSearch] = useState('');
 
-  // Image Upload Ref for direct file selection
+  // Image & JSON File Upload Refs
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bannerFileInputRef = useRef<HTMLInputElement>(null);
+  const jsonFileInputRef = useRef<HTMLInputElement>(null);
   const [activeBannerIndexForUpload, setActiveBannerIndexForUpload] = useState<number | null>(null);
 
   // Global Feedback Message
@@ -262,6 +278,110 @@ export default function AdminDashboardPage() {
     }
   };
 
+  // SQL Schema for Supabase Quick Copy
+  const SQL_SCHEMA_TEXT = `-- ==============================================================================
+-- MG PERFUME - SUPABASE DATABASE SCHEMA & POLICIES
+-- ==============================================================================
+
+CREATE TABLE IF NOT EXISTS public.products (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  brand TEXT NOT NULL DEFAULT 'MG Perfume',
+  tagline TEXT,
+  price NUMERIC NOT NULL,
+  original_price NUMERIC,
+  volume TEXT NOT NULL DEFAULT '100 ml',
+  image TEXT NOT NULL,
+  family TEXT NOT NULL DEFAULT 'oriental',
+  category_label TEXT DEFAULT 'Eau de Parfum',
+  badge TEXT,
+  top_notes TEXT[] DEFAULT '{}',
+  heart_notes TEXT[] DEFAULT '{}',
+  base_notes TEXT[] DEFAULT '{}',
+  description TEXT,
+  is_popular BOOLEAN DEFAULT false,
+  in_stock BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.editorial_banners (
+  id TEXT PRIMARY KEY,
+  tag TEXT NOT NULL,
+  title TEXT NOT NULL,
+  image TEXT NOT NULL,
+  alt TEXT NOT NULL DEFAULT 'Bannière MG Perfume',
+  link_text TEXT NOT NULL DEFAULT 'Découvrir',
+  href TEXT NOT NULL DEFAULT '/boutique',
+  bg_color TEXT NOT NULL DEFAULT '#171513',
+  object_position TEXT NOT NULL DEFAULT 'center',
+  display_order INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.shipping_zones (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  delay TEXT NOT NULL,
+  price NUMERIC NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.faqs (
+  id TEXT PRIMARY KEY,
+  q TEXT NOT NULL,
+  a TEXT NOT NULL,
+  display_order INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.site_backups (
+  id TEXT PRIMARY KEY DEFAULT 'latest',
+  backup_name TEXT NOT NULL DEFAULT 'Configuration Globale',
+  products_data JSONB NOT NULL DEFAULT '[]'::jsonb,
+  banners_data JSONB NOT NULL DEFAULT '[]'::jsonb,
+  shipping_data JSONB NOT NULL DEFAULT '[]'::jsonb,
+  faqs_data JSONB NOT NULL DEFAULT '[]'::jsonb,
+  contact_data JSONB NOT NULL DEFAULT '{}'::jsonb,
+  social_data JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.editorial_banners ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.shipping_zones ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.faqs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.site_backups ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Public read products" ON public.products FOR SELECT USING (true);
+CREATE POLICY "Full access products" ON public.products FOR ALL USING (true);
+
+CREATE POLICY "Public read banners" ON public.editorial_banners FOR SELECT USING (true);
+CREATE POLICY "Full access banners" ON public.editorial_banners FOR ALL USING (true);
+
+CREATE POLICY "Public read shipping" ON public.shipping_zones FOR SELECT USING (true);
+CREATE POLICY "Full access shipping" ON public.shipping_zones FOR ALL USING (true);
+
+CREATE POLICY "Public read faqs" ON public.faqs FOR SELECT USING (true);
+CREATE POLICY "Full access faqs" ON public.faqs FOR ALL USING (true);
+
+CREATE POLICY "Public read backups" ON public.site_backups FOR SELECT USING (true);
+CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
+
+INSERT INTO public.site_backups (id, backup_name) 
+VALUES ('latest', 'Backup Initial') 
+ON CONFLICT (id) DO NOTHING;`;
+
+  // Copy SQL to Clipboard
+  const handleCopySql = () => {
+    navigator.clipboard.writeText(SQL_SCHEMA_TEXT);
+    setHasCopiedSql(true);
+    showFeedback('Code SQL copié dans le presse-papier !');
+    setTimeout(() => setHasCopiedSql(false), 3000);
+  };
+
   // Sync to Supabase Cloud
   const handleSyncSupabase = async () => {
     if (!supabase) {
@@ -271,7 +391,6 @@ export default function AdminDashboardPage() {
 
     setIsSyncingSupabase(true);
     try {
-      // Upsert products table
       const { error: prodError } = await supabase
         .from('products')
         .upsert(products, { onConflict: 'id' });
@@ -286,10 +405,150 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const filteredProducts = products.filter(p => 
-    p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
-    (p.brand && p.brand.toLowerCase().includes(productSearch.toLowerCase()))
-  );
+  // Save Cloud Snapshot into Supabase
+  const handleSaveCloudSnapshot = async () => {
+    if (!supabase) {
+      alert('Supabase n’est pas configuré.');
+      return;
+    }
+    setCloudBackupState('saving');
+    try {
+      const snapshot = {
+        id: 'latest',
+        backup_name: `Sauvegarde du ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}`,
+        products_data: products,
+        banners_data: banners,
+        shipping_data: shippingZones,
+        faqs_data: faqs,
+        contact_data: contactInfo,
+        social_data: socialInfo,
+        updated_at: new Date().toISOString()
+      };
+      const { error } = await supabase.from('site_backups').upsert(snapshot, { onConflict: 'id' });
+      if (error) throw error;
+      showFeedback('Snapshot complet enregistré dans Supabase Cloud !');
+    } catch (err: any) {
+      alert('Erreur lors de l’enregistrement Cloud : ' + (err.message || err));
+    } finally {
+      setCloudBackupState('idle');
+    }
+  };
+
+  // Restore Cloud Snapshot from Supabase
+  const handleRestoreCloudSnapshot = async () => {
+    if (!supabase) {
+      alert('Supabase n’est pas configuré.');
+      return;
+    }
+    if (!confirm('Attention : Voulez-vous restaurer le catalogue et les réglages depuis le dernier snapshot Supabase Cloud ?')) {
+      return;
+    }
+    setCloudBackupState('restoring');
+    try {
+      const { data, error } = await supabase.from('site_backups').select('*').eq('id', 'latest').single();
+      if (error) throw error;
+      if (data) {
+        if (data.products_data && Array.isArray(data.products_data)) setProducts(data.products_data);
+        if (data.banners_data && Array.isArray(data.banners_data)) setBanners(data.banners_data);
+        if (data.shipping_data && Array.isArray(data.shipping_data)) setShippingZones(data.shipping_data);
+        if (data.faqs_data && Array.isArray(data.faqs_data)) setFaqs(data.faqs_data);
+        if (data.contact_data) setContactInfo(data.contact_data);
+        if (data.social_data) setSocialInfo(data.social_data);
+        setHasUnsavedChanges(false);
+        showFeedback('Configuration restaurée depuis Supabase Cloud !');
+      }
+    } catch (err: any) {
+      alert('Erreur lors de la restauration Cloud : ' + (err.message || err));
+    } finally {
+      setCloudBackupState('idle');
+    }
+  };
+
+  // Full JSON File Export
+  const handleExportJsonBackup = () => {
+    const backupData = {
+      app: 'MG Perfume',
+      exportedAt: new Date().toISOString(),
+      products,
+      banners,
+      shippingZones,
+      faqs,
+      contact: contactInfo,
+      social: socialInfo,
+    };
+    const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `mgperfume_backup_${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showFeedback('Fichier de sauvegarde JSON exporté !');
+  };
+
+  // Full JSON File Import
+  const handleImportJsonBackup = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const parsed = JSON.parse(event.target?.result as string);
+        if (parsed.products && Array.isArray(parsed.products)) {
+          setProducts(parsed.products);
+          if (parsed.banners && Array.isArray(parsed.banners)) setBanners(parsed.banners);
+          if (parsed.shippingZones && Array.isArray(parsed.shippingZones)) setShippingZones(parsed.shippingZones);
+          if (parsed.faqs && Array.isArray(parsed.faqs)) setFaqs(parsed.faqs);
+          if (parsed.contact) setContactInfo(parsed.contact);
+          if (parsed.social) setSocialInfo(parsed.social);
+          setHasUnsavedChanges(true);
+          showFeedback('Sauvegarde JSON importée avec succès !');
+        } else {
+          alert('Fichier de sauvegarde invalide : tableau de parfums manquant.');
+        }
+      } catch (err: any) {
+        alert('Erreur lors de la lecture du fichier JSON : ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+    if (e.target) e.target.value = '';
+  };
+
+  // Extract unique brands from products
+  const uniqueBrands = Array.from(new Set(products.map(p => p.brand || 'MG Perfume').filter(Boolean)));
+
+  // Filtered & Sorted Products
+  const filteredProducts = products
+    .filter(p => {
+      // Text search
+      const matchesSearch = 
+        p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
+        (p.brand && p.brand.toLowerCase().includes(productSearch.toLowerCase())) ||
+        (p.tagline && p.tagline.toLowerCase().includes(productSearch.toLowerCase()));
+      if (!matchesSearch) return false;
+
+      // Family filter
+      if (filterFamily !== 'all' && p.family !== filterFamily) return false;
+
+      // Brand filter
+      if (filterBrand !== 'all' && p.brand !== filterBrand) return false;
+
+      // Status filter
+      if (filterStatus === 'promo' && !p.originalPrice) return false;
+      if (filterStatus === 'badge' && !p.badge) return false;
+      if (filterStatus === 'popular' && !p.isPopular) return false;
+
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'price-asc') return a.price - b.price;
+      if (sortBy === 'price-desc') return b.price - a.price;
+      if (sortBy === 'name-asc') return a.name.localeCompare(b.name);
+      if (sortBy === 'name-desc') return b.name.localeCompare(a.name);
+      return 0;
+    });
 
   // ----------------------------------------------------
   // LOGIN SCREEN (White default or Dark with @mgperfume.store)
@@ -739,16 +998,122 @@ export default function AdminDashboardPage() {
           {/* ============================================================ */}
           {activeTab === 'products' && (
             <div className="space-y-6">
-              {/* Search bar inside admin */}
-              <div className="relative">
-                <Search className="w-4 h-4 opacity-50 absolute left-4 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  placeholder="Rechercher un parfum dans l'administration (Lattafa, Afnan, etc.)..."
-                  value={productSearch}
-                  onChange={e => setProductSearch(e.target.value)}
-                  className={`w-full pl-11 pr-4 py-2.5 rounded-2xl border text-xs focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
-                />
+              {/* Search bar & Advanced Filters Bar */}
+              <div className={`p-4 rounded-3xl border space-y-3 ${cardBgClass}`}>
+                <div className="relative">
+                  <Search className="w-4 h-4 opacity-50 absolute left-4 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    placeholder="Rechercher par nom, maison (Lattafa, Afnan...), ou description..."
+                    value={productSearch}
+                    onChange={e => setProductSearch(e.target.value)}
+                    className={`w-full pl-11 pr-4 py-2.5 rounded-2xl border text-xs focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
+                  />
+                  {productSearch && (
+                    <button
+                      onClick={() => setProductSearch('')}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs opacity-50 hover:opacity-100"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Filter Dropdowns Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                  {/* Family Filter */}
+                  <div>
+                    <label className="text-[10px] font-bold text-[#967120] uppercase tracking-wider block mb-1">
+                      Famille Olfactive
+                    </label>
+                    <select
+                      value={filterFamily}
+                      onChange={e => setFilterFamily(e.target.value)}
+                      className={`w-full px-3 py-2 rounded-xl border text-xs focus:outline-none focus:border-[#C59B3F] capitalize ${inputBg}`}
+                    >
+                      <option value="all">Toutes les familles</option>
+                      <option value="oriental">Oriental</option>
+                      <option value="boise">Boisé</option>
+                      <option value="gourmand">Gourmand</option>
+                      <option value="floral">Floral</option>
+                      <option value="aquatique">Aquatique / Frais</option>
+                    </select>
+                  </div>
+
+                  {/* Brand Filter */}
+                  <div>
+                    <label className="text-[10px] font-bold text-[#967120] uppercase tracking-wider block mb-1">
+                      Maison / Marque
+                    </label>
+                    <select
+                      value={filterBrand}
+                      onChange={e => setFilterBrand(e.target.value)}
+                      className={`w-full px-3 py-2 rounded-xl border text-xs focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
+                    >
+                      <option value="all">Toutes les maisons</option>
+                      {uniqueBrands.map(b => (
+                        <option key={b} value={b}>{b}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Status / Badge Filter */}
+                  <div>
+                    <label className="text-[10px] font-bold text-[#967120] uppercase tracking-wider block mb-1">
+                      Statut / Promo
+                    </label>
+                    <select
+                      value={filterStatus}
+                      onChange={e => setFilterStatus(e.target.value)}
+                      className={`w-full px-3 py-2 rounded-xl border text-xs focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
+                    >
+                      <option value="all">Tous les statuts</option>
+                      <option value="promo">En promotion (Prix barré)</option>
+                      <option value="badge">Avec Badge</option>
+                      <option value="popular">Produit Vedette</option>
+                    </select>
+                  </div>
+
+                  {/* Sort By */}
+                  <div>
+                    <label className="text-[10px] font-bold text-[#967120] uppercase tracking-wider block mb-1">
+                      Trier par
+                    </label>
+                    <select
+                      value={sortBy}
+                      onChange={e => setSortBy(e.target.value)}
+                      className={`w-full px-3 py-2 rounded-xl border text-xs focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
+                    >
+                      <option value="default">Ordre par défaut</option>
+                      <option value="price-asc">Prix : Croissant</option>
+                      <option value="price-desc">Prix : Décroissant</option>
+                      <option value="name-asc">Nom : A à Z</option>
+                      <option value="name-desc">Nom : Z à A</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Filter Results Summary & Reset */}
+                <div className="flex items-center justify-between pt-2 border-t border-[#E8DCC2]/60 text-[11px]">
+                  <span className="opacity-70">
+                    Affichage de <strong className="text-[#967120]">{filteredProducts.length}</strong> sur <strong>{products.length}</strong> parfums
+                  </span>
+
+                  {(filterFamily !== 'all' || filterBrand !== 'all' || filterStatus !== 'all' || sortBy !== 'default' || productSearch) && (
+                    <button
+                      onClick={() => {
+                        setFilterFamily('all');
+                        setFilterBrand('all');
+                        setFilterStatus('all');
+                        setSortBy('default');
+                        setProductSearch('');
+                      }}
+                      className="text-[#967120] hover:underline font-bold"
+                    >
+                      Réinitialiser les filtres
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* PRODUCTS: CARDS VIEW */}
@@ -1279,61 +1644,169 @@ export default function AdminDashboardPage() {
           )}
 
           {/* ============================================================ */}
-          {/* TAB 6: SUPABASE CLOUD SYNC */}
+          {/* TAB 6: SUPABASE CLOUD & SAUVEGARDES */}
           {/* ============================================================ */}
           {activeTab === 'supabase' && (
-            <div className={`rounded-3xl p-6 border space-y-6 ${cardBgClass}`}>
+            <div className={`rounded-3xl p-6 border space-y-8 ${cardBgClass}`}>
               <div>
-                <h2 className="font-luxury text-xl font-bold flex items-center gap-2">
+                <h2 className="font-luxury text-xl sm:text-2xl font-bold flex items-center gap-2">
                   <Database className="w-5 h-5 text-[#3ECF8E]" />
-                  Configuration & Synchronisation Supabase Cloud
+                  Supabase Cloud & Sauvegardes Intégrales
                 </h2>
-                <p className="text-xs opacity-75">
-                  Connectez votre base de données PostgreSQL Supabase pour une persistance 100% en temps réel.
+                <p className="text-xs opacity-75 mt-1">
+                  Gérez la persistance dans le cloud Supabase PostgreSQL, effectuez des snapshots instantanés ou exportez/importez vos données en fichier JSON.
                 </p>
               </div>
 
-              <div className={`p-4 rounded-2xl border space-y-3 ${subCardBg}`}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 font-bold text-xs">
-                    <span className={`w-2.5 h-2.5 rounded-full ${isSupabaseConfigured ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
-                    <span>Statut Supabase : {isSupabaseConfigured ? 'Connecté & Prêt' : 'En attente de clés .env'}</span>
+              {/* Status & Quick SQL Setup */}
+              <div className={`p-5 rounded-2xl border space-y-4 ${subCardBg}`}>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E8DCC2]/60">
+                  <div className="flex items-center gap-2.5 font-bold text-xs">
+                    <span className={`w-3 h-3 rounded-full ${isSupabaseConfigured ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
+                    <span>Statut Connexion Supabase : {isSupabaseConfigured ? 'Connecté & Opérationnel' : 'Identifiants en attente'}</span>
                   </div>
+
+                  <a 
+                    href="https://supabase.com/dashboard/project/xnmolqmcfnjvcblizahu/sql/new"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#3ECF8E] hover:underline"
+                  >
+                    <span>Ouvrir l’Éditeur SQL Supabase</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
                 </div>
 
-                <p className="text-xs opacity-75 leading-relaxed">
-                  Pour relier votre projet Supabase, ajoutez simplement vos identifiants dans votre fichier <code>.env.local</code> :
-                </p>
-
-                <pre className="p-3 rounded-xl bg-black text-[#3ECF8E] text-[11px] font-mono overflow-x-auto">
-                  NEXT_PUBLIC_SUPABASE_URL=https://votre-projet.supabase.co{'\n'}
-                  NEXT_PUBLIC_SUPABASE_ANON_KEY=votre_cle_anon_publique
-                </pre>
+                <div className="space-y-2">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#967120]">
+                    Étape 1 : Création des tables dans Supabase (1 clic)
+                  </h3>
+                  <p className="text-xs opacity-80 leading-relaxed">
+                    Si vos tables ne sont pas encore créées sur votre projet Supabase (<code>xnmolqmcfnjvcblizahu</code>), copiez le script SQL ci-dessous, collez-le dans votre <strong>SQL Editor</strong> Supabase et cliquez sur <strong>Run</strong> :
+                  </p>
+                  
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    <button
+                      onClick={handleCopySql}
+                      className="px-4 py-2 rounded-xl bg-[#171513] hover:bg-[#C59B3F] text-white text-xs font-bold flex items-center gap-2 transition-all shadow-xs"
+                    >
+                      {hasCopiedSql ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-[#C59B3F]" />}
+                      <span>{hasCopiedSql ? 'Code SQL Copié !' : 'Copier tout le Script SQL'}</span>
+                    </button>
+                    
+                    <span className="text-[11px] opacity-60">
+                      Inclut les tables <code>products</code>, <code>editorial_banners</code>, <code>shipping_zones</code>, <code>faqs</code>, et <code>site_backups</code> avec politiques RLS.
+                    </span>
+                  </div>
+                </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
-                <p className="text-xs opacity-70">
-                  Transférez vos {products.length} parfums actuels vers la base Supabase Cloud en un clic.
-                </p>
-
-                <button
-                  onClick={handleSyncSupabase}
-                  disabled={isSyncingSupabase}
-                  className="px-6 py-3 rounded-full bg-[#3ECF8E] hover:bg-[#34b27b] text-black font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-md transition-all disabled:opacity-50"
-                >
-                  {isSyncingSupabase ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 animate-spin" />
-                      <span>Synchronisation en cours...</span>
-                    </>
-                  ) : (
-                    <>
+              {/* Cloud Snapshot Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                {/* Save Cloud Snapshot */}
+                <div className={`p-5 rounded-2xl border flex flex-col justify-between space-y-4 ${subCardBg}`}>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-[#3ECF8E] font-bold text-sm">
                       <CloudUpload className="w-4 h-4" />
-                      <span>Synchroniser avec Supabase</span>
-                    </>
-                  )}
-                </button>
+                      <h4>Sauvegarde Snapshot Cloud (Supabase)</h4>
+                    </div>
+                    <p className="text-xs opacity-75 leading-relaxed">
+                      Enregistre une capture intégrale et instantanée de tous vos parfums ({products.length}), bannières, tarifs de livraison, FAQ et coordonnées dans la base Supabase Cloud.
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={handleSaveCloudSnapshot}
+                    disabled={cloudBackupState !== 'idle'}
+                    className="w-full py-3 rounded-xl bg-[#3ECF8E] hover:bg-[#34b27b] text-black font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all disabled:opacity-50 shadow-xs"
+                  >
+                    {cloudBackupState === 'saving' ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        <span>Enregistrement Cloud...</span>
+                      </>
+                    ) : (
+                      <>
+                        <CloudUpload className="w-4 h-4" />
+                        <span>Sauvegarder Snapshot Cloud</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Restore Cloud Snapshot */}
+                <div className={`p-5 rounded-2xl border flex flex-col justify-between space-y-4 ${subCardBg}`}>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-[#C59B3F] font-bold text-sm">
+                      <FolderSync className="w-4 h-4" />
+                      <h4>Restaurer Snapshot Cloud (Supabase)</h4>
+                    </div>
+                    <p className="text-xs opacity-75 leading-relaxed">
+                      Restaure l'ensemble de votre boutique en rechargeant le dernier snapshot stocké sur Supabase Cloud.
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={handleRestoreCloudSnapshot}
+                    disabled={cloudBackupState !== 'idle'}
+                    className="w-full py-3 rounded-xl bg-[#171513] hover:bg-[#C59B3F] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all disabled:opacity-50 shadow-xs"
+                  >
+                    {cloudBackupState === 'restoring' ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        <span>Restauration en cours...</span>
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="w-4 h-4 text-[#C59B3F]" />
+                        <span>Restaurer depuis Supabase Cloud</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
               </div>
+
+              {/* Local JSON Export & Import Section */}
+              <div className={`p-5 rounded-2xl border space-y-4 ${subCardBg}`}>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 font-bold text-sm">
+                    <FileJson className="w-4 h-4 text-[#C59B3F]" />
+                    <h4>Fichiers de Sauvegarde Autonomes (Export / Import JSON)</h4>
+                  </div>
+                  <p className="text-xs opacity-75">
+                    Téléchargez une copie physique complète sur votre appareil ou restaurez une ancienne sauvegarde à tout moment sans dépendre du réseau.
+                  </p>
+                </div>
+
+                <input
+                  type="file"
+                  ref={jsonFileInputRef}
+                  onChange={handleImportJsonBackup}
+                  accept=".json,application/json"
+                  className="hidden"
+                />
+
+                <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+                  <button
+                    onClick={handleExportJsonBackup}
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-full bg-[#171513] hover:bg-[#C59B3F] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xs"
+                  >
+                    <Download className="w-4 h-4 text-[#C59B3F]" />
+                    <span>Télécharger Sauvegarde (.json)</span>
+                  </button>
+
+                  <button
+                    onClick={() => jsonFileInputRef.current?.click()}
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-full border border-[#E8DCC2] hover:bg-black/5 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all"
+                  >
+                    <Upload className="w-4 h-4 text-[#967120]" />
+                    <span>Importer un fichier (.json)</span>
+                  </button>
+                </div>
+              </div>
+
             </div>
           )}
 

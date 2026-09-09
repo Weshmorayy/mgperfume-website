@@ -1,29 +1,27 @@
 -- ==============================================================================
 -- MG PERFUME - SUPABASE DATABASE SCHEMA & POLICIES
--- Cloud Persistence for Products, Banners, FAQs, Shipping & Settings
+-- Tables & RLS Policies for Products, Banners, Shipping, FAQs, Settings & JSON Backups
 -- ==============================================================================
 
 -- 1. Table: Products (Catalogue de Parfums)
 CREATE TABLE IF NOT EXISTS public.products (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
-  brand TEXT NOT NULL,
-  category TEXT NOT NULL DEFAULT 'oriental',
-  gender TEXT NOT NULL DEFAULT 'unisex',
-  volume TEXT NOT NULL DEFAULT '100ml',
-  concentration TEXT NOT NULL DEFAULT 'Eau de Parfum',
+  brand TEXT NOT NULL DEFAULT 'MG Perfume',
+  tagline TEXT,
   price NUMERIC NOT NULL,
   original_price NUMERIC,
-  stock INTEGER NOT NULL DEFAULT 10,
-  in_stock BOOLEAN NOT NULL DEFAULT true,
-  is_featured BOOLEAN NOT NULL DEFAULT false,
-  is_best_seller BOOLEAN NOT NULL DEFAULT false,
-  is_new BOOLEAN NOT NULL DEFAULT false,
-  is_on_sale BOOLEAN NOT NULL DEFAULT false,
+  volume TEXT NOT NULL DEFAULT '100 ml',
   image TEXT NOT NULL,
-  description TEXT NOT NULL,
-  olfactory_pyramid JSONB NOT NULL DEFAULT '{"top": [], "heart": [], "base": []}'::jsonb,
-  tags TEXT[] DEFAULT '{}',
+  family TEXT NOT NULL DEFAULT 'oriental',
+  category_label TEXT DEFAULT 'Eau de Parfum',
+  badge TEXT,
+  top_notes TEXT[] DEFAULT '{}',
+  heart_notes TEXT[] DEFAULT '{}',
+  base_notes TEXT[] DEFAULT '{}',
+  description TEXT,
+  is_popular BOOLEAN DEFAULT false,
+  in_stock BOOLEAN DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -31,16 +29,15 @@ CREATE TABLE IF NOT EXISTS public.products (
 -- 2. Table: Editorial Banners (Bannières Shooting & Accueil - Max 6)
 CREATE TABLE IF NOT EXISTS public.editorial_banners (
   id TEXT PRIMARY KEY,
-  title TEXT NOT NULL,
-  subtitle TEXT NOT NULL,
   tag TEXT NOT NULL,
+  title TEXT NOT NULL,
   image TEXT NOT NULL,
+  alt TEXT NOT NULL DEFAULT 'Bannière MG Perfume',
+  link_text TEXT NOT NULL DEFAULT 'Découvrir',
+  href TEXT NOT NULL DEFAULT '/boutique',
+  bg_color TEXT NOT NULL DEFAULT '#171513',
   object_position TEXT NOT NULL DEFAULT 'center',
-  accent_text TEXT NOT NULL,
-  button_text TEXT NOT NULL DEFAULT 'Commander sur WhatsApp',
-  link_url TEXT,
-  display_order INTEGER NOT NULL DEFAULT 0,
-  is_active BOOLEAN NOT NULL DEFAULT true,
+  display_order INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -51,34 +48,29 @@ CREATE TABLE IF NOT EXISTS public.shipping_zones (
   name TEXT NOT NULL,
   delay TEXT NOT NULL,
   price NUMERIC NOT NULL,
-  free_above NUMERIC,
-  is_active BOOLEAN NOT NULL DEFAULT true,
-  display_order INTEGER NOT NULL DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- 4. Table: FAQs (Foire Aux Questions)
 CREATE TABLE IF NOT EXISTS public.faqs (
   id TEXT PRIMARY KEY,
-  question TEXT NOT NULL,
-  answer TEXT NOT NULL,
-  category TEXT NOT NULL DEFAULT 'general',
-  display_order INTEGER NOT NULL DEFAULT 0,
-  is_active BOOLEAN NOT NULL DEFAULT true,
+  q TEXT NOT NULL,
+  a TEXT NOT NULL,
+  display_order INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 5. Table: Site Settings (Coordonnées, Horaires, Réseaux)
-CREATE TABLE IF NOT EXISTS public.site_settings (
-  id TEXT PRIMARY KEY DEFAULT 'main',
-  phone TEXT NOT NULL,
-  whatsapp TEXT NOT NULL,
-  email TEXT NOT NULL,
-  address TEXT NOT NULL,
-  hours TEXT NOT NULL,
-  instagram TEXT,
-  tiktok TEXT,
-  free_shipping_threshold NUMERIC DEFAULT 60000,
+-- 5. Table: Site Settings & Backups (Export/Import & JSON snapshot)
+CREATE TABLE IF NOT EXISTS public.site_backups (
+  id TEXT PRIMARY KEY DEFAULT 'latest',
+  backup_name TEXT NOT NULL DEFAULT 'Configuration Globale',
+  products_data JSONB NOT NULL DEFAULT '[]'::jsonb,
+  banners_data JSONB NOT NULL DEFAULT '[]'::jsonb,
+  shipping_data JSONB NOT NULL DEFAULT '[]'::jsonb,
+  faqs_data JSONB NOT NULL DEFAULT '[]'::jsonb,
+  contact_data JSONB NOT NULL DEFAULT '{}'::jsonb,
+  social_data JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -89,18 +81,25 @@ ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.editorial_banners ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.shipping_zones ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.faqs ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.site_backups ENABLE ROW LEVEL SECURITY;
 
--- Public READ (for the static Next.js website & client browsing)
-CREATE POLICY "Allow public read on products" ON public.products FOR SELECT USING (true);
-CREATE POLICY "Allow public read on banners" ON public.editorial_banners FOR SELECT USING (true);
-CREATE POLICY "Allow public read on shipping" ON public.shipping_zones FOR SELECT USING (true);
-CREATE POLICY "Allow public read on faqs" ON public.faqs FOR SELECT USING (true);
-CREATE POLICY "Allow public read on settings" ON public.site_settings FOR SELECT USING (true);
+-- Allow Public Read & Full Write Access with anon key & service key
+CREATE POLICY "Public read products" ON public.products FOR SELECT USING (true);
+CREATE POLICY "Full access products" ON public.products FOR ALL USING (true);
 
--- Authenticated / Admin WRITE (Insert, Update, Delete)
-CREATE POLICY "Allow full access to anon/service" ON public.products FOR ALL USING (true);
-CREATE POLICY "Allow full access to anon/service banners" ON public.editorial_banners FOR ALL USING (true);
-CREATE POLICY "Allow full access to anon/service shipping" ON public.shipping_zones FOR ALL USING (true);
-CREATE POLICY "Allow full access to anon/service faqs" ON public.faqs FOR ALL USING (true);
-CREATE POLICY "Allow full access to anon/service settings" ON public.site_settings FOR ALL USING (true);
+CREATE POLICY "Public read banners" ON public.editorial_banners FOR SELECT USING (true);
+CREATE POLICY "Full access banners" ON public.editorial_banners FOR ALL USING (true);
+
+CREATE POLICY "Public read shipping" ON public.shipping_zones FOR SELECT USING (true);
+CREATE POLICY "Full access shipping" ON public.shipping_zones FOR ALL USING (true);
+
+CREATE POLICY "Public read faqs" ON public.faqs FOR SELECT USING (true);
+CREATE POLICY "Full access faqs" ON public.faqs FOR ALL USING (true);
+
+CREATE POLICY "Public read backups" ON public.site_backups FOR SELECT USING (true);
+CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
+
+-- Insert default initial backup row
+INSERT INTO public.site_backups (id, backup_name) 
+VALUES ('latest', 'Backup Initial') 
+ON CONFLICT (id) DO NOTHING;
