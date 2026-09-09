@@ -128,23 +128,19 @@ export default function AdminDashboardPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    const cleanEmail = adminEmail.trim().toLowerCase();
+    const cleanLogin = adminEmail.trim().toLowerCase();
     const cleanPass = adminPassword.trim();
 
-    // Required domain: @mgperfume.store (or admin)
-    const isStoreEmail = cleanEmail.endsWith('@mgperfume.store') || cleanEmail === 'admin';
-    const isCorrectPassword = cleanPass === 'MGPerfume@2026!' || cleanPass === 'DakarParfum2026' || cleanPass === '2026';
+    // Single secure admin account
+    const ADMIN_LOGIN = 'admin';
+    const ADMIN_PASSWORD = 'MG@D4k4r-Parfum!2026';
 
-    if (isStoreEmail && isCorrectPassword) {
+    if (cleanLogin === ADMIN_LOGIN && cleanPass === ADMIN_PASSWORD) {
       setIsAuthenticated(true);
       sessionStorage.setItem('mg_admin_auth', 'true');
       setAuthError('');
     } else {
-      if (!isStoreEmail) {
-        setAuthError('Veuillez utiliser votre adresse officielle avec l’extension @mgperfume.store (ex: contact@mgperfume.store).');
-      } else {
-        setAuthError('Mot de passe incorrect.');
-      }
+      setAuthError('Identifiants incorrects. Veuillez réessayer.');
     }
   };
 
@@ -574,14 +570,14 @@ ON CONFLICT (id) DO NOTHING;`;
               Administration
             </h1>
             <p className="text-xs text-[#6B655E]">
-              MG Perfume • Authentification <strong>@mgperfume.store</strong>
+              MG Perfume — Accès sécurisé
             </p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4 text-left">
             <div>
               <label className="text-[11px] font-bold text-[#967120] uppercase tracking-wider block mb-1.5">
-                Email Professionnel (@mgperfume.store)
+                Identifiant
               </label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-[#9E968D] absolute left-4 top-1/2 -translate-y-1/2" />
@@ -589,7 +585,7 @@ ON CONFLICT (id) DO NOTHING;`;
                   type="text"
                   value={adminEmail}
                   onChange={e => setAdminEmail(e.target.value)}
-                  placeholder="contact@mgperfume.store (ou admin)"
+                  placeholder="Votre identifiant"
                   className="w-full pl-11 pr-4 py-3 rounded-2xl bg-[#FAF8F5] border border-[#E8DCC2] text-[#171513] placeholder-[#9E968D] text-xs focus:outline-none focus:border-[#C59B3F] focus:bg-white transition-all"
                   autoFocus
                 />
@@ -598,7 +594,7 @@ ON CONFLICT (id) DO NOTHING;`;
 
             <div>
               <label className="text-[11px] font-bold text-[#967120] uppercase tracking-wider block mb-1.5">
-                Mot de Passe Sécurisé
+                Mot de Passe
               </label>
               <div className="relative">
                 <KeyRound className="w-4 h-4 text-[#9E968D] absolute left-4 top-1/2 -translate-y-1/2" />
@@ -610,9 +606,6 @@ ON CONFLICT (id) DO NOTHING;`;
                   className="w-full pl-11 pr-4 py-3 rounded-2xl bg-[#FAF8F5] border border-[#E8DCC2] text-[#171513] placeholder-[#9E968D] text-xs focus:outline-none focus:border-[#C59B3F] focus:bg-white transition-all"
                 />
               </div>
-              <p className="text-[10px] text-[#9E968D] mt-1">
-                Accès de démonstration : <strong>admin</strong> / <strong>2026</strong> ou <strong>MGPerfume@2026!</strong>
-              </p>
             </div>
 
             {authError && (
@@ -627,7 +620,7 @@ ON CONFLICT (id) DO NOTHING;`;
               className="w-full py-3.5 rounded-full bg-[#171513] hover:bg-[#C59B3F] text-white font-bold text-xs uppercase tracking-widest transition-all shadow-md flex items-center justify-center gap-2"
             >
               <Lock className="w-4 h-4" />
-              <span>Connexion au Dashboard</span>
+              <span>Accéder au Dashboard</span>
             </button>
           </form>
 
@@ -1570,13 +1563,13 @@ ON CONFLICT (id) DO NOTHING;`;
           {/* ============================================================ */}
           {activeTab === 'faq' && (
             <div className={`rounded-3xl p-6 border space-y-6 ${cardBgClass}`}>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <h2 className="font-luxury text-xl font-bold flex items-center gap-2">
                     <HelpCircle className="w-5 h-5 text-[#C59B3F]" />
                     Foire Aux Questions (FAQ)
                   </h2>
-                  <p className="text-xs opacity-75">Modifiez ou ajoutez des questions fréquentes pour vos clients.</p>
+                  <p className="text-xs opacity-75 mt-0.5">Modifiez ou ajoutez des questions fréquentes pour vos clients.</p>
                 </div>
 
                 <button
@@ -1584,7 +1577,7 @@ ON CONFLICT (id) DO NOTHING;`;
                     setFaqs(prev => [...prev, { q: 'Nouvelle Question ?', a: 'Réponse détaillée ici...' }]);
                     setHasUnsavedChanges(true);
                   }}
-                  className="px-3.5 py-1.5 rounded-full bg-[#171513] hover:bg-[#C59B3F] text-white text-xs font-bold transition-colors flex items-center gap-1.5"
+                  className="self-start sm:self-auto shrink-0 px-3.5 py-2 rounded-full bg-[#171513] hover:bg-[#C59B3F] text-white text-xs font-bold transition-colors flex items-center gap-1.5"
                 >
                   <Plus className="w-3.5 h-3.5 text-[#C59B3F]" />
                   <span>Ajouter une question</span>
