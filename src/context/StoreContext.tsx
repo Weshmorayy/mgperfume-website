@@ -34,27 +34,31 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   // Helper to normalize DB product to PerfumeProduct
-  const mapDbProduct = (row: any): PerfumeProduct => ({
-    id: row.id,
-    name: row.name,
-    brand: row.brand || 'MG Perfume',
-    tagline: row.tagline || '',
-    price: Number(row.price),
-    originalPrice: row.original_price ? Number(row.original_price) : undefined,
-    volume: row.volume || '100 ml',
-    image: row.image,
-    family: row.family || 'oriental',
-    categoryLabel: row.category_label || 'Eau de Parfum',
-    badge: row.badge || undefined,
-    topNotes: Array.isArray(row.top_notes) ? row.top_notes : [],
-    heartNotes: Array.isArray(row.heart_notes) ? row.heart_notes : [],
-    baseNotes: Array.isArray(row.base_notes) ? row.base_notes : [],
-    description: row.description || '',
-    isPopular: Boolean(row.is_popular),
-    isHero: Boolean(row.is_hero),
-  });
+  const mapDbProduct = (row: any): PerfumeProduct => {
+    const heroId = (() => { try { return localStorage.getItem('mg_hero_product_id'); } catch { return null; } })();
+    return {
+      id: row.id,
+      name: row.name,
+      brand: row.brand || 'MG Perfume',
+      tagline: row.tagline || '',
+      price: Number(row.price),
+      originalPrice: row.original_price ? Number(row.original_price) : undefined,
+      volume: row.volume || '100 ml',
+      image: row.image,
+      family: row.family || 'oriental',
+      categoryLabel: row.category_label || 'Eau de Parfum',
+      badge: row.badge || undefined,
+      topNotes: Array.isArray(row.top_notes) ? row.top_notes : [],
+      heartNotes: Array.isArray(row.heart_notes) ? row.heart_notes : [],
+      baseNotes: Array.isArray(row.base_notes) ? row.base_notes : [],
+      description: row.description || '',
+      isPopular: Boolean(row.is_popular),
+      isHero: heroId ? row.id === heroId : Boolean(row.is_hero),
+    };
+  };
 
   // Helper to format PerfumeProduct for DB
+  // NOTE: is_hero is NOT sent to DB (column may not exist) — tracked in localStorage
   const formatProductForDb = (p: PerfumeProduct) => ({
     id: p.id,
     name: p.name,
@@ -72,7 +76,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     base_notes: p.baseNotes || [],
     description: p.description || '',
     is_popular: Boolean(p.isPopular),
-    is_hero: Boolean(p.isHero),
   });
 
   // Load from LocalStorage Cache first, then fetch live from Supabase
@@ -196,20 +199,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Set Édition Phare (1 slot strict)
+  // Set Édition Phare (1 slot strict) — tracked in localStorage (DB column may not exist)
   const setHeroProduct = async (id: string) => {
     try {
-      const updatedProducts = products.map(p => ({
-        ...p,
-        isHero: p.id === id,
-      }));
-      setProducts(updatedProducts);
-
-      if (supabase) {
-        const dbPayloads = updatedProducts.map(formatProductForDb);
-        await supabase.from('products').upsert(dbPayloads, { onConflict: 'id' });
-      }
-
+      try { localStorage.setItem('mg_hero_product_id', id); } catch (_) {}
+      setProducts(prev => prev.map(p => ({ ...p, isHero: p.id === id })));
       return { success: true };
     } catch (err: any) {
       return { success: false, error: err.message };
