@@ -14,3 +14,8 @@ export const supabase = isSupabaseConfigured
   ? createClient(supabaseUrl, supabaseAnonKey)
   : null;
 
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+export const supabaseAdmin = (isSupabaseConfigured && serviceRoleKey)
+  ? createClient(supabaseUrl, serviceRoleKey)
+  : supabase;
+

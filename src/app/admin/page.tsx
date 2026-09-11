@@ -50,10 +50,14 @@ import {
   Award,
   Flame,
   Star,
-  Clock
+  Clock,
+  CreditCard,
+  MessageCircle,
+  ShoppingBag,
+  User,
 } from 'lucide-react';
 import { siteConfig } from '@/config/site';
-import { PerfumeProduct, EditorialBanner, ShippingZone, FAQItem, ScentFamily, SiteBackup } from '@/types';
+import { PerfumeProduct, EditorialBanner, ShippingZone, FAQItem, ScentFamily, SiteBackup, Order, OrderStatus, PaymentStatus } from '@/types';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { useStore } from '@/context/StoreContext';
 
@@ -67,10 +71,14 @@ export default function AdminDashboardPage() {
     social,
     heroProduct,
     selectionDuMoment,
+    orders,
     saveProduct,
     deleteProduct,
     setHeroProduct,
     toggleSelectionDuMoment,
+    saveOrder,
+    updateOrderStatus,
+    deleteOrder,
     refreshStore,
   } = useStore();
 
@@ -87,9 +95,15 @@ export default function AdminDashboardPage() {
   const [isNavDrawerOpen, setIsNavDrawerOpen] = useState(false);
 
   // Active Tab & Unsaved Changes Detection
-  const [activeTab, setActiveTab] = useState<'products' | 'promotions' | 'banners' | 'shipping' | 'faq' | 'supabase' | 'settings'>('products');
+  const [activeTab, setActiveTab] = useState<'orders' | 'products' | 'promotions' | 'banners' | 'shipping' | 'faq' | 'supabase' | 'settings'>('orders');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [pendingTabSwitch, setPendingTabSwitch] = useState<string | null>(null);
+
+  // Orders Management States
+  const [orderSearch, setOrderSearch] = useState('');
+  const [orderStatusFilter, setOrderStatusFilter] = useState<string>('all');
+  const [orderPaymentFilter, setOrderPaymentFilter] = useState<string>('all');
+  const [selectedOrderForView, setSelectedOrderForView] = useState<Order | null>(null);
 
   // Products View Mode: 'cards' or 'list'
   const [productsViewMode, setProductsViewMode] = useState<'cards' | 'list'>('cards');
@@ -464,7 +478,6 @@ export default function AdminDashboardPage() {
             base_notes: p.baseNotes || [],
             description: p.description || '',
             is_popular: Boolean(p.isPopular),
-            is_hero: Boolean(p.isHero),
           }));
           await supabase.from('products').upsert(formatted, { onConflict: 'id' });
         }
@@ -653,7 +666,6 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
               base_notes: p.baseNotes || [],
               description: p.description || '',
               is_popular: Boolean(p.isPopular),
-              is_hero: Boolean(p.isHero),
             }));
             await supabase.from('products').upsert(formatted, { onConflict: 'id' });
           }
@@ -901,6 +913,27 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                 {/* Drawer Tab Navigation Links */}
                 <nav className="py-6 space-y-2">
                   <button
+                    onClick={() => handleTabClick('orders')}
+                    className={`w-full flex items-center justify-between py-3 px-3.5 rounded-xl text-xs font-bold tracking-wide transition-colors ${
+                      activeTab === 'orders'
+                        ? 'bg-[#171513] text-white shadow-xs font-bold'
+                        : 'hover:bg-black/5'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <ShoppingBag className="w-4 h-4 text-[#C59B3F]" />
+                      <span>Commandes ({orders.length})</span>
+                    </div>
+                    {orders.filter(o => o.order_status === 'new').length > 0 ? (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500 text-white animate-pulse">
+                        {orders.filter(o => o.order_status === 'new').length} new
+                      </span>
+                    ) : (
+                      <ChevronRight className="w-3.5 h-3.5 opacity-60" />
+                    )}
+                  </button>
+
+                  <button
                     onClick={() => handleTabClick('products')}
                     className={`w-full flex items-center justify-between py-3 px-3.5 rounded-xl text-xs font-bold tracking-wide transition-colors ${
                       activeTab === 'products'
@@ -1087,6 +1120,7 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
               <span className="capitalize">{activeTab}</span>
             </div>
             <h1 className="font-luxury text-xl sm:text-2xl font-bold mt-0.5">
+              {activeTab === 'orders' && 'Commandes & Ventes (PayTech / WhatsApp)'}
               {activeTab === 'products' && 'Catalogue des Parfums Orientaux'}
               {activeTab === 'promotions' && 'Promotions & Badges'}
               {activeTab === 'banners' && 'Bannières de Shooting & Visuels'}
@@ -1144,6 +1178,333 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
         {/* Dynamic Content Body */}
         <main className="space-y-6">
           
+          {/* ============================================================ */}
+          {/* TAB 0: COMMANDES (PAYTECH & WHATSAPP) */}
+          {/* ============================================================ */}
+          {activeTab === 'orders' && (
+            <div className="space-y-6">
+              
+              {/* Financial & Volume Statistics Overview */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                <div className={`p-4 sm:p-5 rounded-2xl border ${cardBgClass} space-y-1`}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#9E968D]">Total Commandes</span>
+                    <ShoppingBag className="w-4 h-4 text-[#C59B3F]" />
+                  </div>
+                  <div className="text-xl sm:text-2xl font-extrabold text-[#171513]">
+                    {orders.length}
+                  </div>
+                  <p className="text-[10px] text-[#6B655E]">Toutes méthodes confondues</p>
+                </div>
+
+                <div className={`p-4 sm:p-5 rounded-2xl border ${cardBgClass} space-y-1`}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#9E968D]">Chiffre d’Affaires</span>
+                    <Sparkles className="w-4 h-4 text-[#C59B3F]" />
+                  </div>
+                  <div className="text-xl sm:text-2xl font-extrabold text-[#967120]">
+                    {orders
+                      .reduce((sum, o) => sum + (Number(o.total_amount) || 0), 0)
+                      .toLocaleString('fr-FR')}{' '}
+                    <span className="text-xs font-bold text-[#171513]">FCFA</span>
+                  </div>
+                  <p className="text-[10px] text-[#6B655E]">Valeur totale cumulée</p>
+                </div>
+
+                <div className={`p-4 sm:p-5 rounded-2xl border ${cardBgClass} space-y-1`}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#9E968D]">À Traiter</span>
+                    <Clock className="w-4 h-4 text-amber-500" />
+                  </div>
+                  <div className="text-xl sm:text-2xl font-extrabold text-amber-600">
+                    {orders.filter(o => o.order_status === 'new' || o.order_status === 'processing').length}
+                  </div>
+                  <p className="text-[10px] text-[#6B655E]">Nouvelles ou en préparation</p>
+                </div>
+
+                <div className={`p-4 sm:p-5 rounded-2xl border ${cardBgClass} space-y-1`}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#9E968D]">Paiements PayTech</span>
+                    <CreditCard className="w-4 h-4 text-emerald-600" />
+                  </div>
+                  <div className="text-xl sm:text-2xl font-extrabold text-emerald-700">
+                    {orders.filter(o => o.payment_method === 'paytech').length}
+                  </div>
+                  <p className="text-[10px] text-[#6B655E]">Wave • OM • Free • Carte</p>
+                </div>
+              </div>
+
+              {/* Filters & Search */}
+              <div className={`p-4 rounded-3xl border space-y-3 ${cardBgClass}`}>
+                <div className="relative">
+                  <Search className="w-4 h-4 opacity-50 absolute left-4 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    placeholder="Rechercher par référence (#MGP-...), nom du client, ou téléphone..."
+                    value={orderSearch}
+                    onChange={e => setOrderSearch(e.target.value)}
+                    className={`w-full pl-11 pr-4 py-2.5 rounded-2xl border text-xs focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
+                  />
+                  {orderSearch && (
+                    <button
+                      onClick={() => setOrderSearch('')}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs opacity-50 hover:opacity-100"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                  <div>
+                    <label className="text-[10px] font-bold text-[#967120] uppercase tracking-wider block mb-1">
+                      Statut de la commande
+                    </label>
+                    <select
+                      value={orderStatusFilter}
+                      onChange={e => setOrderStatusFilter(e.target.value)}
+                      className={`w-full px-3 py-2 rounded-xl border text-xs focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
+                    >
+                      <option value="all">Tous les statuts de livraison</option>
+                      <option value="new">Nouvelle commande</option>
+                      <option value="processing">En préparation</option>
+                      <option value="shipped">En cours de livraison</option>
+                      <option value="delivered">Livrée avec succès</option>
+                      <option value="cancelled">Annulée</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-bold text-[#967120] uppercase tracking-wider block mb-1">
+                      Méthode & Paiement
+                    </label>
+                    <select
+                      value={orderPaymentFilter}
+                      onChange={e => setOrderPaymentFilter(e.target.value)}
+                      className={`w-full px-3 py-2 rounded-xl border text-xs focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
+                    >
+                      <option value="all">Tous les modes de règlement</option>
+                      <option value="paytech">PayTech (Paiement en ligne)</option>
+                      <option value="whatsapp">WhatsApp (Paiement à la livraison)</option>
+                      <option value="paid">Payé</option>
+                      <option value="pending">En attente de paiement</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Orders List */}
+              {(() => {
+                const filteredOrders = orders.filter(o => {
+                  if (orderSearch) {
+                    const q = orderSearch.toLowerCase();
+                    const match =
+                      o.ref_command?.toLowerCase().includes(q) ||
+                      o.customer_name?.toLowerCase().includes(q) ||
+                      o.customer_phone?.toLowerCase().includes(q) ||
+                      o.customer_address?.toLowerCase().includes(q);
+                    if (!match) return false;
+                  }
+                  if (orderStatusFilter !== 'all' && o.order_status !== orderStatusFilter) return false;
+                  if (orderPaymentFilter === 'paytech' && o.payment_method !== 'paytech') return false;
+                  if (orderPaymentFilter === 'whatsapp' && o.payment_method !== 'whatsapp') return false;
+                  if (orderPaymentFilter === 'paid' && o.payment_status !== 'paid') return false;
+                  if (orderPaymentFilter === 'pending' && o.payment_status !== 'pending') return false;
+                  return true;
+                });
+
+                if (filteredOrders.length === 0) {
+                  return (
+                    <div className={`p-10 rounded-3xl border text-center space-y-3 ${cardBgClass}`}>
+                      <ShoppingBag className="w-10 h-10 text-[#C59B3F]/40 mx-auto" />
+                      <h3 className="font-luxury text-base font-bold">Aucune commande trouvée</h3>
+                      <p className="text-xs text-[#6B655E] max-w-sm mx-auto">
+                        Aucune commande ne correspond à vos filtres actuels. Dès qu’un client commande via PayTech ou WhatsApp, elle apparaîtra ici.
+                      </p>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="space-y-4">
+                    {filteredOrders.map(order => (
+                      <div
+                        key={order.id}
+                        className={`p-5 rounded-3xl border space-y-4 transition-all hover:border-[#C59B3F]/60 ${cardBgClass}`}
+                      >
+                        {/* Order Header */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#E8DCC2]/60">
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-sm font-extrabold text-[#171513]">
+                              #{order.ref_command}
+                            </span>
+                            <span className="text-[11px] text-[#9E968D]">
+                              {order.created_at ? new Date(order.created_at).toLocaleDateString('fr-FR', {
+                                day: '2-digit',
+                                month: 'short',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              }) : 'Récent'}
+                            </span>
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-2">
+                            {/* Payment Badge */}
+                            {order.payment_method === 'paytech' ? (
+                              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border flex items-center gap-1 ${
+                                order.payment_status === 'paid'
+                                  ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                                  : 'bg-amber-50 text-amber-800 border-amber-300'
+                              }`}>
+                                <CreditCard className="w-3 h-3" />
+                                {order.payment_status === 'paid' ? 'Payé (PayTech)' : 'PayTech (En attente)'}
+                              </span>
+                            ) : (
+                              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-sky-50 text-sky-800 border border-sky-300 flex items-center gap-1">
+                                <MessageCircle className="w-3 h-3 text-sky-600" />
+                                Paiement à la livraison
+                              </span>
+                            )}
+
+                            {/* Order Status Badge */}
+                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                              order.order_status === 'new'
+                                ? 'bg-amber-100 text-amber-900 border-amber-300'
+                                : order.order_status === 'processing'
+                                ? 'bg-blue-100 text-blue-900 border-blue-300'
+                                : order.order_status === 'shipped'
+                                ? 'bg-purple-100 text-purple-900 border-purple-300'
+                                : order.order_status === 'delivered'
+                                ? 'bg-emerald-100 text-emerald-900 border-emerald-300'
+                                : 'bg-red-100 text-red-900 border-red-300'
+                            }`}>
+                              {order.order_status === 'new' && 'Nouvelle'}
+                              {order.order_status === 'processing' && 'En préparation'}
+                              {order.order_status === 'shipped' && 'En livraison'}
+                              {order.order_status === 'delivered' && 'Livrée'}
+                              {order.order_status === 'cancelled' && 'Annulée'}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Customer & Delivery Details */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-1.5 font-bold text-[#171513]">
+                              <User className="w-3.5 h-3.5 text-[#C59B3F]" />
+                              <span>{order.customer_name}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-[#6B655E]">
+                              <Phone className="w-3.5 h-3.5 text-[#C59B3F]" />
+                              <a href={`tel:${order.customer_phone}`} className="hover:underline font-semibold text-[#171513]">
+                                {order.customer_phone}
+                              </a>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-[#6B655E]">
+                              <MapPin className="w-3.5 h-3.5 text-[#C59B3F] flex-shrink-0" />
+                              <span>{order.customer_address}</span>
+                            </div>
+                          </div>
+
+                          <div className="space-y-1 sm:text-right">
+                            <div className="text-[11px] text-[#9E968D]">Zone : {order.shipping_zone_name}</div>
+                            <div className="text-sm font-extrabold text-[#967120]">
+                              Total : {Number(order.total_amount).toLocaleString('fr-FR')} FCFA
+                            </div>
+                            <div className="text-[11px] text-[#6B655E]">
+                              (Sous-total : {Number(order.subtotal).toLocaleString('fr-FR')} + Port : {Number(order.shipping_cost).toLocaleString('fr-FR')} FCFA)
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Ordered Items Preview */}
+                        {order.items && order.items.length > 0 && (
+                          <div className="p-3 rounded-2xl bg-[#FAF8F5] border border-[#E8DCC2]/60 space-y-2">
+                            <span className="text-[10px] font-bold text-[#967120] uppercase tracking-wider block">
+                              Articles ({order.items.reduce((s, i) => s + (i.quantity || 1), 0)}) :
+                            </span>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              {order.items.map((item, idx) => (
+                                <div key={idx} className="flex items-center gap-2 text-xs">
+                                  <div className="relative w-8 h-8 rounded-lg bg-white border border-[#E8DCC2] flex-shrink-0 p-0.5">
+                                    {item.image && (
+                                      <Image src={item.image} alt={item.name} fill className="object-contain" />
+                                    )}
+                                  </div>
+                                  <div className="truncate">
+                                    <span className="font-bold text-[#171513]">{item.name}</span>{' '}
+                                    <span className="text-[#9E968D]">x{item.quantity}</span>
+                                  </div>
+                                  <span className="ml-auto font-bold text-[#967120] text-[11px]">
+                                    {((item.price || 0) * (item.quantity || 1)).toLocaleString('fr-FR')} F
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Order Management Actions */}
+                        <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#E8DCC2]/60">
+                          {/* Quick Status Dropdown */}
+                          <div className="flex items-center gap-2">
+                            <span className="text-[11px] font-bold text-[#6B655E]">Changer statut :</span>
+                            <select
+                              value={order.order_status}
+                              onChange={e => {
+                                const newStatus = e.target.value as OrderStatus;
+                                updateOrderStatus(order.id, newStatus);
+                                showFeedback(`Statut mis à jour : ${newStatus}`);
+                              }}
+                              className={`text-xs px-2.5 py-1.5 rounded-xl border font-bold ${inputBg}`}
+                            >
+                              <option value="new">Nouvelle</option>
+                              <option value="processing">En préparation</option>
+                              <option value="shipped">En livraison</option>
+                              <option value="delivered">Livrée</option>
+                              <option value="cancelled">Annulée</option>
+                            </select>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            {/* Contact Customer on WhatsApp */}
+                            <a
+                              href={`https://wa.me/${(order.customer_phone || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                                `Bonjour ${order.customer_name}, c’est MG Perfume Dakar concernant votre commande #${order.ref_command} !`
+                              )}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-3 py-1.5 rounded-xl bg-[#25D366] hover:bg-[#1EBE5B] text-white font-bold text-xs flex items-center gap-1.5 transition-colors shadow-xs"
+                            >
+                              <MessageCircle className="w-3.5 h-3.5" />
+                              <span>WhatsApp Client</span>
+                            </a>
+
+                            {/* Delete Order */}
+                            <button
+                              onClick={() => {
+                                if (confirm(`Voulez-vous vraiment supprimer la commande #${order.ref_command} ?`)) {
+                                  deleteOrder(order.id);
+                                  showFeedback('Commande supprimée');
+                                }
+                              }}
+                              className="p-1.5 rounded-xl bg-red-50 text-red-500 hover:bg-red-600 hover:text-white border border-red-200 transition-colors"
+                              title="Supprimer la commande"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+
+            </div>
+          )}
+
           {/* ============================================================ */}
           {/* TAB 1: CATALOGUE PRODUITS */}
           {/* ============================================================ */}

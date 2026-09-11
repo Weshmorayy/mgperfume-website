@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { PerfumeProduct, EditorialBanner, ShippingZone, FAQItem, SiteConfig } from '@/types';
+import { PerfumeProduct, EditorialBanner, ShippingZone, FAQItem, SiteConfig, Order, OrderStatus, PaymentStatus } from '@/types';
 import { siteConfig } from '@/config/site';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
@@ -14,12 +14,16 @@ interface StoreContextType {
   social: SiteConfig['social'];
   heroProduct: PerfumeProduct;
   selectionDuMoment: PerfumeProduct[];
+  orders: Order[];
   isLoading: boolean;
   refreshStore: () => Promise<void>;
   saveProduct: (product: PerfumeProduct) => Promise<{ success: boolean; error?: string }>;
   deleteProduct: (id: string) => Promise<{ success: boolean; error?: string }>;
   setHeroProduct: (id: string) => Promise<{ success: boolean; error?: string }>;
   toggleSelectionDuMoment: (id: string) => Promise<{ success: boolean; error?: string }>;
+  saveOrder: (order: Order) => Promise<{ success: boolean; error?: string }>;
+  updateOrderStatus: (id: string, order_status: OrderStatus, payment_status?: PaymentStatus) => Promise<{ success: boolean; error?: string }>;
+  deleteOrder: (id: string) => Promise<{ success: boolean; error?: string }>;
 }
 
 const StoreContext = createContext<StoreContextType | null>(null);
@@ -31,6 +35,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [faqs, setFaqs] = useState<FAQItem[]>(siteConfig.faqs || []);
   const [contact, setContact] = useState<SiteConfig['contact']>(siteConfig.contact);
   const [social, setSocial] = useState<SiteConfig['social']>(siteConfig.social);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Helper to normalize DB product to PerfumeProduct
@@ -90,6 +95,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         if (parsed.shippingZones && Array.isArray(parsed.shippingZones)) setShippingZones(parsed.shippingZones);
         if (parsed.faqs && Array.isArray(parsed.faqs)) setFaqs(parsed.faqs);
       }
+      const cachedOrders = localStorage.getItem('mg_orders_cache');
+      if (cachedOrders) {
+        const parsedOrders = JSON.parse(cachedOrders);
+        if (Array.isArray(parsedOrders)) setOrders(parsedOrders);
+      }
     } catch (_) {}
 
     // 2. Fetch live data from Supabase
@@ -134,6 +144,19 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         if (!faqErr && dbFaqs && dbFaqs.length > 0) {
           setFaqs(dbFaqs.map(f => ({ q: f.q, a: f.a })));
         }
+
+        // Fetch orders (fail silently if table not yet created)
+        try {
+          const { data: dbOrders, error: orderErr } = await supabase
+            .from('orders')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+          if (!orderErr && dbOrders) {
+            setOrders(dbOrders);
+            try { localStorage.setItem('mg_orders_cache', JSON.stringify(dbOrders)); } catch (_) {}
+          }
+        } catch (_) {}
       } catch (err) {
         console.warn('Supabase fetch error, fallback to defaults:', err);
       }
@@ -155,6 +178,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       );
     } catch (_) {}
   }, [products, banners, shippingZones, faqs, contact, social]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('mg_orders_cache', JSON.stringify(orders));
+    } catch (_) {}
+  }, [orders]);
 
   // Save product directly to Supabase & State
   const saveProduct = async (product: PerfumeProduct) => {
@@ -236,6 +265,91 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     return saveProduct(updatedProduct);
   };
 
+  // Save / Register Order
+  const saveOrder = async (order: Order) => {
+    try {
+      setOrders(prev => [order, ...prev.filter(o => o.id !== order.id)]);
+      try {
+        const cached = localStorage.getItem('mg_orders_cache');
+        const list = cached ? JSON.parse(cached) : [];
+        localStorage.setItem('mg_orders_cache', JSON.stringify([order, ...list.filter((o: any) => o.id !== order.id)]));
+      } catch (_) {}
+
+      if (supabase) {
+        const dbPayload = {
+          id: order.id,
+          ref_command: order.ref_command,
+          customer_name: order.customer_name,
+          customer_phone: order.customer_phone,
+          customer_address: order.customer_address,
+          shipping_zone_id: order.shipping_zone_id,
+          shipping_zone_name: order.shipping_zone_name,
+          shipping_cost: order.shipping_cost,
+          subtotal: order.subtotal,
+          total_amount: order.total_amount,
+          items: order.items,
+          payment_method: order.payment_method,
+          payment_status: order.payment_status,
+          order_status: order.order_status,
+          paytech_token: order.paytech_token || null,
+          paytech_redirect_url: order.paytech_redirect_url || null,
+          notes: order.notes || '',
+        };
+        const { error } = await supabase.from('orders').upsert(dbPayload, { onConflict: 'id' });
+        if (error) {
+          console.warn('Erreur Supabase sauvegarde commande (table non créée ?):', error.message);
+        }
+      }
+
+      return { success: true };
+    } catch (err: any) {
+      console.error('Erreur saveOrder:', err);
+      return { success: false, error: err.message };
+    }
+  };
+
+  // Update Order Status
+  const updateOrderStatus = async (id: string, order_status: OrderStatus, payment_status?: PaymentStatus) => {
+    try {
+      setOrders(prev =>
+        prev.map(o =>
+          o.id === id
+            ? { ...o, order_status, ...(payment_status ? { payment_status } : {}), updated_at: new Date().toISOString() }
+            : o
+        )
+      );
+
+      if (supabase) {
+        const updatePayload: any = {
+          order_status,
+          updated_at: new Date().toISOString(),
+        };
+        if (payment_status) updatePayload.payment_status = payment_status;
+
+        const { error } = await supabase.from('orders').update(updatePayload).eq('id', id);
+        if (error) throw error;
+      }
+
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  };
+
+  // Delete Order
+  const deleteOrder = async (id: string) => {
+    try {
+      setOrders(prev => prev.filter(o => o.id !== id));
+      if (supabase) {
+        const { error } = await supabase.from('orders').delete().eq('id', id);
+        if (error) throw error;
+      }
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  };
+
   const heroProduct = products.find(p => p.isHero) || products[0] || siteConfig.products[0];
   const popularList = products.filter(p => p.isPopular);
   const selectionDuMoment = popularList.length >= 2 ? popularList : products.slice(0, 4);
@@ -251,12 +365,16 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         social,
         heroProduct,
         selectionDuMoment,
+        orders,
         isLoading,
         refreshStore,
         saveProduct,
         deleteProduct,
         setHeroProduct,
         toggleSelectionDuMoment,
+        saveOrder,
+        updateOrderStatus,
+        deleteOrder,
       }}
     >
       {children}
