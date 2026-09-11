@@ -55,6 +55,7 @@ import {
   MessageCircle,
   ShoppingBag,
   User,
+  Loader2,
 } from 'lucide-react';
 import { siteConfig } from '@/config/site';
 import { PerfumeProduct, EditorialBanner, ShippingZone, FAQItem, ScentFamily, SiteBackup, Order, OrderStatus, PaymentStatus } from '@/types';
@@ -87,6 +88,7 @@ export default function AdminDashboardPage() {
 
   // Authentication State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
   const [adminEmail, setAdminEmail] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
   const [authError, setAuthError] = useState('');
@@ -98,6 +100,16 @@ export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<'orders' | 'products' | 'promotions' | 'banners' | 'shipping' | 'faq' | 'supabase' | 'settings'>('orders');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [pendingTabSwitch, setPendingTabSwitch] = useState<string | null>(null);
+
+  // Restore activeTab from localStorage
+  useEffect(() => {
+    try {
+      const savedTab = localStorage.getItem('mg_admin_active_tab');
+      if (savedTab && ['orders', 'products', 'promotions', 'banners', 'shipping', 'faq', 'supabase', 'settings'].includes(savedTab)) {
+        setActiveTab(savedTab as any);
+      }
+    } catch (_) {}
+  }, []);
 
   // Orders Management States
   const [orderSearch, setOrderSearch] = useState('');
@@ -165,21 +177,31 @@ export default function AdminDashboardPage() {
   // Loading state for login
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  // Check Supabase Auth Session & Local Fallback
+  // Check Supabase Auth Session & Local Fallback (persisting across page reloads)
   useEffect(() => {
     const checkSession = async () => {
-      if (supabase) {
-        try {
+      try {
+        const localAuth = typeof window !== 'undefined' ? localStorage.getItem('mg_admin_auth') : null;
+        const sessionAuth = typeof window !== 'undefined' ? sessionStorage.getItem('mg_admin_auth') : null;
+        
+        if (localAuth === 'true' || sessionAuth === 'true') {
+          setIsAuthenticated(true);
+          setIsAuthChecking(false);
+          return;
+        }
+
+        if (supabase) {
           const { data } = await supabase.auth.getSession();
-          if (data.session) {
+          if (data?.session) {
             setIsAuthenticated(true);
+            try { localStorage.setItem('mg_admin_auth', 'true'); } catch (_) {}
+            setIsAuthChecking(false);
             return;
           }
-        } catch (_) {}
-      }
-      const session = sessionStorage.getItem('mg_admin_auth');
-      if (session === 'true') {
-        setIsAuthenticated(true);
+        }
+      } catch (_) {
+      } finally {
+        setIsAuthChecking(false);
       }
     };
     checkSession();
@@ -204,7 +226,10 @@ export default function AdminDashboardPage() {
 
         if (!error && data.session) {
           setIsAuthenticated(true);
-          sessionStorage.setItem('mg_admin_auth', 'true');
+          try {
+            localStorage.setItem('mg_admin_auth', 'true');
+            sessionStorage.setItem('mg_admin_auth', 'true');
+          } catch (_) {}
           setAuthError('');
           return;
         }
@@ -212,7 +237,10 @@ export default function AdminDashboardPage() {
         // Fallback check if network issue or direct match
         if (cleanLogin === 'admin' && cleanPass === 'MG@D4k4r-Parfum!2026') {
           setIsAuthenticated(true);
-          sessionStorage.setItem('mg_admin_auth', 'true');
+          try {
+            localStorage.setItem('mg_admin_auth', 'true');
+            sessionStorage.setItem('mg_admin_auth', 'true');
+          } catch (_) {}
           setAuthError('');
           return;
         }
@@ -221,7 +249,10 @@ export default function AdminDashboardPage() {
       } else {
         if (cleanLogin === 'admin' && cleanPass === 'MG@D4k4r-Parfum!2026') {
           setIsAuthenticated(true);
-          sessionStorage.setItem('mg_admin_auth', 'true');
+          try {
+            localStorage.setItem('mg_admin_auth', 'true');
+            sessionStorage.setItem('mg_admin_auth', 'true');
+          } catch (_) {}
           setAuthError('');
           return;
         }
@@ -240,7 +271,11 @@ export default function AdminDashboardPage() {
     }
     setIsAuthenticated(false);
     setIsNavDrawerOpen(false);
-    sessionStorage.removeItem('mg_admin_auth');
+    try {
+      localStorage.removeItem('mg_admin_auth');
+      sessionStorage.removeItem('mg_admin_auth');
+      localStorage.removeItem('mg_admin_active_tab');
+    } catch (_) {}
   };
 
   const showFeedback = (msg: string) => {
@@ -249,13 +284,14 @@ export default function AdminDashboardPage() {
     setTimeout(() => setSaveMessage(null), 3000);
   };
 
-  // Safe Tab Switcher with Unsaved Warning
+  // Safe Tab Switcher with Unsaved Warning & Persistence
   const handleTabClick = (tab: typeof activeTab) => {
     setIsNavDrawerOpen(false);
     if (hasUnsavedChanges && tab !== activeTab) {
       setPendingTabSwitch(tab);
     } else {
       setActiveTab(tab);
+      try { localStorage.setItem('mg_admin_active_tab', tab); } catch (_) {}
     }
   };
 
@@ -717,6 +753,35 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
     });
 
   // ----------------------------------------------------
+  // LOADING SCREEN (While session is being verified)
+  // ----------------------------------------------------
+  if (isAuthChecking) {
+    return (
+      <div className="min-h-screen bg-[#FAF8F5] text-[#171513] flex flex-col justify-center items-center px-4">
+        <div className="w-full max-w-sm bg-white border border-[#E8DCC2] rounded-3xl p-8 shadow-lg text-center space-y-4">
+          <div className="relative w-16 h-16 mx-auto animate-pulse">
+            <Image
+              src="/images/brand/logo.png"
+              alt="MG Perfume Logo"
+              fill
+              className="object-contain"
+            />
+          </div>
+          <div className="space-y-1">
+            <h2 className="font-luxury text-lg font-bold tracking-wider text-[#171513]">
+              MG PERFUME DAKAR
+            </h2>
+            <div className="flex items-center justify-center gap-2 text-xs text-[#967120] font-medium pt-1">
+              <Loader2 className="w-4 h-4 animate-spin text-[#C59B3F]" />
+              <span>Chargement du tableau de bord...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ----------------------------------------------------
   // LOGIN SCREEN (White default or Dark with @mgperfume.store)
   // ----------------------------------------------------
   if (!isAuthenticated) {
@@ -871,6 +936,16 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
           >
             <Menu className="w-4 h-4 text-[#C59B3F]" />
             <span className="hidden sm:inline">Onglets & Modules</span>
+          </button>
+
+          {/* Quick Logout Button */}
+          <button
+            onClick={handleLogout}
+            className={`p-2 rounded-full border transition-colors ${isDark ? 'bg-[#221F1B] border-red-500/30 text-red-400 hover:bg-red-950/30' : 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100'}`}
+            title="Se déconnecter"
+            aria-label="Déconnexion"
+          >
+            <LogOut className="w-4 h-4" />
           </button>
         </div>
       </header>
@@ -1080,6 +1155,7 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
               <button
                 onClick={() => {
                   setActiveTab(pendingTabSwitch as any);
+                  try { localStorage.setItem('mg_admin_active_tab', pendingTabSwitch as string); } catch (_) {}
                   setPendingTabSwitch(null);
                   setHasUnsavedChanges(false);
                 }}
@@ -1642,11 +1718,25 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                           <div className="relative w-28 h-36">
                             <Image src={product.image} alt={product.name} fill className="object-contain" />
                           </div>
-                          {product.badge && (
-                            <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-[#171513] text-[#F3E5AB] border border-[#C59B3F]/40">
-                              {product.badge}
-                            </span>
-                          )}
+
+                          {/* Product Badges (Phare / Sélection / Badge) — Never overlap */}
+                          <div className="absolute top-2 left-2 flex flex-wrap gap-1 z-10 max-w-[85%] pointer-events-none">
+                            {product.isHero && (
+                              <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-[#C59B3F] text-[#171513] border border-[#967120] shadow-xs">
+                                ★ Édition Phare
+                              </span>
+                            )}
+                            {product.isPopular && (
+                              <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-[#171513] text-[#F3E5AB] border border-[#C59B3F]/40 shadow-xs">
+                                Sélection
+                              </span>
+                            )}
+                            {product.badge && (
+                              <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-[#FBF4E2] text-[#967120] border border-[#E8DCC2] shadow-xs">
+                                {product.badge}
+                              </span>
+                            )}
+                          </div>
                         </div>
 
                         <div className="mt-3 space-y-1">
@@ -1669,25 +1759,6 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                             </div>
                           )}
                         </div>
-                      </div>
-
-                      {/* Product Badges (Édition Phare / Sélection) */}
-                      <div className="absolute top-2 left-2 flex flex-col gap-1 z-10">
-                        {product.isHero && (
-                          <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-[#C59B3F] text-[#171513] border border-[#967120] shadow-xs">
-                            ★ Édition Phare
-                          </span>
-                        )}
-                        {product.isPopular && (
-                          <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-[#171513] text-[#F3E5AB] border border-[#C59B3F]/40 shadow-xs">
-                            Sélection du Moment
-                          </span>
-                        )}
-                        {product.badge && (
-                          <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300">
-                            {product.badge}
-                          </span>
-                        )}
                       </div>
 
                       <div className="flex items-center gap-2 pt-2 border-t border-[#E8DCC2]/60">
