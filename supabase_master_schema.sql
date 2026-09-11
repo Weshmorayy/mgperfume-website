@@ -176,7 +176,8 @@ CREATE POLICY "Full access shipping" ON public.shipping_zones FOR ALL USING (tru
 -- FAQ Policies
 DROP POLICY IF EXISTS "Public read faqs" ON public.faqs;
 CREATE POLICY "Public read faqs" ON public.faqs FOR SELECT USING (true);
-DROP POLICY IF EXISTS "Full access faqs" ON public.faqs FOR ALL USING (true);
+DROP POLICY IF EXISTS "Full access faqs" ON public.faqs;
+CREATE POLICY "Full access faqs" ON public.faqs FOR ALL USING (true);
 
 -- Backups Policies
 DROP POLICY IF EXISTS "Public read backups" ON public.site_backups;

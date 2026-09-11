@@ -408,7 +408,7 @@ export function CartDrawer({
                     ) : (
                       <CreditCard className="w-4 h-4 text-[#C59B3F]" />
                     )}
-                    <span>Payer en ligne (PayTech) • {grandTotal.toLocaleString('fr-FR')} FCFA</span>
+                    <span>Payer en ligne • {grandTotal.toLocaleString('fr-FR')} FCFA</span>
                   </div>
                   <span className="text-[9px] text-[#F3E5AB] font-normal normal-case opacity-90">
                     Wave • Orange Money • Free Money • Carte Bancaire
@@ -422,7 +422,7 @@ export function CartDrawer({
                 >
                   <div className="flex items-center gap-2">
                     <Send className="w-3.5 h-3.5 text-[#25D366] group-hover:text-white" />
-                    <span>Commander sur WhatsApp (À la livraison)</span>
+                    <span>Commander sur WhatsApp</span>
                   </div>
                   <span className="text-[9px] text-[#6B655E] group-hover:text-white font-normal normal-case">
                     Paiement à la réception à Dakar (Espèces ou Wave)

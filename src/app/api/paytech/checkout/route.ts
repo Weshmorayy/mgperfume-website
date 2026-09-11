@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Déterminer l'URL de base pour les redirections
-    const origin = req.nextUrl.origin || process.env.NEXT_PUBLIC_SITE_URL || 'https://mgperfume.sn';
+    const origin = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.mg-perfume.com';
 
     // 2. Si les clés PayTech sont configurées, appeler la passerelle officielle
     if (apiKey && apiSecret) {
