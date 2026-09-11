@@ -56,6 +56,11 @@ import {
   ShoppingBag,
   User,
   Loader2,
+  ArrowDownRight,
+  Zap,
+  CheckSquare,
+  Square,
+  RotateCcw,
 } from 'lucide-react';
 import { siteConfig } from '@/config/site';
 import { PerfumeProduct, EditorialBanner, ShippingZone, FAQItem, ScentFamily, SiteBackup, Order, OrderStatus, PaymentStatus } from '@/types';
@@ -152,6 +157,13 @@ export default function AdminDashboardPage() {
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [productSearch, setProductSearch] = useState('');
   const [isSavingProductModal, setIsSavingProductModal] = useState(false);
+
+  // Promotions & Badges Studio Advanced State
+  const [promoSubTab, setPromoSubTab] = useState<'featured' | 'discounts' | 'badges'>('featured');
+  const [selectedPromoProductIds, setSelectedPromoProductIds] = useState<string[]>([]);
+  const [bulkDiscountPercent, setBulkDiscountPercent] = useState<number>(10);
+  const [bulkCustomBadge, setBulkCustomBadge] = useState<string>('Offre Spéciale');
+  const [isApplyingBulkPromo, setIsApplyingBulkPromo] = useState(false);
 
   // Image & JSON File Upload Refs
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -393,6 +405,142 @@ export default function AdminDashboardPage() {
     } else {
       alert(res.error);
     }
+  };
+
+  // Quick Apply Discount to a Single Product (e.g. -10%, -15%, -20%, -30%)
+  const handleApplyQuickDiscount = async (product: PerfumeProduct, discountPercent: number) => {
+    const basePrice = product.originalPrice || product.price;
+    const discountedPrice = Math.round((basePrice * (100 - discountPercent)) / 100 / 1000) * 1000;
+    const updated: PerfumeProduct = {
+      ...product,
+      originalPrice: basePrice,
+      price: discountedPrice,
+      badge: product.badge || `-${discountPercent}%`,
+    };
+    const res = await saveProduct(updated);
+    if (res.success) {
+      showFeedback(`Promotion -${discountPercent}% appliquée à ${product.name} !`);
+    } else {
+      alert('Erreur : ' + res.error);
+    }
+  };
+
+  // Remove Promotion / Reset Regular Price
+  const handleRemoveDiscount = async (product: PerfumeProduct) => {
+    const updated: PerfumeProduct = {
+      ...product,
+      price: product.originalPrice || product.price,
+      originalPrice: undefined,
+      badge: product.badge && product.badge.startsWith('-') ? undefined : product.badge,
+    };
+    const res = await saveProduct(updated);
+    if (res.success) {
+      showFeedback(`Promotion retirée pour ${product.name}`);
+    } else {
+      alert('Erreur : ' + res.error);
+    }
+  };
+
+  // Quick Set Badge on a Product
+  const handleSetProductBadge = async (product: PerfumeProduct, badgeName: string | undefined) => {
+    const updated: PerfumeProduct = {
+      ...product,
+      badge: badgeName || undefined,
+    };
+    const res = await saveProduct(updated);
+    if (res.success) {
+      showFeedback(badgeName ? `Badge "${badgeName}" appliqué !` : `Badge retiré pour ${product.name}`);
+    } else {
+      alert('Erreur : ' + res.error);
+    }
+  };
+
+  // Bulk Apply Discount to Selected Products
+  const handleBulkApplyDiscount = async () => {
+    if (selectedPromoProductIds.length === 0) {
+      alert('Veuillez sélectionner au moins un parfum.');
+      return;
+    }
+    if (bulkDiscountPercent <= 0 || bulkDiscountPercent >= 100) {
+      alert('Le pourcentage doit être compris entre 1% et 99%.');
+      return;
+    }
+
+    setIsApplyingBulkPromo(true);
+    let successCount = 0;
+
+    for (const id of selectedPromoProductIds) {
+      const prod = products.find(p => p.id === id);
+      if (!prod) continue;
+      const basePrice = prod.originalPrice || prod.price;
+      const discountedPrice = Math.round((basePrice * (100 - bulkDiscountPercent)) / 100 / 1000) * 1000;
+      const updated: PerfumeProduct = {
+        ...prod,
+        originalPrice: basePrice,
+        price: discountedPrice,
+        badge: prod.badge || `-${bulkDiscountPercent}%`,
+      };
+      const res = await saveProduct(updated);
+      if (res.success) successCount++;
+    }
+
+    setIsApplyingBulkPromo(false);
+    setSelectedPromoProductIds([]);
+    showFeedback(`Promotion -${bulkDiscountPercent}% appliquée à ${successCount} parfum(s) !`);
+  };
+
+  // Bulk Apply Badge to Selected Products
+  const handleBulkApplyBadge = async (badgeToApply: string | undefined) => {
+    if (selectedPromoProductIds.length === 0) {
+      alert('Veuillez sélectionner au moins un parfum.');
+      return;
+    }
+
+    setIsApplyingBulkPromo(true);
+    let successCount = 0;
+
+    for (const id of selectedPromoProductIds) {
+      const prod = products.find(p => p.id === id);
+      if (!prod) continue;
+      const updated: PerfumeProduct = {
+        ...prod,
+        badge: badgeToApply || undefined,
+      };
+      const res = await saveProduct(updated);
+      if (res.success) successCount++;
+    }
+
+    setIsApplyingBulkPromo(false);
+    setSelectedPromoProductIds([]);
+    showFeedback(badgeToApply ? `Badge "${badgeToApply}" appliqué à ${successCount} parfum(s) !` : `Badges retirés pour ${successCount} parfum(s)`);
+  };
+
+  // Bulk Clear All Promotions from Selected Products
+  const handleBulkClearDiscounts = async () => {
+    if (selectedPromoProductIds.length === 0) {
+      alert('Veuillez sélectionner au moins un parfum.');
+      return;
+    }
+
+    setIsApplyingBulkPromo(true);
+    let successCount = 0;
+
+    for (const id of selectedPromoProductIds) {
+      const prod = products.find(p => p.id === id);
+      if (!prod) continue;
+      const updated: PerfumeProduct = {
+        ...prod,
+        price: prod.originalPrice || prod.price,
+        originalPrice: undefined,
+        badge: prod.badge && prod.badge.startsWith('-') ? undefined : prod.badge,
+      };
+      const res = await saveProduct(updated);
+      if (res.success) successCount++;
+    }
+
+    setIsApplyingBulkPromo(false);
+    setSelectedPromoProductIds([]);
+    showFeedback(`Promotions réinitialisées pour ${successCount} parfum(s)`);
   };
 
   // Banner Handlers (Max 6 banners limit)
@@ -936,16 +1084,6 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
           >
             <Menu className="w-4 h-4 text-[#C59B3F]" />
             <span className="hidden sm:inline">Onglets & Modules</span>
-          </button>
-
-          {/* Quick Logout Button */}
-          <button
-            onClick={handleLogout}
-            className={`p-2 rounded-full border transition-colors ${isDark ? 'bg-[#221F1B] border-red-500/30 text-red-400 hover:bg-red-950/30' : 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100'}`}
-            title="Se déconnecter"
-            aria-label="Déconnexion"
-          >
-            <LogOut className="w-4 h-4" />
           </button>
         </div>
       </header>
@@ -1867,157 +2005,606 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
           )}
 
           {/* ============================================================ */}
-          {/* TAB 2: ÉDITION PHARE & SÉLECTION DU MOMENT */}
+          {/* TAB 2: PROMOTIONS & BADGES STUDIO (RETHOUGHT & ENHANCED) */}
           {/* ============================================================ */}
           {activeTab === 'promotions' && (
-            <div className="space-y-8">
+            <div className="space-y-6">
               
-              {/* 1. ÉDITION PHARE (1 SLOT STRICT) */}
-              <div className={`rounded-3xl p-6 border space-y-6 ${cardBgClass}`}>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#E8DCC2]/60">
+              {/* Module Header & Sub-Navigation */}
+              <div className={`p-6 rounded-3xl border space-y-4 ${cardBgClass}`}>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
-                    <div className="flex items-center gap-2">
-                      <span className="px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-[#C59B3F] text-[#171513]">
-                        1 Slot Unique
-                      </span>
-                      <h2 className="font-luxury text-xl font-bold flex items-center gap-2">
-                        <Award className="w-5 h-5 text-[#C59B3F]" />
-                        Édition Phare (Hero Page d'Accueil)
-                      </h2>
-                    </div>
-                    <p className="text-xs opacity-75 mt-1">
-                      Le parfum d’exception affiché en grand format dans la section principale de la page d'accueil.
+                    <h2 className="font-luxury text-xl font-bold flex items-center gap-2">
+                      <Percent className="w-5 h-5 text-[#C59B3F]" />
+                      Studio Promotions & Badges Marketing
+                    </h2>
+                    <p className="text-xs opacity-75 mt-0.5">
+                      Contrôlez les remises en pourcentage, prix barrés, badges d'attractivité et mises en avant sur l'accueil.
                     </p>
                   </div>
 
-                  <div className="text-xs font-bold text-[#967120]">
-                    Actuel : <strong className="text-[#171513]">{heroProduct.name}</strong> ({heroProduct.brand})
+                  <div className="flex flex-wrap gap-2 text-xs">
+                    <span className="px-3 py-1 rounded-full font-bold bg-[#FAF8F5] border border-[#E8DCC2] text-[#967120] flex items-center gap-1.5">
+                      <Percent className="w-3.5 h-3.5" />
+                      {products.filter(p => p.originalPrice).length} en Promotion
+                    </span>
+                    <span className="px-3 py-1 rounded-full font-bold bg-[#FAF8F5] border border-[#E8DCC2] text-[#171513] flex items-center gap-1.5">
+                      <Tag className="w-3.5 h-3.5 text-[#C59B3F]" />
+                      {products.filter(p => p.badge).length} avec Badge
+                    </span>
                   </div>
                 </div>
 
-                {/* Current Hero Preview Card */}
-                <div className={`p-4 rounded-2xl border flex flex-col sm:flex-row items-center gap-4 ${subCardBg}`}>
-                  <div className="relative w-24 h-24 bg-white rounded-xl p-2 border flex-shrink-0">
-                    <Image src={heroProduct.image} alt={heroProduct.name} fill className="object-contain" />
+                {/* Sub Tabs Switcher */}
+                <div className="flex flex-wrap gap-2 pt-2 border-t border-[#E8DCC2]/60">
+                  <button
+                    onClick={() => setPromoSubTab('featured')}
+                    className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 ${
+                      promoSubTab === 'featured'
+                        ? 'bg-[#171513] text-white shadow-xs'
+                        : 'bg-[#FAF8F5] border border-[#E8DCC2] text-[#171513] hover:border-[#C59B3F]'
+                    }`}
+                  >
+                    <Award className="w-4 h-4 text-[#C59B3F]" />
+                    <span>Mises en Avant (Accueil)</span>
+                  </button>
+
+                  <button
+                    onClick={() => setPromoSubTab('discounts')}
+                    className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 ${
+                      promoSubTab === 'discounts'
+                        ? 'bg-[#171513] text-white shadow-xs'
+                        : 'bg-[#FAF8F5] border border-[#E8DCC2] text-[#171513] hover:border-[#C59B3F]'
+                    }`}
+                  >
+                    <Percent className="w-4 h-4 text-emerald-600" />
+                    <span>Prix Barrés & Remises Rapides</span>
+                  </button>
+
+                  <button
+                    onClick={() => setPromoSubTab('badges')}
+                    className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 ${
+                      promoSubTab === 'badges'
+                        ? 'bg-[#171513] text-white shadow-xs'
+                        : 'bg-[#FAF8F5] border border-[#E8DCC2] text-[#171513] hover:border-[#C59B3F]'
+                    }`}
+                  >
+                    <Tag className="w-4 h-4 text-[#C59B3F]" />
+                    <span>Bibliothèque de Badges</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* ------------------------------------------------------------- */}
+              {/* SUBTAB 1: MISES EN AVANT ACCUEIL (HERO + SÉLECTION DU MOMENT) */}
+              {/* ------------------------------------------------------------- */}
+              {promoSubTab === 'featured' && (
+                <div className="space-y-6">
+                  {/* 1. ÉDITION PHARE (1 SLOT STRICT) */}
+                  <div className={`rounded-3xl p-6 border space-y-6 ${cardBgClass}`}>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#E8DCC2]/60">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-[#C59B3F] text-[#171513]">
+                            1 Slot Unique
+                          </span>
+                          <h3 className="font-luxury text-lg font-bold flex items-center gap-2">
+                            <Award className="w-5 h-5 text-[#C59B3F]" />
+                            Édition Phare (Hero Accueil)
+                          </h3>
+                        </div>
+                        <p className="text-xs opacity-75 mt-1">
+                          Le parfum roi affiché en grand format dans la section principale de la page d'accueil.
+                        </p>
+                      </div>
+
+                      <div className="text-xs font-bold text-[#967120]">
+                        Actuel : <strong className="text-[#171513]">{heroProduct.name}</strong> ({heroProduct.brand})
+                      </div>
+                    </div>
+
+                    {/* Current Hero Preview Card */}
+                    <div className={`p-4 rounded-2xl border flex flex-col sm:flex-row items-center gap-4 ${subCardBg}`}>
+                      <div className="relative w-20 h-24 bg-white rounded-xl p-2 border flex-shrink-0 flex items-center justify-center">
+                        <Image src={heroProduct.image} alt={heroProduct.name} fill className="object-contain" />
+                      </div>
+                      <div className="space-y-1 text-center sm:text-left flex-grow">
+                        <span className="text-[10px] font-bold text-[#967120] uppercase tracking-wider">
+                          Édition Phare Actuelle • {heroProduct.volume}
+                        </span>
+                        <h4 className="font-luxury text-base font-bold">{heroProduct.name}</h4>
+                        <p className="text-xs opacity-75">{heroProduct.tagline || heroProduct.categoryLabel}</p>
+                        <div className="text-sm font-extrabold text-[#967120] pt-0.5">
+                          {heroProduct.price.toLocaleString('fr-FR')} FCFA
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Switch Hero Selector */}
+                    <div className="space-y-3 pt-1">
+                      <label className="text-xs font-bold uppercase tracking-wider text-[#967120] block">
+                        Cliquez pour désigner un autre parfum comme Édition Phare :
+                      </label>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {products.map(product => {
+                          const isSelected = product.id === heroProduct.id;
+                          return (
+                            <button
+                              key={product.id}
+                              onClick={() => handleSelectHero(product.id)}
+                              className={`p-3 rounded-2xl border text-left flex items-center justify-between gap-3 transition-all ${
+                                isSelected 
+                                  ? 'border-[#C59B3F] bg-[#FAF8F5] shadow-xs ring-2 ring-[#C59B3F]' 
+                                  : 'hover:border-[#C59B3F]/50 bg-white'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <div className="relative w-10 h-10 bg-white rounded-lg p-0.5 border flex-shrink-0">
+                                  <Image src={product.image} alt={product.name} fill className="object-contain" />
+                                </div>
+                                <div className="min-w-0">
+                                  <div className="font-bold text-xs truncate">{product.name}</div>
+                                  <div className="text-[10px] opacity-60 truncate">{product.brand} • {product.price.toLocaleString('fr-FR')} FCFA</div>
+                                </div>
+                              </div>
+
+                              <div className={`w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 ${isSelected ? 'bg-[#C59B3F] border-[#C59B3F]' : 'border-[#9E968D]'}`}>
+                                {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
                   </div>
-                  <div className="space-y-1 text-center sm:text-left flex-grow">
-                    <span className="text-[10px] font-bold text-[#967120] uppercase tracking-wider">
-                      Édition Phare Actuelle • {heroProduct.volume}
-                    </span>
-                    <h3 className="font-luxury text-lg font-bold">{heroProduct.name}</h3>
-                    <p className="text-xs opacity-75">{heroProduct.tagline || heroProduct.categoryLabel}</p>
-                    <div className="text-sm font-extrabold text-[#967120] pt-1">
-                      {heroProduct.price.toLocaleString('fr-FR')} FCFA
+
+                  {/* 2. SÉLECTION DU MOMENT */}
+                  <div className={`rounded-3xl p-6 border space-y-6 ${cardBgClass}`}>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#E8DCC2]/60">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                            selectionDuMoment.length < 2 ? 'bg-red-100 text-red-700' : 'bg-[#171513] text-[#F3E5AB]'
+                          }`}>
+                            {selectionDuMoment.length} / 4 Slots
+                          </span>
+                          <h3 className="font-luxury text-lg font-bold flex items-center gap-2">
+                            <Sparkles className="w-5 h-5 text-[#C59B3F]" />
+                            Sélection du Moment (Grille Accueil)
+                          </h3>
+                        </div>
+                        <p className="text-xs opacity-75 mt-1">
+                          Activez ou désactivez les 2 à 4 parfums présentés dans la section vedette de la page d'accueil.
+                        </p>
+                      </div>
+
+                      {selectionDuMoment.length < 2 && (
+                        <div className="text-xs font-bold text-red-600 flex items-center gap-1.5 animate-pulse">
+                          <AlertTriangle className="w-4 h-4" />
+                          <span>Minimum 2 parfums requis</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {products.map(product => {
+                        const isSelected = Boolean(product.isPopular);
+                        return (
+                          <div
+                            key={product.id}
+                            className={`p-3.5 rounded-2xl border flex items-center justify-between gap-3 transition-all ${
+                              isSelected ? 'border-[#C59B3F] bg-[#FAF8F5] shadow-xs' : 'bg-white'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className="relative w-11 h-11 bg-white rounded-xl p-1 border flex-shrink-0">
+                                <Image src={product.image} alt={product.name} fill className="object-contain" />
+                              </div>
+                              <div className="min-w-0">
+                                <div className="font-bold text-xs truncate">{product.name}</div>
+                                <div className="text-[10px] opacity-70">{product.brand} • {product.price.toLocaleString('fr-FR')} FCFA</div>
+                                {isSelected && (
+                                  <span className="inline-block mt-0.5 text-[9px] font-bold text-[#967120] uppercase">
+                                    ★ En vedette
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            <button
+                              onClick={() => handleTogglePopular(product.id)}
+                              className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all flex-shrink-0 ${
+                                isSelected 
+                                  ? 'bg-[#171513] text-[#F3E5AB] hover:bg-red-600 hover:text-white' 
+                                  : 'border border-[#E8DCC2] hover:bg-[#C59B3F] hover:text-white'
+                              }`}
+                            >
+                              {isSelected ? 'Retirer' : 'Ajouter'}
+                            </button>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
+              )}
 
-                {/* Switch Hero Selector */}
-                <div className="space-y-3 pt-2">
-                  <label className="text-xs font-bold uppercase tracking-wider text-[#967120] block">
-                    Sélectionner un autre parfum comme Édition Phare :
-                  </label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {products.map(product => {
-                      const isSelected = product.id === heroProduct.id;
-                      return (
+              {/* ------------------------------------------------------------- */}
+              {/* SUBTAB 2: REMISES & PRIX BARRÉS (GESTION INDIVIDUELLE & PAR LOT) */}
+              {/* ------------------------------------------------------------- */}
+              {promoSubTab === 'discounts' && (
+                <div className="space-y-6">
+                  
+                  {/* Bulk Promotion Toolbar */}
+                  <div className={`p-5 rounded-3xl border space-y-4 bg-gradient-to-br from-[#FAF8F5] to-white border-[#E8DCC2]`}>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E8DCC2]/60">
+                      <div>
+                        <h3 className="font-luxury text-base font-bold flex items-center gap-2 text-[#171513]">
+                          <Zap className="w-4 h-4 text-[#C59B3F]" />
+                          Actions Promotionnelles par Lot (Multi-Sélection)
+                        </h3>
+                        <p className="text-xs text-[#6B655E]">
+                          Cochez un ou plusieurs parfums ci-dessous pour leur appliquer une remise simultanée.
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2">
                         <button
+                          onClick={() => {
+                            if (selectedPromoProductIds.length === products.length) {
+                              setSelectedPromoProductIds([]);
+                            } else {
+                              setSelectedPromoProductIds(products.map(p => p.id));
+                            }
+                          }}
+                          className="px-3 py-1.5 rounded-xl border border-[#E8DCC2] bg-white text-xs font-semibold hover:border-[#C59B3F] flex items-center gap-1.5"
+                        >
+                          {selectedPromoProductIds.length === products.length ? (
+                            <CheckSquare className="w-3.5 h-3.5 text-[#C59B3F]" />
+                          ) : (
+                            <Square className="w-3.5 h-3.5 opacity-50" />
+                          )}
+                          <span>{selectedPromoProductIds.length === products.length ? 'Tout désélectionner' : 'Tout sélectionner'}</span>
+                        </button>
+
+                        <span className="text-xs font-bold text-[#967120] bg-[#FAF8F5] px-2.5 py-1 rounded-xl border border-[#E8DCC2]">
+                          {selectedPromoProductIds.length} sélectionné(s)
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Bulk Action Controls */}
+                    <div className="flex flex-wrap items-center gap-3 pt-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-[#171513]">Appliquer une remise de :</span>
+                        <div className="flex items-center gap-1">
+                          {[10, 15, 20, 25, 30].map(pct => (
+                            <button
+                              key={pct}
+                              onClick={() => setBulkDiscountPercent(pct)}
+                              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                                bulkDiscountPercent === pct 
+                                  ? 'bg-[#171513] text-[#F3E5AB]' 
+                                  : 'bg-white border border-[#E8DCC2] hover:border-[#C59B3F]'
+                              }`}
+                            >
+                              -{pct}%
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        <input
+                          type="number"
+                          min="1"
+                          max="90"
+                          value={bulkDiscountPercent}
+                          onChange={e => setBulkDiscountPercent(Number(e.target.value))}
+                          className={`w-16 px-2 py-1 rounded-xl border text-xs text-center font-bold ${inputBg}`}
+                        />
+                        <span className="text-xs font-bold">%</span>
+                      </div>
+
+                      <button
+                        onClick={handleBulkApplyDiscount}
+                        disabled={selectedPromoProductIds.length === 0 || isApplyingBulkPromo}
+                        className="px-4 py-1.5 rounded-xl bg-[#C59B3F] hover:bg-[#967120] text-white font-bold text-xs transition-colors disabled:opacity-40 flex items-center gap-1.5 shadow-xs"
+                      >
+                        {isApplyingBulkPromo ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Percent className="w-3.5 h-3.5" />
+                        )}
+                        <span>Appliquer à la sélection</span>
+                      </button>
+
+                      <button
+                        onClick={handleBulkClearDiscounts}
+                        disabled={selectedPromoProductIds.length === 0 || isApplyingBulkPromo}
+                        className="px-3 py-1.5 rounded-xl bg-white hover:bg-red-50 border border-red-200 text-red-600 text-xs font-bold transition-colors disabled:opacity-40 flex items-center gap-1"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        <span>Réinitialiser prix normaux</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Individual Products Pricing & Quick Promo Cards */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {products.map(product => {
+                      const isSelectedForBulk = selectedPromoProductIds.includes(product.id);
+                      const hasDiscount = Boolean(product.originalPrice && product.originalPrice > product.price);
+                      const discountPct = hasDiscount && product.originalPrice
+                        ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+                        : null;
+
+                      return (
+                        <div
                           key={product.id}
-                          onClick={() => handleSelectHero(product.id)}
-                          className={`p-3.5 rounded-2xl border text-left flex items-center justify-between gap-3 transition-all ${
-                            isSelected 
-                              ? 'border-[#C59B3F] bg-[#FAF8F5] shadow-xs ring-1 ring-[#C59B3F]' 
-                              : 'hover:border-[#C59B3F]/50 bg-white'
+                          className={`p-4 rounded-3xl border space-y-3 transition-all ${
+                            isSelectedForBulk 
+                              ? 'border-[#C59B3F] ring-2 ring-[#C59B3F]/40 bg-[#FAF8F5]' 
+                              : cardBgClass
                           }`}
                         >
-                          <div className="flex items-center gap-2.5">
-                            <div className="relative w-10 h-10 bg-white rounded-lg p-0.5 border flex-shrink-0">
-                              <Image src={product.image} alt={product.name} fill className="object-contain" />
+                          {/* Card Header with Checkbox & Title */}
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <input
+                                type="checkbox"
+                                checked={isSelectedForBulk}
+                                onChange={e => {
+                                  if (e.target.checked) {
+                                    setSelectedPromoProductIds(prev => [...prev, product.id]);
+                                  } else {
+                                    setSelectedPromoProductIds(prev => prev.filter(id => id !== product.id));
+                                  }
+                                }}
+                                className="w-4 h-4 rounded text-[#C59B3F] focus:ring-[#C59B3F] cursor-pointer"
+                              />
+                              <div className="relative w-12 h-12 bg-white rounded-xl p-1 border flex-shrink-0">
+                                <Image src={product.image} alt={product.name} fill className="object-contain" />
+                              </div>
+                              <div className="min-w-0">
+                                <h4 className="font-luxury font-bold text-xs truncate">{product.name}</h4>
+                                <span className="text-[10px] text-[#967120] font-bold uppercase">{product.brand}</span>
+                              </div>
                             </div>
+
+                            {hasDiscount ? (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-red-100 text-red-700 border border-red-300">
+                                -{discountPct}%
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#FAF8F5] text-[#9E968D] border border-[#E8DCC2]">
+                                Prix Standard
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Current Price Display */}
+                          <div className="p-2.5 rounded-xl bg-black/5 flex items-center justify-between">
                             <div>
-                              <div className="font-bold text-xs">{product.name}</div>
-                              <div className="text-[10px] opacity-60">{product.brand} • {product.price.toLocaleString('fr-FR')} FCFA</div>
+                              <span className="text-[9px] opacity-60 uppercase font-bold block">Prix Boutique</span>
+                              <span className="text-sm font-extrabold text-[#171513]">
+                                {product.price.toLocaleString('fr-FR')} <span className="text-xs text-[#967120]">FCFA</span>
+                              </span>
+                            </div>
+
+                            {product.originalPrice && (
+                              <div className="text-right">
+                                <span className="text-[9px] text-red-600 uppercase font-bold block">Prix Barré</span>
+                                <span className="text-xs text-red-500 line-through font-semibold">
+                                  {product.originalPrice.toLocaleString('fr-FR')} FCFA
+                                </span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Quick 1-Click Discount Presets */}
+                          <div className="space-y-1.5 pt-1">
+                            <span className="text-[10px] font-bold text-[#967120] uppercase block">
+                              Appliquer une remise rapide :
+                            </span>
+                            <div className="grid grid-cols-4 gap-1">
+                              {[10, 15, 20, 30].map(pct => (
+                                <button
+                                  key={pct}
+                                  onClick={() => handleApplyQuickDiscount(product, pct)}
+                                  className="py-1 rounded-lg border border-[#E8DCC2] bg-white hover:bg-[#171513] hover:text-white text-[10px] font-bold transition-colors text-center"
+                                >
+                                  -{pct}%
+                                </button>
+                              ))}
                             </div>
                           </div>
 
-                          <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${isSelected ? 'bg-[#C59B3F] border-[#C59B3F] text-black' : 'border-[#9E968D]'}`}>
-                            {isSelected && <Check className="w-3 h-3 text-white stroke-[3]" />}
+                          {/* Action Buttons */}
+                          <div className="pt-2 border-t border-[#E8DCC2]/60 flex items-center justify-between gap-2">
+                            {hasDiscount && (
+                              <button
+                                onClick={() => handleRemoveDiscount(product)}
+                                className="text-[10px] font-bold text-red-600 hover:underline flex items-center gap-1"
+                              >
+                                <RotateCcw className="w-3 h-3" />
+                                Annuler remise
+                              </button>
+                            )}
+
+                            <button
+                              onClick={() => {
+                                setEditingProduct(product);
+                                setIsProductModalOpen(true);
+                              }}
+                              className="text-[10px] font-bold text-[#967120] hover:underline ml-auto flex items-center gap-1"
+                            >
+                              <Edit3 className="w-3 h-3" />
+                              Éditer prix exact
+                            </button>
                           </div>
-                        </button>
+                        </div>
                       );
                     })}
                   </div>
                 </div>
-              </div>
+              )}
 
-              {/* 2. SÉLECTION DU MOMENT (MIN 2, MAX 4 SLOTS) */}
-              <div className={`rounded-3xl p-6 border space-y-6 ${cardBgClass}`}>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#E8DCC2]/60">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
-                        selectionDuMoment.length < 2 ? 'bg-red-100 text-red-700' : 'bg-[#171513] text-[#F3E5AB]'
-                      }`}>
-                        {selectionDuMoment.length} / 4 Slots Occupés
-                      </span>
-                      <h2 className="font-luxury text-xl font-bold flex items-center gap-2">
-                        <Sparkles className="w-5 h-5 text-[#C59B3F]" />
-                        Sélection du Moment (Accueil)
-                      </h2>
+              {/* ------------------------------------------------------------- */}
+              {/* SUBTAB 3: BIBLIOTHÈQUE & GESTIONNAIRE DE BADGES MARKETING */}
+              {/* ------------------------------------------------------------- */}
+              {promoSubTab === 'badges' && (
+                <div className="space-y-6">
+                  
+                  {/* Badge Studio Toolbar */}
+                  <div className={`p-5 rounded-3xl border space-y-4 bg-gradient-to-br from-[#FAF8F5] to-white border-[#E8DCC2]`}>
+                    <div>
+                      <h3 className="font-luxury text-base font-bold flex items-center gap-2 text-[#171513]">
+                        <Tag className="w-4 h-4 text-[#C59B3F]" />
+                        Bibliothèque de Badges Marketing Recommandés
+                      </h3>
+                      <p className="text-xs text-[#6B655E] mt-0.5">
+                        Sélectionnez des parfums ci-dessous puis cliquez sur un badge prédéfini pour l’attribuer instantanément.
+                      </p>
                     </div>
-                    <p className="text-xs opacity-75 mt-1">
-                      Choisissez les 2 à 4 parfums présentés directement dans la section vedette de la page d'accueil.
-                    </p>
+
+                    {/* Pre-made Badge Badges Palette */}
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      {[
+                        'Bestseller',
+                        'Coup de Cœur',
+                        'Nouveauté',
+                        'Édition Limitée',
+                        'Tendance',
+                        'Offre Spéciale',
+                        'Cadeau Idéal',
+                        'Exclusivité Dakar',
+                        '-15% Flash',
+                        '-20% Promo',
+                        '-30% VIP',
+                      ].map(badgePreset => (
+                        <button
+                          key={badgePreset}
+                          onClick={() => handleBulkApplyBadge(badgePreset)}
+                          disabled={selectedPromoProductIds.length === 0 || isApplyingBulkPromo}
+                          className="px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-white border border-[#E8DCC2] hover:border-[#C59B3F] hover:bg-[#FAF8F5] text-[#967120] transition-all disabled:opacity-40 shadow-xs flex items-center gap-1"
+                        >
+                          <Plus className="w-3 h-3" />
+                          <span>{badgePreset}</span>
+                        </button>
+                      ))}
+
+                      <button
+                        onClick={() => handleBulkApplyBadge(undefined)}
+                        disabled={selectedPromoProductIds.length === 0 || isApplyingBulkPromo}
+                        className="px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-red-50 border border-red-200 text-red-600 hover:bg-red-100 transition-all disabled:opacity-40 flex items-center gap-1"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        <span>Retirer les badges</span>
+                      </button>
+                    </div>
+
+                    {/* Custom Badge Input */}
+                    <div className="pt-2 border-t border-[#E8DCC2]/60 flex flex-wrap items-center gap-2">
+                      <span className="text-xs font-bold">Ou créer un badge personnalisé :</span>
+                      <input
+                        type="text"
+                        placeholder="ex: Sélection Tabaski, Coffret Luxe..."
+                        value={bulkCustomBadge}
+                        onChange={e => setBulkCustomBadge(e.target.value)}
+                        className={`px-3 py-1.5 text-xs rounded-xl border font-bold ${inputBg}`}
+                      />
+                      <button
+                        onClick={() => handleBulkApplyBadge(bulkCustomBadge)}
+                        disabled={selectedPromoProductIds.length === 0 || !bulkCustomBadge.trim() || isApplyingBulkPromo}
+                        className="px-4 py-1.5 rounded-xl bg-[#171513] text-[#F3E5AB] text-xs font-bold hover:bg-[#C59B3F] hover:text-white transition-colors disabled:opacity-40"
+                      >
+                        Appliquer aux {selectedPromoProductIds.length} sélectionné(s)
+                      </button>
+                    </div>
                   </div>
 
-                  {selectionDuMoment.length < 2 && (
-                    <div className="text-xs font-bold text-red-600 flex items-center gap-1.5 animate-pulse">
-                      <AlertTriangle className="w-4 h-4" />
-                      <span>Minimum 2 parfums requis</span>
-                    </div>
-                  )}
-                </div>
+                  {/* Badges Product Matrix */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {products.map(product => {
+                      const isSelectedForBulk = selectedPromoProductIds.includes(product.id);
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {products.map(product => {
-                    const isSelected = Boolean(product.isPopular);
-                    return (
-                      <div
-                        key={product.id}
-                        className={`p-4 rounded-2xl border flex items-center justify-between gap-3 transition-all ${
-                          isSelected ? 'border-[#C59B3F] bg-[#FAF8F5] shadow-xs' : 'bg-white'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="relative w-12 h-12 bg-white rounded-xl p-1 border flex-shrink-0">
-                            <Image src={product.image} alt={product.name} fill className="object-contain" />
-                          </div>
-                          <div>
-                            <div className="font-bold text-xs">{product.name}</div>
-                            <div className="text-[10px] opacity-70">{product.brand} • {product.price.toLocaleString('fr-FR')} FCFA</div>
-                            {isSelected && (
-                              <span className="inline-block mt-1 text-[9px] font-bold text-[#967120] uppercase">
-                                ✓ En vedette sur l'accueil
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        <button
-                          onClick={() => handleTogglePopular(product.id)}
-                          className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
-                            isSelected 
-                              ? 'bg-[#171513] text-[#F3E5AB] hover:bg-red-600 hover:text-white' 
-                              : 'border border-[#E8DCC2] hover:bg-[#C59B3F] hover:text-white'
+                      return (
+                        <div
+                          key={product.id}
+                          className={`p-4 rounded-3xl border space-y-3 transition-all ${
+                            isSelectedForBulk 
+                              ? 'border-[#C59B3F] ring-2 ring-[#C59B3F]/40 bg-[#FAF8F5]' 
+                              : cardBgClass
                           }`}
                         >
-                          {isSelected ? 'Retirer' : 'Ajouter'}
-                        </button>
-                      </div>
-                    );
-                  })}
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <input
+                                type="checkbox"
+                                checked={isSelectedForBulk}
+                                onChange={e => {
+                                  if (e.target.checked) {
+                                    setSelectedPromoProductIds(prev => [...prev, product.id]);
+                                  } else {
+                                    setSelectedPromoProductIds(prev => prev.filter(id => id !== product.id));
+                                  }
+                                }}
+                                className="w-4 h-4 rounded text-[#C59B3F] focus:ring-[#C59B3F] cursor-pointer"
+                              />
+                              <div className="relative w-12 h-12 bg-white rounded-xl p-1 border flex-shrink-0">
+                                <Image src={product.image} alt={product.name} fill className="object-contain" />
+                              </div>
+                              <div className="min-w-0">
+                                <h4 className="font-luxury font-bold text-xs truncate">{product.name}</h4>
+                                <span className="text-[10px] text-[#967120] font-bold uppercase">{product.brand}</span>
+                              </div>
+                            </div>
+
+                            {product.badge ? (
+                              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[#FBF4E2] text-[#967120] border border-[#E8DCC2] shadow-xs">
+                                {product.badge}
+                              </span>
+                            ) : (
+                              <span className="text-[10px] opacity-40 italic">Aucun badge</span>
+                            )}
+                          </div>
+
+                          {/* Quick 1-Click Badge Selector for this card */}
+                          <div className="space-y-1.5 pt-1">
+                            <span className="text-[9px] font-bold text-[#967120] uppercase block">
+                              Changer le badge rapidement :
+                            </span>
+                            <div className="flex flex-wrap gap-1">
+                              {['Bestseller', 'Coup de Cœur', 'Nouveauté', 'Tendance'].map(b => (
+                                <button
+                                  key={b}
+                                  onClick={() => handleSetProductBadge(product, product.badge === b ? undefined : b)}
+                                  className={`px-2 py-0.5 rounded-lg text-[9px] font-bold transition-all ${
+                                    product.badge === b
+                                      ? 'bg-[#171513] text-[#F3E5AB] border border-[#C59B3F]'
+                                      : 'bg-white border border-[#E8DCC2] hover:border-[#C59B3F] text-[#171513]'
+                                  }`}
+                                >
+                                  {product.badge === b ? '✓ ' + b : b}
+                                </button>
+                              ))}
+                              {product.badge && (
+                                <button
+                                  onClick={() => handleSetProductBadge(product, undefined)}
+                                  className="px-2 py-0.5 rounded-lg text-[9px] font-bold text-red-600 bg-red-50 hover:bg-red-100 transition-colors"
+                                >
+                                  Effacer
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
+              )}
 
             </div>
           )}

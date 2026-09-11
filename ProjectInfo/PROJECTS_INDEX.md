@@ -7,6 +7,7 @@ Ce document recense tous les projets de l'agence, leur statut et leurs dépôts 
 | **Pâtisserie Docteur Cakes** | `docteurcakes` | [Weshmorayy/docteurcakes-website](https://github.com/Weshmorayy/docteurcakes-website) | Vitrine Pâtisserie | ✅ En production | `Documents/Clients/Patisserie Docteur Cakes` |
 | **Nouvelle Cosmétique Ivoirienne** | `nouvellecosmetique` | [Weshmorayy/nouvellecosmetique-website](https://github.com/Weshmorayy/nouvellecosmetique-website) | Boutique Cosmétique | ✅ En production | `Documents/Clients/Nouvelle cosmetique ivorienne` |
 | **Maison Sy Traiteur** | `maitresy` | [Weshmorayy/maitresy-website](https://github.com/Weshmorayy/maitresy-website) | Vitrine Traiteur | ✅ En production | `Documents/Clients/Maison Sy` |
+| **MG Perfume Dakar** | `mgperfume` | [Weshmorayy/mgperfume-website](https://github.com/Weshmorayy/mgperfume-website) | Haute Parfumerie & E-Commerce PayTech | ✅ En production | `Documents/Clients/MG Perfume` |
 
 ---
 
