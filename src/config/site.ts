@@ -5,7 +5,7 @@ export const siteConfig: SiteConfig = {
   brandName: 'MG Perfume',
   tagline: 'L’art de séduire sans un mot. Senteurs d’Orient et élixirs de caractère.',
   description: 'Boutique exclusive de parfums authentiques, d’élixirs sensuels et de muscs raffinés à Dakar. Commandez vos fragrances avec livraison express à domicile.',
-  url: 'https://mgperfume.sn',
+  url: 'https://www.mg-perfume.com',
   city: 'Dakar',
   country: 'Sénégal',
   currency: 'FCFA',
