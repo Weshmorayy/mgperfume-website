@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Image from 'next/image';
-import { Plus, Eye, Check, Sparkles, ArrowUpDown, Search, X } from 'lucide-react';
+import { Plus, Eye, Check, Sparkles, ArrowUpDown, Search, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { PerfumeProduct, ScentFamily } from '@/types';
 import { siteConfig } from '@/config/site';
 import { useStore } from '@/context/StoreContext';
@@ -12,6 +12,7 @@ interface CatalogProps {
   onSelectProduct: (product: PerfumeProduct) => void;
   showFilters?: boolean;
   products?: PerfumeProduct[];
+  itemsPerPage?: number;
 }
 
 const CATEGORIES: { id: ScentFamily; label: string }[] = [
@@ -28,6 +29,7 @@ export function Catalog({
   onSelectProduct,
   showFilters = true,
   products: overrideProducts,
+  itemsPerPage = 12,
 }: CatalogProps) {
   const { products: storeProducts } = useStore();
   const rawProducts = overrideProducts || storeProducts;
@@ -37,10 +39,16 @@ export function Catalog({
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<'default' | 'price-asc' | 'price-desc'>('default');
   const [addedId, setAddedId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
-  // Extract brands dynamically
+  // Reset pagination when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedFamily, selectedBrand, searchQuery, sortBy]);
+
+  // Extract brands dynamically from ALL products
   const brands = useMemo(() => {
-    return Array.from(new Set(rawProducts.map(p => p.brand).filter(Boolean))) as string[];
+    return Array.from(new Set(rawProducts.map(p => p.brand).filter(Boolean))).sort() as string[];
   }, [rawProducts]);
 
   // Filter & Search Logic
@@ -49,7 +57,7 @@ export function Catalog({
 
     // Filter by Brand
     if (selectedBrand !== 'all') {
-      result = result.filter(p => p.brand === selectedBrand);
+      result = result.filter(p => p.brand?.toLowerCase() === selectedBrand.toLowerCase());
     }
 
     // Filter by Scent Family
@@ -80,7 +88,14 @@ export function Catalog({
     }
 
     return result;
-  }, [searchQuery, selectedBrand, selectedFamily, sortBy]);
+  }, [rawProducts, searchQuery, selectedBrand, selectedFamily, sortBy]);
+
+  // Pagination Logic
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const paginatedProducts = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredProducts.slice(start, start + itemsPerPage);
+  }, [filteredProducts, currentPage, itemsPerPage]);
 
   const handleAdd = (product: PerfumeProduct) => {
     onAddToCart(product);
@@ -94,7 +109,7 @@ export function Catalog({
       {showFilters && (
         <div className="space-y-6 mb-10">
           
-          {/* Integrated Search Bar inside the page */}
+          {/* Integrated Search Bar */}
           <div className="bg-white p-4 sm:p-5 rounded-3xl border border-[#E8DCC2] shadow-xs space-y-4">
             <div className="relative">
               <Search className="w-5 h-5 text-[#9E968D] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -116,7 +131,7 @@ export function Catalog({
               )}
             </div>
 
-            {/* Brand Filter Pills */}
+            {/* Brand Filter Pills (Dynamic from all products) */}
             <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-[#E8DCC2]/60">
               <span className="text-xs font-bold text-[#171513] uppercase tracking-wider mr-1">
                 Maison :
@@ -129,21 +144,24 @@ export function Catalog({
                     : 'bg-[#FAF8F5] text-[#6B655E] border border-[#E8DCC2] hover:border-[#C59B3F]'
                 }`}
               >
-                Toutes
+                Toutes ({rawProducts.length})
               </button>
-              {brands.map(brand => (
-                <button
-                  key={brand}
-                  onClick={() => setSelectedBrand(brand)}
-                  className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
-                    selectedBrand === brand
-                      ? 'bg-[#171513] text-white shadow-xs'
-                      : 'bg-[#FAF8F5] text-[#6B655E] border border-[#E8DCC2] hover:border-[#C59B3F]'
-                  }`}
-                >
-                  {brand}
-                </button>
-              ))}
+              {brands.map(brand => {
+                const count = rawProducts.filter(p => p.brand?.toLowerCase() === brand.toLowerCase()).length;
+                return (
+                  <button
+                    key={brand}
+                    onClick={() => setSelectedBrand(brand)}
+                    className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+                      selectedBrand.toLowerCase() === brand.toLowerCase()
+                        ? 'bg-[#171513] text-white shadow-xs'
+                        : 'bg-[#FAF8F5] text-[#6B655E] border border-[#E8DCC2] hover:border-[#C59B3F]'
+                    }`}
+                  >
+                    {brand} ({count})
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -213,117 +231,146 @@ export function Catalog({
           </button>
         </div>
       ) : (
-        /* Products Grid (100% pure white background behind images) */
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProducts.map(product => (
-            <div
-              key={product.id}
-              className="group bg-white rounded-2xl p-4 border border-[#E8DCC2] hover:border-[#C59B3F] transition-all duration-300 shadow-xs hover:shadow-md flex flex-col justify-between"
-            >
-              <div>
-                {/* Badge & Volume */}
-                <div className="flex items-center justify-between mb-2 text-[10px]">
-                  {product.badge ? (
-                    <span className="px-2 py-0.5 rounded-full font-bold uppercase tracking-wider bg-[#FBF4E2] text-[#967120] border border-[#E8DCC2]">
-                      {product.badge}
-                    </span>
-                  ) : (
-                    <span className="font-semibold uppercase text-[#9E968D]">
-                      {product.categoryLabel}
-                    </span>
-                  )}
-                  <span className="text-[#9E968D] font-mono">{product.volume}</span>
-                </div>
-
-                {/* Product Image on 100% PURE WHITE background */}
-                <div
-                  onClick={() => onSelectProduct(product)}
-                  className="relative w-full h-64 bg-white flex items-center justify-center cursor-pointer rounded-xl overflow-hidden"
-                >
-                  <div className="relative w-48 h-56 transition-transform duration-500 group-hover:scale-105">
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      fill
-                      className="object-contain"
-                    />
-                  </div>
-                  <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <span className="px-3 py-1.5 rounded-full bg-white text-[#171513] text-xs font-semibold border border-[#E8DCC2] shadow-sm flex items-center gap-1.5">
-                      <Eye className="w-3.5 h-3.5 text-[#C59B3F]" />
-                      Pyramide olfactive
-                    </span>
-                  </div>
-                </div>
-
-                {/* Product Content */}
-                <div className="mt-3 space-y-1">
-                  <span className="text-[10px] font-bold text-[#967120] tracking-widest uppercase">
-                    {product.brand}
-                  </span>
-                  <h3
-                    onClick={() => onSelectProduct(product)}
-                    className="font-luxury text-base font-bold text-[#171513] hover:text-[#C59B3F] cursor-pointer transition-colors"
-                  >
-                    {product.name}
-                  </h3>
-                  <p className="text-xs text-[#6B655E] line-clamp-2 leading-relaxed">
-                    {product.tagline}
-                  </p>
-                </div>
-
-                {/* Notes Tags */}
-                <div className="mt-2.5 pt-2.5 border-t border-[#E8DCC2]/60 flex flex-wrap gap-1">
-                  {product.topNotes.slice(0, 3).map((note, i) => (
-                    <span
-                      key={i}
-                      className="text-[10px] px-2 py-0.5 rounded bg-white text-[#6B655E] border border-[#E8DCC2]"
-                    >
-                      {note}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Price & Action Button */}
-              <div className="mt-4 pt-3 border-t border-[#E8DCC2] flex items-center justify-between gap-3">
+        <>
+          {/* Products Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {paginatedProducts.map(product => (
+              <div
+                key={product.id}
+                className="group bg-white rounded-2xl p-4 border border-[#E8DCC2] hover:border-[#C59B3F] transition-all duration-300 shadow-xs hover:shadow-md flex flex-col justify-between"
+              >
                 <div>
-                  <div className="text-base font-extrabold text-[#171513]">
-                    {product.price.toLocaleString('fr-FR')}{' '}
-                    <span className="text-xs text-[#967120] font-bold">FCFA</span>
+                  {/* Badge & Volume */}
+                  <div className="flex items-center justify-between mb-2 text-[10px]">
+                    {product.badge ? (
+                      <span className="px-2 py-0.5 rounded-full font-bold uppercase tracking-wider bg-[#FBF4E2] text-[#967120] border border-[#E8DCC2]">
+                        {product.badge}
+                      </span>
+                    ) : (
+                      <span className="font-semibold uppercase text-[#9E968D]">
+                        {product.categoryLabel}
+                      </span>
+                    )}
+                    <span className="text-[#9E968D] font-mono">{product.volume}</span>
                   </div>
-                  {product.originalPrice && (
-                    <div className="text-[10px] text-[#9E968D] line-through">
-                      {product.originalPrice.toLocaleString('fr-FR')} FCFA
+
+                  {/* Product Image */}
+                  <div
+                    onClick={() => onSelectProduct(product)}
+                    className="relative w-full h-64 bg-white flex items-center justify-center cursor-pointer rounded-xl overflow-hidden"
+                  >
+                    <div className="relative w-48 h-56 transition-transform duration-500 group-hover:scale-105">
+                      <Image
+                        src={product.image}
+                        alt={product.name}
+                        fill
+                        className="object-contain"
+                      />
                     </div>
-                  )}
+                    <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <span className="px-3 py-1.5 rounded-full bg-white text-[#171513] text-xs font-semibold border border-[#E8DCC2] shadow-sm flex items-center gap-1.5">
+                        <Eye className="w-3.5 h-3.5 text-[#C59B3F]" />
+                        Pyramide olfactive
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Product Content */}
+                  <div className="mt-3 space-y-1">
+                    <span className="text-[10px] font-bold text-[#967120] tracking-widest uppercase">
+                      {product.brand}
+                    </span>
+                    <h3
+                      onClick={() => onSelectProduct(product)}
+                      className="font-luxury text-base font-bold text-[#171513] hover:text-[#C59B3F] cursor-pointer transition-colors"
+                    >
+                      {product.name}
+                    </h3>
+                    <p className="text-xs text-[#6B655E] line-clamp-2 leading-relaxed">
+                      {product.tagline}
+                    </p>
+                  </div>
+
+                  {/* Notes Tags */}
+                  <div className="mt-2.5 pt-2.5 border-t border-[#E8DCC2]/60 flex flex-wrap gap-1">
+                    {product.topNotes.slice(0, 3).map((note, i) => (
+                      <span
+                        key={i}
+                        className="text-[10px] px-2 py-0.5 rounded bg-white text-[#6B655E] border border-[#E8DCC2]"
+                      >
+                        {note}
+                      </span>
+                    ))}
+                  </div>
                 </div>
 
-                <button
-                  onClick={() => handleAdd(product)}
-                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase transition-all duration-300 ${
-                    addedId === product.id
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-[#171513] hover:bg-[#C59B3F] text-white hover:scale-105'
-                  }`}
-                  aria-label={`Ajouter ${product.name} au panier`}
-                >
-                  {addedId === product.id ? (
-                    <>
-                      <Check className="w-3.5 h-3.5" />
-                      <span>Ajouté</span>
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-3.5 h-3.5" />
-                      <span>Ajouter</span>
-                    </>
-                  )}
-                </button>
+                {/* Price & Action Button */}
+                <div className="mt-4 pt-3 border-t border-[#E8DCC2] flex items-center justify-between gap-3">
+                  <div>
+                    <div className="text-base font-extrabold text-[#171513]">
+                      {product.price.toLocaleString('fr-FR')}{' '}
+                      <span className="text-xs text-[#967120] font-bold">FCFA</span>
+                    </div>
+                    {product.originalPrice && (
+                      <div className="text-[10px] text-[#9E968D] line-through">
+                        {product.originalPrice.toLocaleString('fr-FR')} FCFA
+                      </div>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={() => handleAdd(product)}
+                    className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase transition-all duration-300 ${
+                      addedId === product.id
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-[#171513] hover:bg-[#C59B3F] text-white hover:scale-105'
+                    }`}
+                    aria-label={`Ajouter ${product.name} au panier`}
+                  >
+                    {addedId === product.id ? (
+                      <>
+                        <Check className="w-3.5 h-3.5" />
+                        <span>Ajouté</span>
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Ajouter</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
+            ))}
+          </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="mt-10 flex items-center justify-center gap-2">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="p-2 rounded-full border border-[#E8DCC2] bg-white text-[#171513] disabled:opacity-30 disabled:cursor-not-allowed hover:border-[#C59B3F] transition-all"
+                aria-label="Page précédente"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              
+              <div className="flex items-center gap-1 px-3 text-xs font-bold text-[#171513]">
+                <span>Page {currentPage} sur {totalPages}</span>
+              </div>
+
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="p-2 rounded-full border border-[#E8DCC2] bg-white text-[#171513] disabled:opacity-30 disabled:cursor-not-allowed hover:border-[#C59B3F] transition-all"
+                aria-label="Page suivante"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
     </section>
   );
