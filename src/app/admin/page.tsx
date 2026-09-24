@@ -61,6 +61,10 @@ import {
   CheckSquare,
   Square,
   RotateCcw,
+  Archive,
+  ArchiveRestore,
+  ChevronLeft,
+  Box,
 } from 'lucide-react';
 import { siteConfig } from '@/config/site';
 import { PerfumeProduct, EditorialBanner, ShippingZone, FAQItem, ScentFamily, SiteBackup, Order, OrderStatus, PaymentStatus } from '@/types';
@@ -124,6 +128,17 @@ export default function AdminDashboardPage() {
 
   // Products View Mode: 'cards' or 'list'
   const [productsViewMode, setProductsViewMode] = useState<'cards' | 'list'>('cards');
+
+  // Products Tab Filter: 'active' (default catalogue) or 'archived'
+  const [productArchiveTab, setProductArchiveTab] = useState<'active' | 'archived'>('active');
+
+  // Products Pagination
+  const [adminProductPage, setAdminProductPage] = useState<number>(1);
+  const adminProductsPerPage = 12;
+
+  // Bulk Product Management
+  const [selectedAdminProductIds, setSelectedAdminProductIds] = useState<string[]>([]);
+  const [isBulkApplying, setIsBulkApplying] = useState(false);
 
   // Products Filters & Sorting
   const [filterFamily, setFilterFamily] = useState<string>('all');
@@ -439,6 +454,88 @@ export default function AdminDashboardPage() {
     } else {
       alert('Erreur : ' + res.error);
     }
+  };
+
+  // Toggle Rupture de Stock
+  const handleToggleInStock = async (product: PerfumeProduct) => {
+    const updated: PerfumeProduct = {
+      ...product,
+      inStock: product.inStock === false ? true : false,
+    };
+    const res = await saveProduct(updated);
+    if (res.success) {
+      showFeedback(updated.inStock ? `"${product.name}" est de nouveau En Stock !` : `"${product.name}" marqué En Rupture de Stock !`);
+    } else {
+      alert('Erreur : ' + res.error);
+    }
+  };
+
+  // Toggle Masquer / Archiver Produit
+  const handleToggleArchive = async (product: PerfumeProduct) => {
+    const updated: PerfumeProduct = {
+      ...product,
+      isArchived: !product.isArchived,
+    };
+    const res = await saveProduct(updated);
+    if (res.success) {
+      showFeedback(updated.isArchived ? `"${product.name}" archivé et masqué de la boutique !` : `"${product.name}" restauré dans le catalogue actif !`);
+    } else {
+      alert('Erreur : ' + res.error);
+    }
+  };
+
+  // Toggle Livraison Gratuite
+  const handleToggleFreeDelivery = async (product: PerfumeProduct) => {
+    const updated: PerfumeProduct = {
+      ...product,
+      freeDelivery: !product.freeDelivery,
+    };
+    const res = await saveProduct(updated);
+    if (res.success) {
+      showFeedback(updated.freeDelivery ? `Livraison Gratuite activée pour "${product.name}" !` : `Livraison Gratuite désactivée pour "${product.name}"`);
+    } else {
+      alert('Erreur : ' + res.error);
+    }
+  };
+
+  // Bulk Actions Handlers for Products
+  const handleBulkAction = async (action: 'archive' | 'unarchive' | 'out_of_stock' | 'in_stock' | 'free_delivery_on' | 'free_delivery_off' | 'delete') => {
+    if (selectedAdminProductIds.length === 0) {
+      alert('Veuillez sélectionner au moins un parfum.');
+      return;
+    }
+
+    if (action === 'delete' && !confirm(`Voulez-vous vraiment supprimer définitivement ${selectedAdminProductIds.length} parfum(s) ?`)) {
+      return;
+    }
+
+    setIsBulkApplying(true);
+    let count = 0;
+
+    for (const id of selectedAdminProductIds) {
+      const prod = products.find(p => p.id === id);
+      if (!prod) continue;
+
+      if (action === 'delete') {
+        const res = await deleteProduct(id);
+        if (res.success) count++;
+      } else {
+        const updated: PerfumeProduct = { ...prod };
+        if (action === 'archive') updated.isArchived = true;
+        if (action === 'unarchive') updated.isArchived = false;
+        if (action === 'out_of_stock') updated.inStock = false;
+        if (action === 'in_stock') updated.inStock = true;
+        if (action === 'free_delivery_on') updated.freeDelivery = true;
+        if (action === 'free_delivery_off') updated.freeDelivery = false;
+
+        const res = await saveProduct(updated);
+        if (res.success) count++;
+      }
+    }
+
+    setIsBulkApplying(false);
+    setSelectedAdminProductIds([]);
+    showFeedback(`Action groupée exécutée avec succès sur ${count} parfum(s) !`);
   };
 
   // Quick Set Badge on a Product
@@ -872,6 +969,10 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
   // Filtered & Sorted Products
   const filteredProducts = products
     .filter(p => {
+      // Archive tab filter: 'active' shows non-archived, 'archived' shows only archived
+      if (productArchiveTab === 'active' && p.isArchived) return false;
+      if (productArchiveTab === 'archived' && !p.isArchived) return false;
+
       // Text search
       const matchesSearch = 
         p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
@@ -889,6 +990,9 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
       if (filterStatus === 'promo' && !p.originalPrice) return false;
       if (filterStatus === 'badge' && !p.badge) return false;
       if (filterStatus === 'popular' && !p.isPopular) return false;
+      if (filterStatus === 'out_of_stock' && p.inStock !== false) return false;
+      if (filterStatus === 'in_stock' && p.inStock === false) return false;
+      if (filterStatus === 'free_delivery' && !p.freeDelivery) return false;
 
       return true;
     })
@@ -899,6 +1003,19 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
       if (sortBy === 'name-desc') return b.name.localeCompare(a.name);
       return 0;
     });
+
+  // Admin Products Pagination
+  const totalAdminProductPages = Math.ceil(filteredProducts.length / adminProductsPerPage) || 1;
+  const paginatedAdminProducts = filteredProducts.slice(
+    (adminProductPage - 1) * adminProductsPerPage,
+    adminProductPage * adminProductsPerPage
+  );
+
+  // Reset page when search or filters change
+  useEffect(() => {
+    setAdminProductPage(1);
+    setSelectedAdminProductIds([]);
+  }, [productSearch, filterFamily, filterBrand, filterStatus, sortBy, productArchiveTab]);
 
   // ----------------------------------------------------
   // LOADING SCREEN (While session is being verified)
@@ -1720,10 +1837,46 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
           )}
 
           {/* ============================================================ */}
-          {/* TAB 1: CATALOGUE PRODUITS */}
+          {/* TAB 1: CATALOGUE PRODUITS (With Archive, Rupture, Free Delivery, Bulk & Pagination) */}
           {/* ============================================================ */}
           {activeTab === 'products' && (
             <div className="space-y-6">
+
+              {/* Sub Navigation: Actifs vs Archivés */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-[#E8DCC2]/80">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setProductArchiveTab('active')}
+                    className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 ${
+                      productArchiveTab === 'active'
+                        ? 'bg-[#171513] text-white shadow-xs'
+                        : `${subCardBg} text-[#6B655E] hover:border-[#C59B3F]`
+                    }`}
+                  >
+                    <Package className="w-4 h-4 text-[#C59B3F]" />
+                    <span>Catalogue Actif ({products.filter(p => !p.isArchived).length})</span>
+                  </button>
+
+                  <button
+                    onClick={() => setProductArchiveTab('archived')}
+                    className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 ${
+                      productArchiveTab === 'archived'
+                        ? 'bg-[#171513] text-white shadow-xs'
+                        : `${subCardBg} text-[#6B655E] hover:border-[#C59B3F]`
+                    }`}
+                  >
+                    <Archive className="w-4 h-4 text-amber-500" />
+                    <span>Produits Archivés / Masqués ({products.filter(p => p.isArchived).length})</span>
+                  </button>
+                </div>
+
+                <span className="text-xs text-[#9E968D]">
+                  {productArchiveTab === 'active' 
+                    ? 'Ces produits sont visibles sur la boutique publique' 
+                    : 'Ces produits sont masqués pour vos clients'}
+                </span>
+              </div>
+
               {/* Search bar & Advanced Filters Bar */}
               <div className={`p-4 rounded-3xl border space-y-3 ${cardBgClass}`}>
                 <div className="relative">
@@ -1783,20 +1936,23 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                     </select>
                   </div>
 
-                  {/* Status / Badge Filter */}
+                  {/* Status / Stock Filter */}
                   <div>
                     <label className="text-[10px] font-bold text-[#967120] uppercase tracking-wider block mb-1">
-                      Statut / Promo
+                      Statut & Stock
                     </label>
                     <select
                       value={filterStatus}
                       onChange={e => setFilterStatus(e.target.value)}
                       className={`w-full px-3 py-2 rounded-xl border text-xs focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
                     >
-                      <option value="all">Tous les statuts</option>
+                      <option value="all">Tous les états</option>
+                      <option value="in_stock">En Stock</option>
+                      <option value="out_of_stock">⚠️ Rupture de Stock</option>
+                      <option value="free_delivery">🚚 Livraison Gratuite</option>
                       <option value="promo">En promotion (Prix barré)</option>
                       <option value="badge">Avec Badge</option>
-                      <option value="popular">Produit Vedette</option>
+                      <option value="popular">Sélection du Moment</option>
                     </select>
                   </div>
 
@@ -1822,7 +1978,7 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                 {/* Filter Results Summary & Reset */}
                 <div className="flex items-center justify-between pt-2 border-t border-[#E8DCC2]/60 text-[11px]">
                   <span className="opacity-70">
-                    Affichage de <strong className="text-[#967120]">{filteredProducts.length}</strong> sur <strong>{products.length}</strong> parfums
+                    Affichage de <strong className="text-[#967120]">{filteredProducts.length}</strong> parfum(s) {productArchiveTab === 'archived' ? 'archivé(s)' : 'actif(s)'}
                   </span>
 
                   {(filterFamily !== 'all' || filterBrand !== 'all' || filterStatus !== 'all' || sortBy !== 'default' || productSearch) && (
@@ -1842,86 +1998,273 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                 </div>
               </div>
 
+              {/* BULK ACTIONS TOOLBAR */}
+              <div className={`p-4 rounded-2xl border flex flex-wrap items-center justify-between gap-3 ${subCardBg}`}>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => {
+                      if (selectedAdminProductIds.length === paginatedAdminProducts.length) {
+                        setSelectedAdminProductIds([]);
+                      } else {
+                        setSelectedAdminProductIds(paginatedAdminProducts.map(p => p.id));
+                      }
+                    }}
+                    className="flex items-center gap-1.5 text-xs font-bold text-[#171513] hover:text-[#967120]"
+                  >
+                    {selectedAdminProductIds.length > 0 && selectedAdminProductIds.length === paginatedAdminProducts.length ? (
+                      <CheckSquare className="w-4 h-4 text-[#C59B3F]" />
+                    ) : (
+                      <Square className="w-4 h-4 text-[#9E968D]" />
+                    )}
+                    <span>Tout cocher sur la page ({selectedAdminProductIds.length} sélectionné{selectedAdminProductIds.length > 1 ? 's' : ''})</span>
+                  </button>
+                </div>
+
+                {selectedAdminProductIds.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-1.5 animate-in fade-in duration-200">
+                    <span className="text-[11px] font-bold text-[#967120] mr-1">Actions groupées :</span>
+                    
+                    {productArchiveTab === 'active' ? (
+                      <button
+                        onClick={() => handleBulkAction('archive')}
+                        disabled={isBulkApplying}
+                        className="px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs flex items-center gap-1 border border-amber-300"
+                        title="Archiver et masquer ces produits"
+                      >
+                        <Archive className="w-3.5 h-3.5" />
+                        <span>Archiver / Masquer</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleBulkAction('unarchive')}
+                        disabled={isBulkApplying}
+                        className="px-3 py-1.5 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold text-xs flex items-center gap-1 border border-emerald-300"
+                        title="Désarchiver et restaurer"
+                      >
+                        <ArchiveRestore className="w-3.5 h-3.5" />
+                        <span>Restaurer Actif</span>
+                      </button>
+                    )}
+
+                    <button
+                      onClick={() => handleBulkAction('out_of_stock')}
+                      disabled={isBulkApplying}
+                      className="px-3 py-1.5 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-900 font-bold text-xs flex items-center gap-1 border border-rose-300"
+                    >
+                      <Box className="w-3.5 h-3.5" />
+                      <span>Marquer Rupture</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleBulkAction('in_stock')}
+                      disabled={isBulkApplying}
+                      className="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center gap-1 border border-emerald-200"
+                    >
+                      <Check className="w-3.5 h-3.5" />
+                      <span>En Stock</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleBulkAction('free_delivery_on')}
+                      disabled={isBulkApplying}
+                      className="px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-800 font-bold text-xs flex items-center gap-1 border border-blue-200"
+                    >
+                      <Truck className="w-3.5 h-3.5" />
+                      <span>Livraison Gratuite</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleBulkAction('delete')}
+                      disabled={isBulkApplying}
+                      className="px-2.5 py-1.5 rounded-xl bg-red-50 hover:bg-red-600 text-red-600 hover:text-white font-bold text-xs flex items-center gap-1 border border-red-200 transition-colors"
+                      title="Supprimer la sélection"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+              </div>
+
               {/* PRODUCTS: CARDS VIEW */}
               {productsViewMode === 'cards' ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredProducts.map(product => (
-                    <div 
-                      key={product.id}
-                      className={`relative rounded-2xl p-4 border flex flex-col justify-between space-y-4 hover:border-[#C59B3F]/60 transition-all ${cardBgClass}`}
-                    >
-                      <div>
-                        {/* Product Thumbnail on Pure White Box (Rule 7.1) */}
-                        <div className="relative w-full h-44 bg-white rounded-xl overflow-hidden p-2 flex items-center justify-center border border-[#E8DCC2]">
-                          <div className="relative w-28 h-36">
-                            <Image src={product.image} alt={product.name} fill className="object-contain" />
-                          </div>
+                  {paginatedAdminProducts.map(product => {
+                    const isSelected = selectedAdminProductIds.includes(product.id);
+                    return (
+                      <div 
+                        key={product.id}
+                        className={`relative rounded-2xl p-4 border flex flex-col justify-between space-y-4 transition-all ${
+                          isSelected ? 'border-[#C59B3F] ring-2 ring-[#C59B3F]/30' : 'hover:border-[#C59B3F]/60'
+                        } ${cardBgClass} ${product.isArchived ? 'opacity-85' : ''}`}
+                      >
+                        <div>
+                          {/* Selection Checkbox & Badges */}
+                          <div className="flex items-center justify-between mb-2">
+                            <button
+                              onClick={() => {
+                                setSelectedAdminProductIds(prev =>
+                                  prev.includes(product.id) ? prev.filter(id => id !== product.id) : [...prev, product.id]
+                                );
+                              }}
+                              className="flex items-center gap-1.5 text-xs font-bold text-[#171513]"
+                            >
+                              {isSelected ? (
+                                <CheckSquare className="w-4 h-4 text-[#C59B3F]" />
+                              ) : (
+                                <Square className="w-4 h-4 text-[#9E968D]" />
+                              )}
+                              <span className="text-[10px] text-[#9E968D]">Sélectionner</span>
+                            </button>
 
-                          {/* Product Badges (Phare / Sélection / Badge) — Never overlap */}
-                          <div className="absolute top-2 left-2 flex flex-wrap gap-1 z-10 max-w-[85%] pointer-events-none">
-                            {product.isHero && (
-                              <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-[#C59B3F] text-[#171513] border border-[#967120] shadow-xs">
-                                ★ Édition Phare
-                              </span>
-                            )}
-                            {product.isPopular && (
-                              <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-[#171513] text-[#F3E5AB] border border-[#C59B3F]/40 shadow-xs">
-                                Sélection
-                              </span>
-                            )}
-                            {product.badge && (
-                              <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-[#FBF4E2] text-[#967120] border border-[#E8DCC2] shadow-xs">
-                                {product.badge}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="mt-3 space-y-1">
-                          <span className="text-[10px] font-bold text-[#967120] uppercase tracking-wider">
-                            {product.brand} • {product.volume}
-                          </span>
-                          <h3 className="font-luxury text-base font-bold leading-tight">
-                            {product.name}
-                          </h3>
-                          <p className="text-xs opacity-70 line-clamp-1">{product.tagline}</p>
-                        </div>
-
-                        <div className="mt-2 pt-2 border-t border-[#E8DCC2]/60 flex items-center justify-between">
-                          <div className="text-sm font-extrabold">
-                            {product.price.toLocaleString('fr-FR')} <span className="text-xs text-[#967120]">FCFA</span>
-                          </div>
-                          {product.originalPrice && (
-                            <div className="text-[10px] text-red-500 line-through">
-                              {product.originalPrice.toLocaleString('fr-FR')} FCFA
+                            <div className="flex items-center gap-1">
+                              {product.isArchived && (
+                                <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                                  Archivé / Masqué
+                                </span>
+                              )}
+                              {product.inStock === false && (
+                                <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-rose-100 text-rose-700 border border-rose-300">
+                                  Rupture
+                                </span>
+                              )}
+                              {product.freeDelivery && (
+                                <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-0.5">
+                                  <Truck className="w-2.5 h-2.5" /> Gratuit
+                                </span>
+                              )}
                             </div>
-                          )}
+                          </div>
+
+                          {/* Product Thumbnail on Pure White Box */}
+                          <div className="relative w-full h-44 bg-white rounded-xl overflow-hidden p-2 flex items-center justify-center border border-[#E8DCC2]">
+                            <div className="relative w-28 h-36">
+                              <Image src={product.image} alt={product.name} fill className="object-contain" />
+                            </div>
+
+                            {/* Product Badges (Phare / Sélection / Badge) */}
+                            <div className="absolute top-2 left-2 flex flex-wrap gap-1 z-10 max-w-[85%] pointer-events-none">
+                              {product.isHero && (
+                                <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-[#C59B3F] text-[#171513] border border-[#967120] shadow-xs">
+                                  ★ Édition Phare
+                                </span>
+                              )}
+                              {product.isPopular && (
+                                <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-[#171513] text-[#F3E5AB] border border-[#C59B3F]/40 shadow-xs">
+                                  Sélection
+                                </span>
+                              )}
+                              {product.badge && (
+                                <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-[#FBF4E2] text-[#967120] border border-[#E8DCC2] shadow-xs">
+                                  {product.badge}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="mt-3 space-y-1">
+                            <span className="text-[10px] font-bold text-[#967120] uppercase tracking-wider">
+                              {product.brand} • {product.volume}
+                            </span>
+                            <h3 className="font-luxury text-base font-bold leading-tight">
+                              {product.name}
+                            </h3>
+                            <p className="text-xs opacity-70 line-clamp-1">{product.tagline}</p>
+                          </div>
+
+                          <div className="mt-2 pt-2 border-t border-[#E8DCC2]/60 flex items-center justify-between">
+                            <div className="text-sm font-extrabold">
+                              {product.price.toLocaleString('fr-FR')} <span className="text-xs text-[#967120]">FCFA</span>
+                            </div>
+                            {product.originalPrice && (
+                              <div className="text-[10px] text-red-500 line-through">
+                                {product.originalPrice.toLocaleString('fr-FR')} FCFA
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Quick Toggle Controls Grid */}
+                        <div className="space-y-2 pt-2 border-t border-[#E8DCC2]/60 text-[11px]">
+                          <div className="grid grid-cols-2 gap-1.5">
+                            {/* In Stock Toggle */}
+                            <button
+                              onClick={() => handleToggleInStock(product)}
+                              className={`py-1.5 px-2 rounded-xl font-bold flex items-center justify-center gap-1 border transition-colors ${
+                                product.inStock === false
+                                  ? 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
+                                  : 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
+                              }`}
+                              title="Changer l'état du stock"
+                            >
+                              <Box className="w-3 h-3" />
+                              <span>{product.inStock === false ? 'En Rupture' : 'En Stock'}</span>
+                            </button>
+
+                            {/* Free Delivery Toggle */}
+                            <button
+                              onClick={() => handleToggleFreeDelivery(product)}
+                              className={`py-1.5 px-2 rounded-xl font-bold flex items-center justify-center gap-1 border transition-colors ${
+                                product.freeDelivery
+                                  ? 'bg-blue-100 text-blue-900 border-blue-300'
+                                  : 'bg-white border-[#E8DCC2] text-[#6B655E] hover:border-[#C59B3F]'
+                              }`}
+                              title="Basculer Livraison Gratuite"
+                            >
+                              <Truck className="w-3 h-3 text-[#C59B3F]" />
+                              <span>{product.freeDelivery ? 'Livraison Gratuite' : 'Livraison Payante'}</span>
+                            </button>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 pt-1">
+                            {/* Archive / Unarchive Button */}
+                            <button
+                              onClick={() => handleToggleArchive(product)}
+                              className={`py-1.5 px-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1 border flex-1 transition-colors ${
+                                product.isArchived
+                                  ? 'bg-emerald-600 text-white hover:bg-emerald-700 border-emerald-700'
+                                  : 'bg-amber-50 text-amber-900 hover:bg-amber-100 border-amber-200'
+                              }`}
+                              title={product.isArchived ? "Restaurer dans la boutique active" : "Masquer / Archiver du site"}
+                            >
+                              {product.isArchived ? (
+                                <>
+                                  <ArchiveRestore className="w-3.5 h-3.5" />
+                                  <span>Restaurer</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Archive className="w-3.5 h-3.5" />
+                                  <span>Archiver</span>
+                                </>
+                              )}
+                            </button>
+
+                            {/* Edit Button */}
+                            <button
+                              onClick={() => {
+                                setEditingProduct(product);
+                                setIsProductModalOpen(true);
+                              }}
+                              className={`py-1.5 px-2.5 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1 border ${subCardBg} hover:bg-[#171513] hover:text-white`}
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                              <span>Modifier</span>
+                            </button>
+
+                            {/* Delete Button */}
+                            <button
+                              onClick={() => handleDeleteProductConfirm(product.id)}
+                              className="p-1.5 rounded-xl bg-red-50 hover:bg-red-600 border border-red-200 text-red-500 hover:text-white transition-colors"
+                              title="Supprimer définitivement"
+                              aria-label="Supprimer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
                       </div>
-
-                      <div className="flex items-center gap-2 pt-2 border-t border-[#E8DCC2]/60">
-                        <button
-                          onClick={() => {
-                            setEditingProduct(product);
-                            setIsProductModalOpen(true);
-                          }}
-                          className={`flex-1 py-2 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5 border ${subCardBg} hover:bg-[#171513] hover:text-white`}
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                          <span>Modifier</span>
-                        </button>
-
-                        <button
-                          onClick={() => handleDeleteProductConfirm(product.id)}
-                          className="p-2 rounded-xl bg-red-50 hover:bg-red-600 border border-red-200 text-red-500 hover:text-white transition-colors"
-                          title="Supprimer"
-                          aria-label="Supprimer"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
                 /* PRODUCTS: LIST VIEW */
@@ -1930,77 +2273,156 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                     <table className="w-full text-left text-xs">
                       <thead className={`border-b ${subCardBg}`}>
                         <tr>
+                          <th className="p-3.5 w-10">
+                            <input
+                              type="checkbox"
+                              checked={selectedAdminProductIds.length > 0 && selectedAdminProductIds.length === paginatedAdminProducts.length}
+                              onChange={() => {
+                                if (selectedAdminProductIds.length === paginatedAdminProducts.length) {
+                                  setSelectedAdminProductIds([]);
+                                } else {
+                                  setSelectedAdminProductIds(paginatedAdminProducts.map(p => p.id));
+                                }
+                              }}
+                            />
+                          </th>
                           <th className="p-3.5">Parfum</th>
                           <th className="p-3.5">Maison</th>
-                          <th className="p-3.5">Famille</th>
-                          <th className="p-3.5">Mises en avant</th>
+                          <th className="p-3.5">Stock</th>
+                          <th className="p-3.5">Livraison</th>
                           <th className="p-3.5">Prix Actuel</th>
-                          <th className="p-3.5">Badge</th>
+                          <th className="p-3.5">Statut</th>
                           <th className="p-3.5 text-right">Actions</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-[#E8DCC2]/60">
-                        {filteredProducts.map(product => (
-                          <tr key={product.id} className="hover:bg-black/5 transition-colors">
-                            <td className="p-3.5 flex items-center gap-2.5">
-                              <div className="relative w-9 h-9 bg-white rounded-lg p-0.5 border flex-shrink-0">
-                                <Image src={product.image} alt={product.name} fill className="object-contain" />
-                              </div>
-                              <div>
-                                <span className="font-bold block">{product.name}</span>
-                                <span className="text-[10px] opacity-60">{product.volume}</span>
-                              </div>
-                            </td>
-                            <td className="p-3.5 opacity-80">{product.brand}</td>
-                            <td className="p-3.5 capitalize opacity-80">{product.family}</td>
-                            <td className="p-3.5 space-x-1">
-                              {product.isHero && (
-                                <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#C59B3F] text-[#171513]">
-                                  Édition Phare
-                                </span>
-                              )}
-                              {product.isPopular && (
-                                <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#171513] text-[#F3E5AB]">
-                                  Sélection
-                                </span>
-                              )}
-                            </td>
-                            <td className="p-3.5 font-bold text-[#967120]">
-                              {product.price.toLocaleString('fr-FR')} FCFA
-                            </td>
-                            <td className="p-3.5">
-                              {product.badge ? (
-                                <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#C59B3F]/20 text-[#967120] border border-[#C59B3F]/40">
-                                  {product.badge}
-                                </span>
-                              ) : (
-                                <span className="opacity-40">—</span>
-                              )}
-                            </td>
-                            <td className="p-3.5 text-right space-x-1.5">
-                              <button
-                                onClick={() => {
-                                  setEditingProduct(product);
-                                  setIsProductModalOpen(true);
-                                }}
-                                className="p-1.5 rounded-lg border hover:bg-[#171513] hover:text-white transition-colors"
-                              >
-                                <Edit3 className="w-3.5 h-3.5" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteProductConfirm(product.id)}
-                                className="p-1.5 rounded-lg border border-red-300 text-red-500 hover:bg-red-600 hover:text-white transition-colors"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
+                        {paginatedAdminProducts.map(product => {
+                          const isSelected = selectedAdminProductIds.includes(product.id);
+                          return (
+                            <tr key={product.id} className={`hover:bg-black/5 transition-colors ${isSelected ? 'bg-amber-50/50' : ''}`}>
+                              <td className="p-3.5">
+                                <input
+                                  type="checkbox"
+                                  checked={isSelected}
+                                  onChange={() => {
+                                    setSelectedAdminProductIds(prev =>
+                                      prev.includes(product.id) ? prev.filter(id => id !== product.id) : [...prev, product.id]
+                                    );
+                                  }}
+                                />
+                              </td>
+                              <td className="p-3.5 flex items-center gap-2.5">
+                                <div className="relative w-9 h-9 bg-white rounded-lg p-0.5 border flex-shrink-0">
+                                  <Image src={product.image} alt={product.name} fill className="object-contain" />
+                                </div>
+                                <div>
+                                  <span className="font-bold block">{product.name}</span>
+                                  <span className="text-[10px] opacity-60">{product.volume}</span>
+                                </div>
+                              </td>
+                              <td className="p-3.5 opacity-80">{product.brand}</td>
+                              <td className="p-3.5">
+                                <button
+                                  onClick={() => handleToggleInStock(product)}
+                                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                                    product.inStock === false
+                                      ? 'bg-rose-100 text-rose-800 border-rose-200'
+                                      : 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                                  }`}
+                                >
+                                  {product.inStock === false ? 'Rupture' : 'En Stock'}
+                                </button>
+                              </td>
+                              <td className="p-3.5">
+                                <button
+                                  onClick={() => handleToggleFreeDelivery(product)}
+                                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                                    product.freeDelivery
+                                      ? 'bg-blue-100 text-blue-900 border-blue-300'
+                                      : 'bg-gray-100 text-gray-600 border-gray-200'
+                                  }`}
+                                >
+                                  {product.freeDelivery ? 'Gratuite' : 'Standard'}
+                                </button>
+                              </td>
+                              <td className="p-3.5 font-bold text-[#967120]">
+                                {product.price.toLocaleString('fr-FR')} FCFA
+                              </td>
+                              <td className="p-3.5">
+                                {product.isArchived ? (
+                                  <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                                    Archivé
+                                  </span>
+                                ) : (
+                                  <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    Actif
+                                  </span>
+                                )}
+                              </td>
+                              <td className="p-3.5 text-right space-x-1.5">
+                                <button
+                                  onClick={() => handleToggleArchive(product)}
+                                  className={`p-1.5 rounded-lg border transition-colors ${
+                                    product.isArchived ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-800'
+                                  }`}
+                                  title={product.isArchived ? "Restaurer" : "Archiver"}
+                                >
+                                  {product.isArchived ? <ArchiveRestore className="w-3.5 h-3.5" /> : <Archive className="w-3.5 h-3.5" />}
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setEditingProduct(product);
+                                    setIsProductModalOpen(true);
+                                  }}
+                                  className="p-1.5 rounded-lg border hover:bg-[#171513] hover:text-white transition-colors"
+                                  title="Modifier"
+                                >
+                                  <Edit3 className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteProductConfirm(product.id)}
+                                  className="p-1.5 rounded-lg border border-red-300 text-red-500 hover:bg-red-600 hover:text-white transition-colors"
+                                  title="Supprimer"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
                 </div>
               )}
+
+              {/* ADMIN PRODUCTS PAGINATION CONTROLS */}
+              {totalAdminProductPages > 1 && (
+                <div className="flex items-center justify-center gap-2 pt-4">
+                  <button
+                    onClick={() => setAdminProductPage(prev => Math.max(prev - 1, 1))}
+                    disabled={adminProductPage === 1}
+                    className="p-2 rounded-full border border-[#E8DCC2] bg-white text-[#171513] disabled:opacity-30 disabled:cursor-not-allowed hover:border-[#C59B3F] transition-all"
+                    aria-label="Page précédente"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+
+                  <div className="flex items-center gap-1 px-3 text-xs font-bold text-[#171513]">
+                    <span>Page {adminProductPage} sur {totalAdminProductPages}</span>
+                  </div>
+
+                  <button
+                    onClick={() => setAdminProductPage(prev => Math.min(prev + 1, totalAdminProductPages))}
+                    disabled={adminProductPage === totalAdminProductPages}
+                    className="p-2 rounded-full border border-[#E8DCC2] bg-white text-[#171513] disabled:opacity-30 disabled:cursor-not-allowed hover:border-[#C59B3F] transition-all"
+                    aria-label="Page suivante"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+
             </div>
           )}
 

@@ -59,11 +59,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       description: row.description || '',
       isPopular: Boolean(row.is_popular),
       isHero: heroId ? row.id === heroId : Boolean(row.is_hero),
+      inStock: row.in_stock !== false,
+      isArchived: Boolean(row.is_archived),
+      freeDelivery: Boolean(row.free_delivery),
     };
   };
 
   // Helper to format PerfumeProduct for DB
-  // NOTE: is_hero is NOT sent to DB (column may not exist) — tracked in localStorage
   const formatProductForDb = (p: PerfumeProduct) => ({
     id: p.id,
     name: p.name,
@@ -81,6 +83,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     base_notes: p.baseNotes || [],
     description: p.description || '',
     is_popular: Boolean(p.isPopular),
+    in_stock: p.inStock !== false,
+    is_archived: Boolean(p.isArchived),
+    free_delivery: Boolean(p.freeDelivery),
   });
 
   // Load from LocalStorage Cache first, then fetch live from Supabase

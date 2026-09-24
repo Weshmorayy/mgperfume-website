@@ -53,7 +53,8 @@ export function Catalog({
 
   // Filter & Search Logic
   const filteredProducts = useMemo(() => {
-    let result = rawProducts;
+    // Hide archived products on public store
+    let result = rawProducts.filter(p => !p.isArchived);
 
     // Filter by Brand
     if (selectedBrand !== 'all') {
@@ -240,17 +241,29 @@ export function Catalog({
                 className="group bg-white rounded-2xl p-4 border border-[#E8DCC2] hover:border-[#C59B3F] transition-all duration-300 shadow-xs hover:shadow-md flex flex-col justify-between"
               >
                 <div>
-                  {/* Badge & Volume */}
-                  <div className="flex items-center justify-between mb-2 text-[10px]">
-                    {product.badge ? (
-                      <span className="px-2 py-0.5 rounded-full font-bold uppercase tracking-wider bg-[#FBF4E2] text-[#967120] border border-[#E8DCC2]">
-                        {product.badge}
-                      </span>
-                    ) : (
-                      <span className="font-semibold uppercase text-[#9E968D]">
-                        {product.categoryLabel}
-                      </span>
-                    )}
+                  {/* Badge & Volume & Status */}
+                  <div className="flex items-center justify-between mb-2 text-[10px] gap-1 flex-wrap">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {product.inStock === false && (
+                        <span className="px-2 py-0.5 rounded-full font-bold uppercase tracking-wider bg-rose-100 text-rose-700 border border-rose-200">
+                          Rupture de stock
+                        </span>
+                      )}
+                      {product.freeDelivery && (
+                        <span className="px-2 py-0.5 rounded-full font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-0.5">
+                          Livraison Gratuite
+                        </span>
+                      )}
+                      {product.badge ? (
+                        <span className="px-2 py-0.5 rounded-full font-bold uppercase tracking-wider bg-[#FBF4E2] text-[#967120] border border-[#E8DCC2]">
+                          {product.badge}
+                        </span>
+                      ) : (
+                        <span className="font-semibold uppercase text-[#9E968D]">
+                          {product.categoryLabel}
+                        </span>
+                      )}
+                    </div>
                     <span className="text-[#9E968D] font-mono">{product.volume}</span>
                   </div>
 
@@ -319,15 +332,20 @@ export function Catalog({
                   </div>
 
                   <button
-                    onClick={() => handleAdd(product)}
+                    onClick={() => product.inStock !== false && handleAdd(product)}
+                    disabled={product.inStock === false}
                     className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase transition-all duration-300 ${
-                      addedId === product.id
+                      product.inStock === false
+                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                        : addedId === product.id
                         ? 'bg-emerald-600 text-white'
                         : 'bg-[#171513] hover:bg-[#C59B3F] text-white hover:scale-105'
                     }`}
                     aria-label={`Ajouter ${product.name} au panier`}
                   >
-                    {addedId === product.id ? (
+                    {product.inStock === false ? (
+                      <span>Épuisé</span>
+                    ) : addedId === product.id ? (
                       <>
                         <Check className="w-3.5 h-3.5" />
                         <span>Ajouté</span>

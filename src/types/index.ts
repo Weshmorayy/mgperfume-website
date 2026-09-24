@@ -19,6 +19,8 @@ export interface PerfumeProduct {
   isPopular?: boolean;
   isHero?: boolean;
   inStock?: boolean;
+  isArchived?: boolean;
+  freeDelivery?: boolean;
 }
 
 export type PaymentMethod = 'paytech' | 'whatsapp' | 'cod';
