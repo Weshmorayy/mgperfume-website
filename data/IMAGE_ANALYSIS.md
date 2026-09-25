@@ -700,3 +700,406 @@ This document contains a structured analysis, qualification, product identificat
   * Descriptive text block (French): "Shaghaf Oud Ahmar est un parfum gourmand ambré et chaleureux qui parle délicatement de luxe et d'opulence. Faites une entrée pétillante avec la bergamote et les notes vertes fraîches de l'aube. Un cœur fruité de melon, de pomme et d'ananas vous attire dans une insouciance infinie. Votre signature persistante est une somptueuse brise de vanille dorée, de bois exquis et de doux muscs poudrés tandis. Shaghaf Oud Ahmar laisse dans son sillage votre souvenir unique et envoûtant."
   * Volume: "Eau de parfum unisexe - 75ml"
 * **Visual Description:** Crimson red presentation box and matching red bottle with gold rectangular geometric cap, positioned above French narrative text and size specification.
+
+---
+
+## Batch 6 (Images 61 to 80)
+
+### 61. `122216770556207032_1.jpg`
+* **Classification:** Clean Studio Product Shot with Box
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Isolated bottle and box on white background with clear branding and product name.
+* **Product Identification:** MAH Parfum - Oudh Coco (Édition Prestige)
+* **Detailed OCR / Text Transcription:**
+  * Box front: "MAH PARFUM", "OUDH COCO", "Édition Prestige", "Extrait de Parfum"
+ * Bottle front label: "OUDH COCO", "Édition Prestige", "MAH Paris"
+  * Watermark top right: "MG PERFUME" emblem
+* **Visual Description:** Deep teal/blue rectangular bottle with gold cap and matching blue presentation box featuring gold geometric logo and "Édition Prestige" text.
+
+---
+
+### 62. `122216770556207032_2.jpg`
+* **Classification:** Clean Studio Product Shot with Box
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Isolated bottle and box on white background with clear branding.
+* **Product Identification:** MAH Parfum - Bois Intense (Édition Prestige)
+* **Detailed OCR / Text Transcription:**
+  * Box front: "BOIS INTENSE", "Édition Prestige", "Extrait de Parfum", cursive signature text
+  * Bottle label: "BOIS INTENSE", "Édition Prestige", "MAH Paris"
+  * Watermark top right: "MG PERFUME" emblem
+* **Visual Description:** Clear glass bottle with pale green liquid and black cylindrical cap, accompanied by a matte gray presentation box with silver/black label.
+
+---
+
+### 63. `122216770556207032_3.jpg`
+* **Classification:** Clean Studio Product Shot with Box
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Isolated product shot with clear branding and attractive color.
+* **Product Identification:** MAH Parfum - Vanille Somptueuse (Édition Prestige)
+* **Detailed OCR / Text Transcription:**
+  * Box front: "MAH PARFUM", "VANILLE SOMPTUEUSE", "Édition Prestige", "Extrait de Parfum"
+  * Bottle label: "VANILLE SOMPTUEUSE", "Édition Prestige", "MAH Paris"
+  * Watermark top right: "MG PERFUME" emblem
+* **Visual Description:** Teal/turquoise-to-blue gradient cylindrical bottle with gold metallic cap, alongside matching teal presentation box with gold geometric logo.
+
+---
+
+### 64. `122216770556207032_4.jpg`
+* **Classification:** Clean Studio Product Shot with Box
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Isolated product with premium presentation.
+* **Product Identification:** MAH Parfum - Cuir Rouge (Édition Prestige)
+* **Detailed OCR / Text Transcription:**
+  * Box front: "MAH PARFUM", "CUIR ROUGE", "Édition Prestige"
+  * Bottle label: "CUIR ROUGE", "Édition Prestige", "MAH Paris"
+  * Watermark top right: "MG PERFUME" emblem
+* **Visual Description:** Deep burgundy/red cylindrical bottle with matching metallic red cap, presented alongside a dark red box with gold geometric logo.
+
+---
+
+### 65. `122221822088207032_1.jpg`
+* **Classification:** Promotional Branding Graphic — Product Line Introduction
+* **Usability:** ⚠️ Conditionally usable (Marketing / Secondary asset)
+* **Reason:** Promotional graphic showcasing the MG Perfume oil line with brand messaging, not a clean product photo.
+* **Product Identification:** MG Perfume — Huiles Sans Alcool (Séduction, Profond Désir, N'aimez Que Moi, Sublime Vanille)
+* **Detailed OCR / Text Transcription:**
+  * Header: "NOUVEAU", "HUILE SANS ALCOOL"
+  * Product names listed: "PROFOND DÉSIR", "N'AIMEZ QUE MOI", "SUBLIME VANILLE", "SÉDUCTION"
+  * Right panel: "MG Perfume : L'Essence d'une Signature Unique" — descriptive brand text about craftsmanship and olfactory creations
+  * Bottles show: "MG PERFUME" labels with product names
+* **Visual Description:** Four colorful dropper bottles (orange, purple, coral, pink) displayed on a gradient white-to-lavender background with a male model silhouette and French brand copy.
+
+---
+
+### 66. `122221822088207032_2.jpg`
+* **Classification:** Promotional Lifestyle Graphic — Recharge/Refill Campaign
+* **Usability:** ❌ Not usable as primary product photo (usable as marketing banner)
+* **Reason:** Lifestyle image with model and promotional text about refills; not a clean product shot.
+* **Product Identification:** MG Perfume — Refillable Perfume Oils (Séduction, Profond Désir, N'aimez Que Moi, Sublime Vanille)
+* **Detailed OCR / Text Transcription:**
+  * Headline: "Votre parfum, éternellement unique. Rechargez l'émotion, préservez la planète."
+  * Body text: "Chez MG PERFUME, le luxe rime avec responsabilité. Chaque flacon est conçu pour durer. Une fois vide, rapportez-le pour une recharge à prix avantageux."
+  * CTA: "REJOIGNEZ LA TEAM MG PERFUME"
+  * Contact: "CONTACT +221 77 309 48 00"
+* **Visual Description:** Smiling woman with curly hair behind a counter displaying four colorful dropper bottles, with lavender and blue gradient overlay and French sustainability messaging.
+
+---
+
+### 67. `122221822088207032_3.jpg`
+* **Classification:** Promotional Instructional Graphic — Usage Tips
+* **Usability:** ❌ Not usable as primary product photo (usable as educational content)
+* **Reason:** Text-heavy instructional graphic explaining how to use perfume oils.
+* **Product Identification:** MG Perfume — General Usage Instructions (applies to all oil products)
+* **Detailed OCR / Text Transcription:**
+  * Title: "CONSEILS D'UTILISATION"
+  * Body text: "L'huile de parfum, plus concentrée qu'un parfum traditionnel (car souvent sans alcool), s'utilise avec précaution pour profiter pleinement de ses notes et de sa longévité. Voici quelques conseils :
+  1. Appliquez-la sur les zones 'pulsations' — Où: Poignets, cou, derrière les oreilles, pli des coudes, chevilles. Ces zones dégagent de la chaleur, ce qui diffuse lentement le parfum. Comment: Déposez 1 à 2 gouttes avec le bouchon ou le roll-on, puis tapotez légèrement (ne frottez pas, cela altère les notes).
+  2. Préparez votre peau — Hydratez: Appliquez une crème neutre ou de l'huile non parfumée sur la peau avant. Une peau hydratée fixe mieux les huiles essentielles.
+  3. Dans les cheveux — Astuce: Mélangez une goutte à votre après-shampooing ou appliquez-la sur les pointes pour une senteur discrète (évitez le cuir chevelu).
+  Les huiles de parfum sont idéales pour une senteur intime et durable, parfaite pour les peaux sensibles ou les climats chauds où les parfums alcoolisés s'évaporent vite."
+* **Visual Description:** Clean white background with black instructional French text and four small dropper bottle thumbnails at the bottom.
+
+---
+
+### 68. `122228050256207032_1.jpg`
+* **Classification:** Promotional Ordering Guide Graphic — Step 1
+* **Usability:** ❌ Not usable as primary product photo (marketing asset only)
+* **Reason:** Explains how to place an order with MG Perfume via WhatsApp.
+* **Product Identification:** MG Perfume — Ordering Process Step 1
+* **Detailed OCR / Text Transcription:**
+  * Title: "Comment Passer Votre Commande Avec MC PERFUM"
+  * Step instruction: "Fais un screenshot du parfum, de l'huile ou du musc que tu as choisi,"
+  * Contact: "CONTACT +221 77 309 48 00"
+  * Visible products in phone screen: "ROSE DESIR", "UN AMOUR", "MUSK BLANC"
+* **Visual Description:** Graphic showing a hand holding a smartphone displaying MG Perfume products, with step-by-step ordering instructions and WhatsApp contact number on a lavender gradient.
+
+---
+
+### 69. `122228050256207032_2.jpg`
+* **Classification:** Promotional Ordering Guide Graphic — Step 2
+* **Usability:** ❌ Not usable as primary product photo (marketing asset only)
+* **Reason:** Step 2 of the ordering process guide.
+* **Product Identification:** MG Perfume — Ordering Process Step 2
+* **Detailed OCR / Text Transcription:**
+  * Step number: "2"
+  * Instruction: "Transmettez-nous l'article de vos choix au +221 77 309 48 00"
+  * Contact: "CONTACT +221 77 309 48 00"
+* **Visual Description:** Smartphone mockup showing MG Perfume products with lavender gradient background and French WhatsApp ordering instructions.
+
+---
+
+### 70. `122228050256207032_3.jpg`
+* **Classification:** Promotional Ordering Guide Graphic — Step 3
+* **Usability:** ❌ Not usable as primary product photo (marketing asset only)
+* **Reason:** Step 3 of the ordering process showing payment options.
+* **Product Identification:** MG Perfume — Ordering Process Step 3 (Payment)
+* **Detailed OCR / Text Transcription:**
+  * Step number with cart icon
+  * Instruction: "Confirmez votre commande en utilisant Orange Money ou Wave."
+  * Payment logos: Orange Money, Wave
+  * Contact: "CONTACT +221 77 309 48 00"
+* **Visual Description:** Payment confirmation graphic showing Orange Money and Wave mobile money logos alongside MG Perfume products on lavender gradient background.
+
+---
+
+### 71. `122228050256207032_4.jpg`
+* **Classification:** Promotional Product Description Graphic
+* **Usability:** ⚠️ Conditionally usable (Secondary / Marketing asset)
+* **Reason:** Features product with French marketing description below.
+* **Product Identification:** La Folie des Délices — Gourmandise (50ml Extrait de Parfum)
+* **Detailed OCR / Text Transcription:**
+  * Bottle/box label: "GOURMANDISE", "La Folie des Délices", "Paris"
+  * Watermark top center: "MG PERFUME" emblem
+  * Descriptive text block (French): "Plongez dans l'univers savoureux de La Folie des Délices, une gourmandise qui marie harmonieusement des saveurs de fruits confits, de chocolat noir, de caramel au beurre salé et de noisette grillée. Idéale pour les gourmets et les amateurs de plaisirs sucrés, cette création est un incontournable pour tous les moments spéciaux ou simplement pour se faire plaisir."
+* **Visual Description:** Matte blush-pink rectangular bottle with matching cap alongside textured pink presentation box with debossed branding, above a French descriptive text block.
+
+---
+
+### 72. `122228777456207032_1.jpg`
+* **Classification:** Promotional Product Description Graphic
+* **Usability:** ⚠️ Conditionally usable (Secondary / Marketing asset)
+* **Reason:** Features product with French marketing description.
+* **Product Identification:** La Folie des Délices — Merveille (50ml Extrait de Parfum)
+* **Detailed OCR / Text Transcription:**
+  * Bottle/box label: "MERVEILLE", "La Folie des Délices", "Paris", "Extrait de Parfum"
+  * Watermark top center: "MG PERFUME" emblem
+  * Descriptive text block (French): "Adoptez MERVEILLE La folie des délices - 50ml Extrait de Parfum, une fragrance irrésistible avec des notes de tête gourmandes de mandarine et de caramel, un cœur floral envoûtant de jasmin et de fleur d'oranger, et une base chaleureuse de vanille et de bois de cèdre. Parfait pour toutes les occasions, ce parfum intemporel est un véritable must-have pour les amoureux de la sophistication."
+* **Visual Description:** Sleek matte black rectangular bottle with black cap and gold label plaque, matched with a black textured box featuring gold "MERVEILLE" branding and repeating script pattern.
+
+---
+
+### 73. `122228777456207032_2.jpg`
+* **Classification:** Promotional Product Description Graphic
+* **Usability:** ⚠️ Conditionally usable (Secondary / Marketing asset)
+* **Reason:** Features product with French marketing description.
+* **Product Identification:** La Folie des Délices — Madawi Or (50ml Extrait de Parfum)
+* **Detailed OCR / Text Transcription:**
+  * Bottle/box label: "MADAWIOR", "La Folie des Délices", "Paris"
+  * Watermark top center: "MG PERFUME" emblem
+  * Descriptive text block (French): "Laissez-vous séduire par Madawi Or La folie des délices - 50ml Extrait de Parfum, une fragrance audacieuse et captivante. Avec ses notes de tête fruitées de pêche et de pomme, un cœur gourmand de caramel et de fleurs blanches, et une base chaleureuse d'ambre, de bois de cèdre et de musc, ce parfum est une œuvre d'art olfactive idéale pour toutes les occasions."
+* **Visual Description:** Elegant white rectangular bottle with white cap and gold label plaque, alongside a white textured presentation box with gold "MADAWIOR" branding.
+
+---
+
+### 74. `122228777456207032_3.jpg`
+* **Classification:** Promotional Product Description Graphic
+* **Usability:** ⚠️ Conditionally usable (Secondary / Marketing asset)
+* **Reason:** Features product with French marketing description.
+* **Product Identification:** La Folie des Délices — Souffle Nouveau (50ml Extrait de Parfum)
+* **Detailed OCR / Text Transcription:**
+  * Bottle/box label: "SOUFFLE NOUVEAU", "La Folie des Délices", "Paris", "Extrait de Parfum"
+  * Watermark top center: "MG PERFUME" emblem
+  * Descriptive text block (French): "Optez pour Souffle Nouveau La Folie Des Délices 50ml Extrait de Parfum, une fragrance exquise qui mêle des notes de tête d'agrumes et de fruits rouges, un cœur floral de rose et de jasmin, et une base gourmande de caramel, vanille, bois et musc. Un parfum idéal pour celles qui veulent allier sensualité et raffinement."
+* **Visual Description:** Glossy black rectangular bottle with black cap and silver label plaque, matched with a black textured box featuring silver "SOUFFLE NOUVEAU" branding.
+
+---
+
+### 75. `122228777456207032_4.jpg`
+* **Classification:** Promotional Lifestyle Graphic — Gifting Campaign
+* **Usability:** ❌ Not usable as primary product photo (marketing banner)
+* **Reason:** Lifestyle image with couple and promotional text.
+* **Product Identification:** MG Perfume — Gift/Oil Line Promotion
+* **Detailed OCR / Text Transcription:**
+  * Headline: "PARCE QUE LES PETITS GESTES FONT LES GRANDS BONHEURS,"
+  * Sub-headline: "SURPRENEZ-LA AVEC UNE HUILE DE PARFUM MG PERFUME."
+  * Contact: "CONTACT +221 77 309 48 00"
+  * Bottles visible: SÉDUCTION, PROFOND DÉSIR, N'AIMEZ QUE MOI, SUBLIME VANILLE
+* **Visual Description:** Romantic couple scene with man surprising woman from behind, four colorful MG Perfume oil droppers on wooden counter, blue gradient overlay with sparkle effects.
+
+---
+
+### 76. `122230804466207032_1.jpg`
+* **Classification:** Promotional Lifestyle Graphic — Couple Campaign
+* **Usability:** ❌ Not usable as primary product photo (marketing banner)
+* **Reason:** Lifestyle image with couple and brand messaging.
+* **Product Identification:** MG Perfime — General Brand Campaign
+* **Detailed OCR / Text Transcription:**
+  * Headline: "VOUS SENTEZ BON ?"
+  * Sub-headline: "IL S'ACCROCHE À VOUS..."
+  * Contact: "CONTACT +221 77 309 48 00"
+* **Visual Description:** Affectionate couple embracing at a counter with four MG Perfume oil bottles displayed, blue gradient overlay and romantic messaging.
+
+---
+
+### 77. `122235604712207032_1.jpg`
+* **Classification:** Clean Studio Product Shot with Box
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Isolated product with clear branding and elegant presentation.
+* **Product Identification:** Maison Asrar — Vanilla Voyage (Eau de Parfum, 100ml)
+* **Detailed OCR / Text Transcription:**
+  * Box front: "MAISON ASRAR", "Vanilla Voyage", "EAU DE PARFUM VAPORISATEUR SPRAY", "e100 ML"
+  * Bottle front: "Vanilla Voyage", "MAISON ASRAR"
+* **Visual Description:** Warm amber/caramel rounded bottle with sculpted shell-like cap, presented alongside a beige/taupe box with debossed bottle silhouette and gold ribbon accent.
+
+---
+
+### 78. `122235604712207032_2.jpg`
+* **Classification:** Clean Studio Product Shot with Box
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Isolated product with premium black and gold design.
+* **Product Identification:** Maison Asrar — Leo (Eau de Parfum, 100ml)
+* **Detailed OCR / Text Transcription:**
+  * Box front: "Leo", "EAU DE PARFUM", "MAISON ASRAR", "100ML e", "VAPORISATEUR SPRAY", "3.38 FL.OZ."
+  * Bottle front: "Leo", ornate lion head emblem in gold, "MAISON ASRAR", "EAU DE PARFUM", "VAPORISATEUR SPRAY"
+* **Visual Description:** Glossy black rectangular bottle with gold lion head medallion and gold trim, paired with a matte black box featuring gold "Leo" typography and diamond accent.
+
+---
+
+### 79. `122235604712207032_3.jpg`
+* **Classification:** Clean Studio Product Shot with Box
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Clean white and gold presentation.
+* **Product Identification:** Maison Asrar — Rey (Eau de Parfum, 100ml)
+* **Detailed OCR / Text Transcription:**
+  * Box front: "Rey", "EAU DE PARFUM", "MAISON ASRAR", "100ML e", "VAPORISATEUR SPRAY", "3.38 FL.OZ."
+  * Bottle front: "Rey", ornate lion head emblem in gold, "MAISON ASRAR", "EAU DE PARFUM", "VAPORISATEUR SPRAY"
+* **Visual Description:** Matte white rectangular bottle with gold lion head medallion and gold trim, paired with a white box featuring gold "Rey" typography and diamond accent.
+
+---
+
+### 80. `122235604712207032_4.jpg`
+* **Classification:** Clean Studio Product Shot with Box
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Premium gold bottle with artistic sculptural design.
+* **Product Identification:** Maison Asrar — Masterpiece (Eau de Parfum, 100ml)
+* **Detailed OCR / Text Transcription:**
+  * Box front: "Masterpiece", "MAISON ASRAR", "EAU DE PARFUM", "VAPORISATEUR SPRAY", "100ML e 3.38 FL.OZ.", abstract gold line art
+  * Bottle front: "Masterpiece", "MAISON ASRAR", "EAU DE PARFUM"
+* **Visual Description:** Sculptural gold metallic bottle with twisted feminine silhouette design and textured cap, presented alongside a black box with gold abstract line art and "Masterpiece" branding. and matching red bottle with gold rectangular geometric cap, positioned above French narrative text and size specification.
+
+---
+
+## Batch 5 (Images 51 to 60)
+
+### 51. `122213881382207032_1.jpg`
+* **Classification:** Promotional Product Graphic with Text Overlay
+* **Usability:** ✅ Usable as secondary product / marketing asset
+* **Reason:** Clear bottle presentation with complete French olfactory notes and brand watermark.
+* **Product Identification:** Lattafa - Oud Lavender (Eau de Parfum)
+* **Detailed OCR / Text Transcription:**
+  * Watermark top right: "MG PERFUME" logo
+  * Bottle front label: Arabic script, "Oud", "Lavender", "Eau de Parfum", "Lattafa"
+  * Descriptive French text block: "Ressentez la brume fraîche et revitalisante de l'océan contre votre peau sur une plage paresseuse avec cette bouteille. Parfum unisexe. Notes de parfum. Tête : Jacinthe, Lavande, Fruits. Coeur : Iris, Jasmin, Poivre Rose. Base : Vétiver, Ambre, Oud, Musc."
+* **Visual Description:** Deep purple metallic perfume bottle with silver center oval label and silver crown-style cap, placed against a soft neutral background with lush French marketing copy below.
+
+---
+
+### 52. `122213881382207032_2.jpg`
+* **Classification:** Promotional Product Graphic with Text Overlay
+* **Usability:** ✅ Usable as secondary product / marketing asset
+* **Reason:** Product clearly shown with fracture notes in French, attractive packaging and bottle.
+* **Product Identification:** Lattafa - Oud & Roses (Eau de Parfum, 100ml)
+* **Detailed OCR / Text Transcription:**
+  * Bottle center: "OUD", "ROSES", "Eau de Parfum", "Natural Spray", "100 ML", "Lattafa"
+  * Olfactory notes (French):
+    * Haut: "Floral, rose de Turquie, lavande, pivoine citronnée"
+    * Cœur: "Doux, bois de santal, fleur blanche"
+    * Base: "Musc, bois d'agar, bois de cèdre, musc, vanille"
+* **Visual Description:** Elegant rectangular bottle with black-to-purple gradient liquid, gold band accent, tassel charm, and gold cap, accompanied by gold matching box with Arabic embossing.
+
+---
+
+### 53. `122214146696207032_1.jpg`
+* **Classification:** Luxury Brand Product Shot with Box & Description
+* **Usability:** ✅ Usable as hero / gallery product image
+* **Reason:** High-end presentation with box, bottle, statue motif, and full French fragrance description.
+* **Product Identification:** Lattafa - Her Confession (Eau de Parfum, 100ml)
+* **Detailed OCR / Text Transcription:**
+  * Box text: "HER CONFESSION", "Lattafa", "EAU DE PARFUM LITERAL SPRAY | VAPORISATEUR | 100 ML 3.4 FL OZ"
+  * Bottle text: "HER CONFESSION", "HIS CONFESSION", "Lattafa"
+  * Descriptive French text block: "Dès les premières notes, ce parfum oriental dévoile une ouverture captivante, où la cannelle, la lavande et la mandarine se conjuguent pour créer une invitation à la découverte. Cette introduction intrigue et séduit. Elle prépare également les sens à l'évolution fascinante de la fragrance. Au cœur du parfum, un luxueux bouquet floral s'épanouit. L'Iris, le cyprès, le benjoin se marient avec grâce, apportant richesse et profondeur. Mais ce n'est pas tout, car le mahonial vient rehausser cette composition d'une touche subtile, mais envoûtante."
+* **Visual Description:** Gold and white sculptural bottle with Greek statue bust cap, matched with light beige textured box featuring circular statue portrait window and gold Lattafa emblem. Constellation/gold dust effects enhance the luxury aesthetic.
+
+---
+
+### 54. `122214146696207032_2.jpg`
+* **Classification:** Luxury Brand Product Shot with Detailed Notes
+* **Usability:** ✅ Usable as hero / gallery product image
+* **Reason:** High-aesthetic product shot with clear olfactory pyramid.
+* **Product Identification:** Lattafa - His Confession (Eau de Parfum, 100ml)
+* **Detailed OCR / Text Transcription:**
+  * Bottle front: "HIS CONFESSION", "Lattafa", "EAU DE PARFUM | VAPORISATEUR NATURAL SPRAY | e NET 100ML 3.4 FL.OZ"
+  * Olfactory notes (French):
+    * Notes de tête: Cannelle, Lavande, Mandarine
+    * Notes de cœur: Iris, Benjoin, Cyprès, Mahonial
+    * Notes de fond: Vanille, Tonka, Encens, Ambre, Bois de cèdre, Patchouli
+  * Descriptive French text: "Lattafa His Confession Eau De Parfum est un parfum masculin distinctif et captivant qui incarne le concept moderne de la masculinité. Ce parfum impressionne par son audace et sa sophistication, ce qui en fait le choix idéal pour les hommes confiants qui veulent être incontournables. Sa polyvalence en fait le compagnon idéal pour les occasions de jour comme de soir."
+* **Visual Description:** Dramatic split-design bottle with glossy black upper section and gold lower section featuring Arabic geometric carving, topped by a gold-trimmed black statue head cap. Rough-textured black box with gold circular cutout reveals the statue interior.
+
+---
+
+### 55. `122214790172207032_1.jpg`
+* **Classification:** Studio Product Shot with Ingredient Flat-lay & Notes
+* **Usability:** ✅ Usable as primary product catalog image
+* **Reason:** Clean isolated bottle with comprehensive fragrance note breakdown and ingredient props.
+* **Product Identification:** Lattafa - Teriaq (Eau de Parfum)
+* **Detailed OCR / Text Transcription:**
+  * Bottle front label (Gold plate): Arabic script, "TERIAQ", "Lattafa"
+  * Olfactory notes (French):
+    * NOTES DE TÊTE: Caramel, Amande amère, Poivre rose, Abricot
+    * NOTES DE COEUR: Miel, Rhubarbe, Fleurs blanches, Rose
+    * NOTES DE FOND: Vanille, Vétiver, Labdanum, Cuir, Musc
+* **Visual Description:** Cylindrical bottle with amber/gold fragrance liquid and ornate gold base featuring a golden serpent/snake motif, surrounded by gourmet ingredients including bowls of almonds, almond nuts, and warm studio ingredients on white background.
+
+---
+
+### 56. `122214790172207032_2.jpg`
+* **Classification:** Studio Lifestyle Product Shot with Ingredient Flat-lay & French Notes
+* **Usability:** ✅ Usable as primary product catalog image
+* **Reason:** Beautiful premium flat-lay with all ingredients and complete French olfactory notes visible.
+* **Product Identification:** Lattafa - Éclaire (Eau de Parfum)
+* **Detailed OCR / Text Transcription:**
+  * Bottle front: "ECLAIRE", Arabic script, "Lattafa"
+  * Olfactory notes (French):
+    * NOTES DE TÊTE: Caramel, Amande amère, Poivre rose, Abricot
+    * NOTES DE COEUR: Miel, Rhubarbe, Fleurs blanches, Rose
+    * NOTES DE FOND: Vanille, Vétiver, Labdanum, Cuir, Musc
+* **Visual Description:** Beige/cream rectangular bottle with gold melting "dripping" sculptural cap, styled within a textured white ceramic bowl filled with cinnamon sticks, vanilla pods, walnuts, and whipped cream with caramel drizzle. Warm, artisanal, confectionery-like aesthetic.
+
+---
+
+### 57. `122216635484207032_1.jpg`
+* **Classification:** Promotional Multi-Product Grid Banner
+* **Usability:** ❌ Not usable as individual product hero (usable as category/marketing banner)
+* **Reason:** Grid collage of multiple distinct perfume bottles without individual product focus.
+* **Product Identification:** Mixed feminine perfume collection (Yara, Khamrah, etc.)
+* **Detailed OCR / Text Transcription:**
+  * Arabic/French header: "استثمر" / Arabic brand mark
+  * Visible bottles: Lattafa Yara (pink), Lattafa Khamrah (amber with crystal), others with Arabic text
+* **Visual Description:** Radial/mandala-style arrangement of multiple perfume bottles on a dark tone background with Arabic decorative border frames.
+
+---
+
+### 58. `122216635484207032_2.jpg`
+* **Classification:** Promotional Multi-Product Grid Banner
+* **Usability:** ❌ Not usable as individual product hero (usable as category/marketing banner)
+* **Reason:** Grid composition of multiple male-focused perfumes.
+* **Product Identification:** Mixed masculine/oud-focused perfume collection
+* **Detailed OCR / Text Transcription:**
+  * Arabic header: "استثمر" / Arabic brand
+  * Product text visible: "Oud", Arabic script, "Lattafa"
+* **Visual Description:** Dark background collage featuring bold gold and black perfume bottles arranged in geometric/grid formation with Arabic typography and decorative border elements.
+
+---
+
+### 59. `122216635484207032_3.jpg`
+* **Classification:** Promotional Multi-Product Grid / Category Banner
+* **Usability:** ❌ Not usable as individual product hero (usable as category/marketing banner)
+* **Reason:** Contains multiple product bottles with decorative framing and Arabic text headers.
+* **Product Identification:** Mixed assorted perfume collection
+* **Detailed OCR / Text Transcription:**
+  * Arabic center text: "استثمر"
+  * Visible labels: "Lattafa", "Oud", Arabic calligraphy on multiple bottles
+* **Visual Description:** Decorative bordered banner showing multiple perfume bottles of various shapes and colors on a warmth-toned background with ornamental Arabic typography and gold decorative flourishes.
+
+---
+
+### 60. `122216635484207032_4.jpg`
+* **Classification:** Promotional Multi-Product Grid / Category Banner
+* **Usability:** ❌ Not usable as individual product hero (usable as category/marketing banner)
+* **Reason:** Contains multiple product bottles for bulk or category display.
+* **Product Identification:** Mixed assorted perfume collection
+* **Detailed OCR / Text Transcription:**
+  * Arabic center text: "استثمر"
+  * Visual bottle labels: Arabic script, "Lattafa", various gold-accented bottles
+* **Visual Description:** Warm golden-themed promotional banner with gold ornamental borders, Arabic headline text, and a grid of assorted perfume bottles in gold, black, purple, and pink packaging.

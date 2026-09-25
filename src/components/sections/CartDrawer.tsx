@@ -81,7 +81,11 @@ export function CartDrawer({
   };
 
   const itemsSubtotal = items.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
-  const grandTotal = items.length > 0 ? itemsSubtotal + currentZone.price : 0;
+  
+  // Si au moins un produit du panier bénéficie de la livraison gratuite (ou tous les articles), la livraison est offerte !
+  const isFreeDeliveryQualified = items.length > 0 && items.some(item => item.product.freeDelivery);
+  const effectiveShippingCost = isFreeDeliveryQualified ? 0 : currentZone.price;
+  const grandTotal = items.length > 0 ? itemsSubtotal + effectiveShippingCost : 0;
 
   // Validation des champs clients
   const validateForm = (): boolean => {
@@ -112,7 +116,7 @@ export function CartDrawer({
       customer_address: clientAddress.trim(),
       shipping_zone_id: currentZone.id,
       shipping_zone_name: currentZone.name,
-      shipping_cost: currentZone.price,
+      shipping_cost: effectiveShippingCost,
       subtotal: itemsSubtotal,
       total_amount: grandTotal,
       items: items.map(i => ({
@@ -386,7 +390,13 @@ export function CartDrawer({
                 </div>
                 <div className="flex justify-between">
                   <span>Livraison ({currentZone.delay})</span>
-                  <span className="text-[#171513] font-semibold">+{currentZone.price.toLocaleString('fr-FR')} FCFA</span>
+                  {effectiveShippingCost === 0 ? (
+                    <span className="text-emerald-700 font-extrabold uppercase text-[11px] bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                      OFFERTE
+                    </span>
+                  ) : (
+                    <span className="text-[#171513] font-semibold">+{currentZone.price.toLocaleString('fr-FR')} FCFA</span>
+                  )}
                 </div>
                 <div className="flex justify-between text-sm font-extrabold text-[#171513] pt-1.5 border-t border-[#E8DCC2]">
                   <span>Total commande</span>

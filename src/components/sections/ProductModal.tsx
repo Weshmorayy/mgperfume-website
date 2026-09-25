@@ -110,18 +110,37 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
               </div>
             </div>
 
+            {/* Free Delivery Info Row (clean, elegant, not a badge) */}
+            {product.freeDelivery && (
+              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-[#FAF8F5] border border-[#E8DCC2] text-xs text-[#171513]">
+                <ShieldCheck className="w-4 h-4 text-[#967120] flex-shrink-0" />
+                <span>
+                  <strong className="text-[#967120]">Livraison offerte</strong> sur ce parfum partout à Dakar.
+                </span>
+              </div>
+            )}
+
             {/* Action */}
             <div className="pt-1">
-              <button
-                onClick={() => {
-                  onAddToCart(product);
-                  onClose();
-                }}
-                className="w-full py-3 rounded-full bg-[#171513] hover:bg-[#C59B3F] text-white font-bold text-xs tracking-wider uppercase transition-colors flex items-center justify-center gap-2 shadow-sm"
-              >
-                <Plus className="w-4 h-4" />
-                Ajouter au Panier ({product.price.toLocaleString('fr-FR')} FCFA)
-              </button>
+              {product.inStock === false ? (
+                <button
+                  disabled
+                  className="w-full py-3 rounded-full bg-rose-50 border border-rose-200 text-rose-700 font-bold text-xs tracking-wider uppercase flex items-center justify-center gap-2 cursor-not-allowed"
+                >
+                  Rupture de Stock
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    onAddToCart(product);
+                    onClose();
+                  }}
+                  className="w-full py-3 rounded-full bg-[#171513] hover:bg-[#C59B3F] text-white font-bold text-xs tracking-wider uppercase transition-colors flex items-center justify-center gap-2 shadow-sm"
+                >
+                  <Plus className="w-4 h-4" />
+                  Ajouter au Panier ({product.price.toLocaleString('fr-FR')} FCFA)
+                </button>
+              )}
             </div>
           </div>
         </div>

@@ -249,11 +249,6 @@ export function Catalog({
                           Rupture de stock
                         </span>
                       )}
-                      {product.freeDelivery && (
-                        <span className="px-2 py-0.5 rounded-full font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-0.5">
-                          Livraison Gratuite
-                        </span>
-                      )}
                       {product.badge ? (
                         <span className="px-2 py-0.5 rounded-full font-bold uppercase tracking-wider bg-[#FBF4E2] text-[#967120] border border-[#E8DCC2]">
                           {product.badge}
