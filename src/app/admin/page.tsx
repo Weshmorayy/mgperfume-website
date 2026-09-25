@@ -2400,7 +2400,10 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
               {totalAdminProductPages > 1 && (
                 <div className="flex items-center justify-center gap-2 pt-4">
                   <button
-                    onClick={() => setAdminProductPage(prev => Math.max(prev - 1, 1))}
+                    onClick={() => {
+                      setAdminProductPage(prev => Math.max(prev - 1, 1));
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
                     disabled={adminProductPage === 1}
                     className="p-2 rounded-full border border-[#E8DCC2] bg-white text-[#171513] disabled:opacity-30 disabled:cursor-not-allowed hover:border-[#C59B3F] transition-all"
                     aria-label="Page précédente"
@@ -2413,7 +2416,10 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                   </div>
 
                   <button
-                    onClick={() => setAdminProductPage(prev => Math.min(prev + 1, totalAdminProductPages))}
+                    onClick={() => {
+                      setAdminProductPage(prev => Math.min(prev + 1, totalAdminProductPages));
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
                     disabled={adminProductPage === totalAdminProductPages}
                     className="p-2 rounded-full border border-[#E8DCC2] bg-white text-[#171513] disabled:opacity-30 disabled:cursor-not-allowed hover:border-[#C59B3F] transition-all"
                     aria-label="Page suivante"

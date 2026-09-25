@@ -71,7 +71,7 @@ export default function HomePage() {
       />
 
       <main className="flex-grow">
-        <Hero />
+        <Hero onSelectProduct={p => setSelectedProduct(p)} />
 
         {/* Editorial Visual Banners (Shooting Studio & Olfea style inspiration) */}
         <EditorialBanners />

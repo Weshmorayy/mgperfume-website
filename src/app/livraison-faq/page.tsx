@@ -41,10 +41,15 @@ export default function LivraisonFaqPage() {
 
         {/* Shipping Zones Table */}
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#E8DCC2] shadow-xs space-y-4">
-          <h2 className="font-luxury text-lg font-bold text-[#171513] flex items-center gap-2">
-            <Truck className="w-5 h-5 text-[#C59B3F]" />
-            Zones & Tarifs de Livraison
-          </h2>
+          <div>
+            <h2 className="font-luxury text-lg font-bold text-[#171513] flex items-center gap-2">
+              <Truck className="w-5 h-5 text-[#C59B3F]" />
+              Zones & Tarifs de Livraison
+            </h2>
+            <p className="text-xs text-[#967120] font-semibold mt-1">
+              ✨ La livraison est offerte sur la majorité de nos parfums ! Les tarifs ci-dessous s'appliquent comme tarif standard de base.
+            </p>
+          </div>
 
           <div className="divide-y divide-[#E8DCC2]">
             {siteConfig.shippingZones.map(zone => (

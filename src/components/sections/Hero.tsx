@@ -5,13 +5,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Sparkles, ShieldCheck, Truck, ArrowRight } from 'lucide-react';
 import { siteConfig } from '@/config/site';
-import { useStore } from '@/context/StoreContext';
+import { PerfumeProduct } from '@/types';
 
 interface HeroProps {
   onExploreClick?: () => void;
+  onSelectProduct?: (product: PerfumeProduct) => void;
 }
 
-export function Hero({ onExploreClick }: HeroProps) {
+export function Hero({ onExploreClick, onSelectProduct }: HeroProps) {
   const { heroProduct } = useStore();
 
   return (
@@ -74,18 +75,18 @@ export function Hero({ onExploreClick }: HeroProps) {
 
         {/* Right Column: Dynamic Pure White Card (Édition Phare) */}
         <div className="lg:col-span-5 flex justify-center">
-          <Link 
-            href={`/boutique`}
-            className="block relative w-full max-w-xs bg-white rounded-3xl p-5 border border-[#E8DCC2] shadow-sm hover:shadow-md transition-shadow space-y-3"
+          <button 
+            onClick={() => onSelectProduct ? onSelectProduct(heroProduct) : null}
+            className="block relative w-full max-w-xs bg-white rounded-3xl p-5 border border-[#E8DCC2] shadow-sm hover:shadow-md transition-all text-left space-y-3 cursor-pointer group"
           >
             <div className="flex justify-between items-center text-[10px] font-bold tracking-widest text-[#967120] uppercase">
-              <span className="px-2.5 py-0.5 rounded bg-[#FBF4E2] border border-[#E8DCC2]">Édition Phare</span>
+              <span className="px-2.5 py-0.5 rounded bg-[#FBF4E2] border border-[#E8DCC2] group-hover:bg-[#C59B3F] group-hover:text-white transition-colors">Édition Phare</span>
               <span className="text-[#9E968D]">{heroProduct.brand || 'MG Perfume'}</span>
             </div>
 
             {/* Pure white container (Rule 7.1) */}
             <div className="relative w-full h-56 flex items-center justify-center bg-white rounded-2xl">
-              <div className="relative w-44 h-52">
+              <div className="relative w-44 h-52 transition-transform group-hover:scale-105 duration-300">
                 <Image
                   src={heroProduct.image}
                   alt={heroProduct.name}
@@ -97,7 +98,7 @@ export function Hero({ onExploreClick }: HeroProps) {
             </div>
 
             <div className="space-y-0.5 text-center">
-              <h3 className="font-luxury text-base font-bold text-[#171513]">{heroProduct.name}</h3>
+              <h3 className="font-luxury text-base font-bold text-[#171513] group-hover:text-[#C59B3F] transition-colors">{heroProduct.name}</h3>
               <p className="text-xs text-[#6B655E] line-clamp-1">{heroProduct.tagline || heroProduct.categoryLabel}</p>
               <div className="pt-1 flex items-center justify-center gap-2">
                 <span className="text-sm font-extrabold text-[#967120]">
@@ -110,7 +111,7 @@ export function Hero({ onExploreClick }: HeroProps) {
                 )}
               </div>
             </div>
-          </Link>
+          </button>
         </div>
 
       </div>

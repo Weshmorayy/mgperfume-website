@@ -406,24 +406,26 @@ export function CartDrawer({
 
               {/* DUAL CHECKOUT BUTTONS */}
               <div className="space-y-2 pt-1">
-                {/* 1. PayTech Button */}
-                <button
-                  onClick={handlePaytechCheckout}
-                  disabled={isProcessingPaytech}
-                  className="w-full py-3 px-4 rounded-2xl bg-[#171513] hover:bg-[#C59B3F] text-white font-bold text-xs uppercase tracking-wider transition-all duration-300 flex flex-col items-center justify-center gap-0.5 shadow-md disabled:opacity-50"
-                >
-                  <div className="flex items-center gap-2">
-                    {isProcessingPaytech ? (
-                      <Loader2 className="w-4 h-4 animate-spin text-[#C59B3F]" />
-                    ) : (
-                      <CreditCard className="w-4 h-4 text-[#C59B3F]" />
-                    )}
-                    <span>Payer en ligne • {grandTotal.toLocaleString('fr-FR')} FCFA</span>
-                  </div>
-                  <span className="text-[9px] text-[#F3E5AB] font-normal normal-case opacity-90">
-                    Wave • Orange Money • Free Money • Carte Bancaire
-                  </span>
-                </button>
+                {/* 1. PayTech Button (Temporarily hidden from UI) */}
+                {false && (
+                  <button
+                    onClick={handlePaytechCheckout}
+                    disabled={isProcessingPaytech}
+                    className="w-full py-3 px-4 rounded-2xl bg-[#171513] hover:bg-[#C59B3F] text-white font-bold text-xs uppercase tracking-wider transition-all duration-300 flex flex-col items-center justify-center gap-0.5 shadow-md disabled:opacity-50"
+                  >
+                    <div className="flex items-center gap-2">
+                      {isProcessingPaytech ? (
+                        <Loader2 className="w-4 h-4 animate-spin text-[#C59B3F]" />
+                      ) : (
+                        <CreditCard className="w-4 h-4 text-[#C59B3F]" />
+                      )}
+                      <span>Payer en ligne • {grandTotal.toLocaleString('fr-FR')} FCFA</span>
+                    </div>
+                    <span className="text-[9px] text-[#F3E5AB] font-normal normal-case opacity-90">
+                      Wave • Orange Money • Free Money • Carte Bancaire
+                    </span>
+                  </button>
+                )}
 
                 {/* 2. WhatsApp Button */}
                 <button
