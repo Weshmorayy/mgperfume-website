@@ -699,7 +699,7 @@ This document contains a structured analysis, qualification, product identificat
   * Watermark top right: "MG PERFUME" emblem
   * Descriptive text block (French): "Shaghaf Oud Ahmar est un parfum gourmand ambré et chaleureux qui parle délicatement de luxe et d'opulence. Faites une entrée pétillante avec la bergamote et les notes vertes fraîches de l'aube. Un cœur fruité de melon, de pomme et d'ananas vous attire dans une insouciance infinie. Votre signature persistante est une somptueuse brise de vanille dorée, de bois exquis et de doux muscs poudrés tandis. Shaghaf Oud Ahmar laisse dans son sillage votre souvenir unique et envoûtant."
   * Volume: "Eau de parfum unisexe - 75ml"
-* **Visual Description:** Crimson red presentation box and matching red bottle with gold rectangular geometric cap, positioned above French narrative text and size specification.
+* **Visual Description:** Crimson red presentation box 
 
 ---
 
@@ -1102,6 +1102,311 @@ This document contains a structured analysis, qualification, product identificat
 * **Detailed OCR / Text Transcription:**
   * Box front: "Masterpiece", "MAISON ASRAR", "EAU DE PARFUM", "VAPORISATEUR SPRAY", "100ML e 3.38 FL.OZ.", abstract gold line art
   * Bottle front: "Masterpiece", "MAISON ASRAR", "EAU DE PARFUM"
-* **Visual Description:** Sculptural gold metallic bottle with twisted feminine silhouette design and textured cap, presented alongside a black box with gold abstract line art and "Masterpiece" branding. and matching red bottle with gold rectangular geometric cap, positioned above French narrative text and size specification.
+* **Visual Description:** Sculptural gold metallic bottle with twisted feminine silhouette design and textured cap, presented alongside a black box with gold abstract line art and "Masterpiece" branding. 
 
 ---
+
+---
+
+### 81. `122238848216207032_1.jpg`
+* **Classification:** Promotional Description Graphic with Product
+* **Usability:** ⚠️ Conditionally usable (Secondary / Marketing asset)
+* **Reason:** Features product bottle and French marketing description.
+* **Product Identification:** MG Perfume — Rose Désir (50ml)
+* **Detailed OCR / Text Transcription:**
+  * Bottle label: "ROSE DESIR", "MG PERFUME", "50ml"
+  * Watermark top right: "MG PERFUME" emblem
+  * Descriptive text block (French): "Rose désir : Rose Désir, c’est l’hommage à une féminité lumineuse, douce et affirmée. Une fragrance qui évoque l’amour, la tendresse et la force discrète des émotions profondes. L’extrait de parfum est souvent perçu comme plus intime, plus sensuel, et destiné à être porté comme une seconde peau, surtout pour les grandes occasions ou par ceux qui recherchent l’exclusivité. Nos extraits de parfum sont conçus pour durer... bien au-delà du temps. Même après une douche, leur sillage reste là — discret mais présent, intime mais puissant."
+  * Contact: "+221 77 309 48 00"
+* **Visual Description:** Elliptical perfume bottle with vibrant pink liquid, gold cap, and gold base, set against a sunset landscape background with lavender gradient.
+
+---
+
+### 82. `122238848216207032_2.jpg`
+* **Classification:** Promotional Description Graphic with Product
+* **Usability:** ⚠️ Conditionally usable (Secondary / Marketing asset)
+* **Reason:** Features product bottle and French marketing description.
+* **Product Identification:** MG Perfume — Un Amour (50ml)
+* **Detailed OCR / Text Transcription:**
+  * Bottle label: "UN AMOUR", "MG PERFUME", "50ml"
+  * Watermark top right: "MG PERFUME" emblem
+  * Descriptive text block (French): "Un Amour : La douceur d’un souvenir sucré. Un Amour, c’est l’essence d’un attachement sincère, d’un lien précieux. Une fragrance douce, enveloppante, qui réveille les émotions et parle au cœur. L’extrait de parfum est souvent perçu comme plus intime, plus sensuel, et destiné à être porté comme une seconde peau, surtout pour les grandes occasions ou par ceux qui recherchent l’exclusivité. Nos extraits de parfum sont conçus pour durer... bien au-delà du temps. Même après une douche, leur sillage reste là — discret mais présent, intime mais puissant."
+  * Contact: "+221 77 309 48 00"
+* **Visual Description:** Elliptical perfume bottle with yellow-green/light chartreuse liquid, gold cap, and gold base, set against a blurred background with lavender gradient.
+
+---
+
+### 83. `122239040876207032_1.jpg`
+* **Classification:** Promotional Instructional Graphic
+* **Usability:** ❌ Not usable as primary product photo (usable as educational content)
+* **Reason:** Promotional graphic explaining usage tips for the new collection.
+* **Product Identification:** MG Perfume — Usage Tips (Rose Désir & Un Amour)
+* **Detailed OCR / Text Transcription:**
+  * Title: "CONSEILS D’UTILISATION"
+  * Body text: "Afin de profiter pleinement de la richesse olfactive de nos extraits, il est recommandé de bien agiter le flacon avant chaque utilisation. Nous nous engageons à offrir des extraits de parfums d’exception, alliant exigence de qualité et accessibilité. Chaque fragrance de cette nouvelle collection est le fruit d’un savoir-faire minutieux, conçu pour sublimer vos sens à un prix juste. À secouer doucement avant usage, pour révéler toute sa richesse. Parfaite pour les peaux sensibles et les climats chauds, l’extrait de parfum offre une senteur intime et durable."
+* **Visual Description:** Graphic featuring Rose Désir and Un Amour bottles in the foreground with instructional text against a light cream/white background.
+
+---
+
+### 84. `122239040876207032_2.jpg`
+* **Classification:** Promotional Sustainability Campaign Graphic
+* **Usability:** ❌ Not usable as primary product photo (marketing asset)
+* **Reason:** Campaign graphic focusing on sustainability and refill policy.
+* **Product Identification:** MG Perfume — Refill Campaign
+* **Detailed OCR / Text Transcription:**
+  * Headline: "Votre parfum, éternellement unique. Rechargez l’émotion, préservez la planète."
+  * Body text: "Chez MG PERFUME, le luxe rime avec responsabilité. Chaque flacon est conçu pour durer. Une fois vide, rapportez-le pour une recharge à prix avantageux."
+  * Contact: "+221 77 309 48 00"
+  * Footer: "REJOIGNEZ LA TEAM MG PERFUME"
+* **Visual Description:** Promotional graphic showing Rose Désir and Un Amour bottles with sustainability campaign messaging over a blurred home interior background.
+
+---
+
+---
+
+## Batch 7 (Images 85 to 104)
+
+### 85. `122239789484207032_1.jpg`
+* **Classification:** Promotional Lifestyle Product Group Shot
+* **Usability:** ❌ Not usable as primary product catalog hero (usable as category/marketing banner)
+* **Reason:** Group shot of four distinct MG Perfume oil products with droppers.
+* **Product Identification:** MG Perfume Oil Collection (Sublime Vanille, N’aimez Que Moi, Séduction, Profond Désir)
+* **Detailed OCR / Text Transcription:**
+  * Labels: "SUBLIME VANILLE", "N’AIMEZ QUE MOI", "SÉDUCTION", "PROFOND DÉSIR", "MG PERFUME", "30ML"
+* **Visual Description:** Four 30ml dropper bottles in pink, coral, orange, and lavender arranged on a white pedestal against a dark blue background.
+
+---
+
+### 86. `122239789484207032_2.jpg`
+* **Classification:** Lifestyle Product Shot
+* **Usability:** ✅ Usable as secondary product catalog image
+* **Reason:** Focused product shot highlighting one perfume oil.
+* **Product Identification:** MG Perfume — Séduction (30ml)
+* **Detailed OCR / Text Transcription:**
+  * Bottle label: "MG PERFUME", "SÉDUCTION", "30ML"
+* **Visual Description:** Orange 30ml dropper bottle resting on a glass shelf against a dark background, with droplets visible on the glass.
+
+---
+
+### 87. `122239789484207032_3.jpg`
+* **Classification:** Lifestyle Product Shot
+* **Usability:** ✅ Usable as secondary product catalog image
+* **Reason:** Focused product shot highlighting one perfume oil.
+* **Product Identification:** MG Perfume — Profond Désir (30ml)
+* **Detailed OCR / Text Transcription:**
+  * Bottle label: "MG PERFUME", "PROFOND DÉSIR", "30ML"
+* **Visual Description:** Lavender 30ml dropper bottle resting on a black stone in front of a rose, against a dark blue background.
+
+---
+
+### 88. `122239789484207032_4.jpg`
+* **Classification:** Lifestyle Product Shot
+* **Usability:** ✅ Usable as secondary product catalog image
+* **Reason:** Focused product shot highlighting one perfume oil.
+* **Product Identification:** MG Perfume — Sublime Vanille (30ml)
+* **Detailed OCR / Text Transcription:**
+  * Bottle label: "MG PERFUME", "SUBLIME VANILLE", "30ML"
+* **Visual Description:** Pale pink 30ml dropper bottle on a white pedestal against a solid purple-pink background.
+
+---
+
+### 89. `122239813016207032_1.jpg`
+* **Classification:** Lifestyle / Influencer Product Shot
+* **Usability:** ❌ Not usable as standard hero product catalog image (usable for social/blog)
+* **Reason:** Features a model’s face holding the perfume oil.
+* **Product Identification:** MG Perfume — N’Aimez Que Moi (30ml)
+* **Detailed OCR / Text Transcription:**
+  * Bottle label: "MG PERFUME", "N’AIMEZ QUE MOI", "30ML"
+* **Visual Description:** Close-up of a model holding a pink 30ml dropper bottle, wearing a gold clover-style necklace.
+
+---
+
+### 90. `122239813016207032_2.jpg`
+* **Classification:** Lifestyle / Influencer Product Shot
+* **Usability:** ❌ Not usable as standard hero product catalog image (usable for social/blog)
+* **Reason:** Features a model’s face holding the perfume oil.
+* **Product Identification:** MG Perfume — N’Aimez Que Moi (30ml)
+* **Detailed OCR / Text Transcription:**
+  * Bottle label: "MG PERFUME", "N’AIMEZ QUE MOI", "30ML"
+* **Visual Description:** Close-up of a model holding a pink 30ml dropper bottle, face partially visible.
+
+---
+
+### 91. `122240751032207032_1.jpg`
+* **Classification:** Lifestyle / Influencer Selfie
+* **Usability:** ❌ Not usable as product catalog image (usable as social proof)
+* **Reason:** Influencer selfie with "My current perfume rotation" text overlay.
+* **Product Identification:** MG Perfume (Implied Collection)
+* **Detailed OCR / Text Transcription:**
+  * Text overlay: "My current perfum rotation :"
+* **Visual Description:** Influencer selfie in a car wearing black sunglasses and a black headwrap, posing with a kissy face.
+
+---
+
+### 92. `122240751032207032_2.jpg`
+* **Classification:** Lifestyle Product Shot
+* **Usability:** ✅ Usable as secondary product catalog image
+* **Reason:** Focused product shot for brand musk product.
+* **Product Identification:** MG Perfume — Attirance (Musc ++)
+* **Detailed OCR / Text Transcription:**
+  * Bottle label: "MG PERFUME", "ATTIRANCE", "Musc ++", "30ML"
+  * Text overlay: "The most long lasting musk I’ve ever come across"
+* **Visual Description:** Red 30ml dropper bottle being held by a hand against a gray curtain background.
+
+---
+
+### 93. `122240751032207032_3.jpg`
+* **Classification:** Lifestyle Product Shot
+* **Usability:** ✅ Usable as secondary product catalog image
+* **Reason:** Focused product shot for brand product.
+* **Product Identification:** MG Perfume — Séduction (30ml)
+* **Detailed OCR / Text Transcription:**
+  * Bottle label: "MG PERFUME", "SÉDUCTION", "30ML"
+  * Text overlay: "My most complimented"
+* **Visual Description:** Orange 30ml dropper bottle being held in front of a white potted plant with yellow orchids and pink flowers.
+
+---
+
+### 94. `122240751032207032_4.jpg`
+* **Classification:** Lifestyle Product Shot
+* **Usability:** ✅ Usable as hero product catalog image
+* **Reason:** Clear product shot with quality rating overlay.
+* **Product Identification:** MG Perfume — Un Amour (50ml)
+* **Detailed OCR / Text Transcription:**
+  * Bottle label: "MG PERFUME", "UN AMOUR", "50ml"
+  * Text overlay: "The automiser + longevity = 10/10"
+* **Visual Description:** 50ml elliptical bottle with gold metallic liquid inside, held in front of an aquarium background with aquatic plants and gravel.
+
+---
+
+### 95. `122242613210207032_1.jpg`
+* **Classification:** Studio Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Clean professional studio shot featuring the bottle styled with natural elements.
+* **Product Identification:** MG Perfume — Un Amour (50ml)
+* **Detailed OCR / Text Transcription:**
+  * Bottle label: "UN AMOUR", "MG PERFUME", "50ml"
+  * Watermark/Logo: MG Perfume diamond emblem
+* **Visual Description:** Elliptical 50ml bottle with green/gold shimmering juice, posed on a gray stone next to a large textured stone and a pink rose against a dark olive-green gradient background.
+
+---
+
+### 96. `122242613210207032_2.jpg`
+* **Classification:** Studio Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Clean professional studio shot of the fragrance bottle.
+* **Product Identification:** MG Perfume — Rose Désir (50ml)
+* **Detailed OCR / Text Transcription:**
+  * Bottle label: "ROSE DESIR", "MG PERFUME", "50ml"
+* **Visual Description:** Elliptical 50ml bottle with vibrant pink/coral shimmering juice, resting on a white angular surface against a deep red/black background.
+
+---
+
+### 97. `122242613210207032_3.jpg`
+* **Classification:** Studio Product Group Shot
+* **Usability:** ✅ Usable as hero catalog or category banner image
+* **Reason:** Professional lighting and staging showcasing two core fragrances.
+* **Product Identification:** MG Perfume — Rose Désir & Un Amour (50ml)
+* **Detailed OCR / Text Transcription:**
+  * Bottle labels: "ROSE DESIR" (top), "UN AMOUR" (bottom), "MG PERFUME"
+* **Visual Description:** Rose Désir (pink juice) displayed on a dark green box surface above Un Amour (green juice) against a deep emerald green background.
+
+---
+
+### 98. `122243398814207032_1.jpg`
+* **Classification:** Lifestyle / Influencer Product Shot
+* **Usability:** ❌ Not usable as primary product catalog hero (usable as social proof)
+* **Reason:** Features a model profile holding the perfume bottle.
+* **Product Identification:** MG Perfume — Rose Désir (50ml)
+* **Detailed OCR / Text Transcription:**
+  * Bottle label: "ROSE DESIR", "MG PERFUME", "50ml"
+* **Visual Description:** Profile view of a model’s face holding a Rose Désir 50ml elliptical bottle against a deep maroon/red background.
+
+---
+
+### 99. `122243398814207032_2.jpg`
+* **Classification:** Lifestyle / Influencer Product Shot
+* **Usability:** ❌ Not usable as primary product catalog hero (usable as social proof)
+* **Reason:** Features a model holding the perfume bottle.
+* **Product Identification:** MG Perfume — Un Amour (50ml)
+* **Detailed OCR / Text Transcription:**
+  * Bottle label: "UN AMOUR", "MG PERFUME", "50ml"
+* **Visual Description:** Close-up of a model holding an Un Amour 50ml bottle against a deep maroon/red background.
+
+---
+
+### 100. `122243398814207032_3.jpg`
+* **Classification:** Lifestyle / Influencer Product Shot
+* **Usability:** ❌ Not usable as primary product catalog hero (usable as social proof)
+* **Reason:** Features a model holding the perfume bottle.
+* **Product Identification:** MG Perfume — Rose Désir (50ml)
+* **Detailed OCR / Text Transcription:**
+  * Bottle label: "ROSE DESIR", "MG PERFUME", "50ml"
+* **Visual Description:** Close-up of a model holding a Rose Désir 50ml bottle against a deep maroon/red background.
+
+---
+
+### 101. `122245758332207032_1.jpg`
+* **Classification:** Clean Studio Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Isolated bottle shot on white background.
+* **Product Identification:** MG Perfume — Musc (White Label)
+* **Detailed OCR / Text Transcription:**
+  * Bottle label: "MG PERFUME", "MUSC", "30ML"
+* **Visual Description:** 30ml dropper bottle with clear/neutral oil inside, on a clean white background.
+
+---
+
+### 102. `122245758332207032_2.jpg`
+* **Classification:** Clean Studio Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Isolated bottle shot on white background.
+* **Product Identification:** MG Perfume — Musk (Black/White Label)
+* **Detailed OCR / Text Transcription:**
+  * Bottle label: "MG PERFUME", "MUSK", "30ML"
+* **Visual Description:** 30ml dropper bottle, similar to image 101 but with slight variation, white background.
+
+---
+
+### 103. `122245758332207032_3.jpg`
+* **Classification:** Clean Studio Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Isolated bottle shot on white background.
+* **Product Identification:** MG Perfume — Musk (Black/White Label)
+* **Detailed OCR / Text Transcription:**
+  * Bottle label: "MG PERFUME", "MUSK", "30ML"
+* **Visual Description:** 30ml dropper bottle, white background.
+
+---
+
+### 104. `122245758332207032_4.jpg`
+* **Classification:** Clean Studio Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Isolated bottle shot on white background.
+* **Product Identification:** MG Perfume — Musk (Black/White Label)
+* **Detailed OCR / Text Transcription:**
+  * Bottle label: "MG PERFUME", "MUSK", "30ML"
+* **Visual Description:** 30ml dropper bottle, white background.
+
+---
+
+### 105. `122245758332207032_5.jpg`
+* **Classification:** Clean Studio Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Clean studio bottle shot showing body wash product.
+* **Product Identification:** MG Perfume — Gel de Douche (N’Aimez Que Moi, 100ml)
+* **Detailed OCR / Text Transcription:**
+  * Bottle label: "MG PERFUME", "Gel de Douche", "N’AIMEZ QUE MOI", "100ml"
+* **Visual Description:** 100ml clear squeeze bottle with flip-top cap containing clear shower gel, decorated with floral graphics on the label, set against a dark red background.
+
+---
+
+### 106. `122250222374207032_1.jpg`
+* **Classification:** Luxury Product Shot with Box
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** High-end studio shot of sculptural niche perfume bottle and matching presentation box.
+* **Product Identification:** French Avenue — Venus de Milo (Eau de Parfum)
+* **Detailed OCR / Text Transcription:**
+  * Bottle cap: Sculptural bust
+  * Box front: "VENUS DE MILO", "FRENCH AVENUE"
+* **Visual Description:** Cream/white fluted cylindrical bottle with a sculptural Grecian bust cap, accompanied by a decorative presentation box featuring classical pillar illustrations and gold medallion embossing, against a rich wood-paneled red background.
