@@ -116,7 +116,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           { data: dbShipping, error: shipErr },
           { data: dbFaqs, error: faqErr },
         ] = await Promise.all([
-          supabase.from('products').select('*').order('created_at', { ascending: false }),
+          supabase.from('products').select('*').order('created_at', { ascending: true }),
           supabase.from('editorial_banners').select('*').order('display_order', { ascending: true }),
           supabase.from('shipping_zones').select('*'),
           supabase.from('faqs').select('*').order('display_order', { ascending: true }),

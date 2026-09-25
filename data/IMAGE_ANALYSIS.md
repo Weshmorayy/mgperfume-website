@@ -840,8 +840,6 @@ This document contains a structured analysis, qualification, product identificat
 
 ---
 
-## Batch 6 (Images 61 to 80)
-
 ### 61. `122216770556207032_1.jpg`
 * **Classification:** Clean Studio Product Shot with Box
 * **Usability:** ✅ Usable as hero catalog product image
@@ -849,7 +847,7 @@ This document contains a structured analysis, qualification, product identificat
 * **Product Identification:** MAH Parfum - Oudh Coco (Édition Prestige)
 * **Detailed OCR / Text Transcription:**
   * Box front: "MAH PARFUM", "OUDH COCO", "Édition Prestige", "Extrait de Parfum"
- * Bottle front label: "OUDH COCO", "Édition Prestige", "MAH Paris"
+  * Bottle front label: "OUDH COCO", "Édition Prestige", "MAH Paris"
   * Watermark top right: "MG PERFUME" emblem
 * **Visual Description:** Deep teal/blue rectangular bottle with gold cap and matching blue presentation box featuring gold geometric logo and "Édition Prestige" text.
 
@@ -1410,3 +1408,50 @@ This document contains a structured analysis, qualification, product identificat
   * Bottle cap: Sculptural bust
   * Box front: "VENUS DE MILO", "FRENCH AVENUE"
 * **Visual Description:** Cream/white fluted cylindrical bottle with a sculptural Grecian bust cap, accompanied by a decorative presentation box featuring classical pillar illustrations and gold medallion embossing, against a rich wood-paneled red background.
+
+---
+
+### 107. `122250222374207032_2.jpg`
+* **Classification:** Luxury Product Shot with Box
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Isolated product and box shot on clean background.
+* **Product Identification:** French Avenue — Grecia Parfum
+* **Detailed OCR / Text Transcription:**
+  * Box front: "GRECIA", "PARFUM", "FRENCH AVENUE"
+  * Bottle front: "GRECIA", "FRENCH AVENUE"
+* **Visual Description:** White marble-textured cylindrical bottle with ornate bronze/rose-gold Greco-Roman architectural column cap and base, paired with a matching white marble-textured presentation box featuring ornate gold frieze borders.
+
+---
+
+### 108. `122250222374207032_3.jpg`
+* **Classification:** Studio Product Shot with Ingredient Flat-lay
+* **Usability:** ✅ Usable as secondary product catalog image
+* **Reason:** High-end product rendering styled with raw ingredients.
+* **Product Identification:** French Avenue — Royal Blend Nero (Eau de Parfum)
+* **Detailed OCR / Text Transcription:**
+  * Bottle center label: "ROYAL", "BLEND", "NERO"
+* **Visual Description:** Faceted dark black/obsidian fluted bottle with a diamond-shaped gold label, resting on a warm surface alongside cinnamon sticks, fresh orange slices, and dried dates.
+
+---
+
+### 109. `122250222374207032_4.jpg`
+* **Classification:** Luxury Product Shot with Box & Glass
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Premium editorial product presentation with gift box and crystal tumbler.
+* **Product Identification:** French Avenue — Royal Blend (Eau de Parfum)
+* **Detailed OCR / Text Transcription:**
+  * Box front: "ROYAL", "BLEND", "FRENCH AVENUE", "EXTRAIT DE PARFUM"
+  * Bottle label: "ROYAL", "BLEND"
+* **Visual Description:** Amber glass fluted bottle with crystal-cut cap and diamond gold label, displayed on wooden pedestals beside its matching black and gold presentation box and a crystal rocks glass filled with amber liquor.
+
+---
+
+### 110. `122250222374207032_5.jpg`
+* **Classification:** Luxury Studio Product Shot with Ingredient Background
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Gorgeous fluid caramel background flat-lay highlighting gourmand profile.
+* **Product Identification:** Paris Corner (French Avenue) — Eclair Affair (Eau de Parfum)
+* **Detailed OCR / Text Transcription:**
+  * Bottle label: "ECLAIR", "Affair", "PARIS CORNER"
+  * Box front: "ECLAIR", "Affair"
+* **Visual Description:** Gradient beige-to-caramel slender perfume bottle with minimalist round white cap, paired with a matching beige presentation box with a circular gold emblem, set against a luxurious flowing liquid caramel and cream background.
