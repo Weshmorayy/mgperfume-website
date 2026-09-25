@@ -703,6 +703,143 @@ This document contains a structured analysis, qualification, product identificat
 
 ---
 
+## Batch 5 (Images 51 to 60)
+
+### 51. `122213881382207032_1.jpg`
+* **Classification:** Promotional Product Graphic with Text Overlay
+* **Usability:** ✅ Usable as secondary product / marketing asset
+* **Reason:** Clear bottle presentation with complete French olfactory notes and brand watermark.
+* **Product Identification:** Lattafa - Oud Lavender (Eau de Parfum)
+* **Detailed OCR / Text Transcription:**
+  * Watermark top right: "MG PERFUME" logo
+  * Bottle front label: Arabic script, "Oud", "Lavender", "Eau de Parfum", "Lattafa"
+  * Descriptive French text block: "Ressentez la brume fraîche et revitalisante de l'océan contre votre peau sur une plage paresseuse avec cette bouteille. Parfum unisexe. Notes de parfum. Tête : Jacinthe, Lavande, Fruits. Coeur : Iris, Jasmin, Poivre Rose. Base : Vétiver, Ambre, Oud, Musc."
+* **Visual Description:** Deep purple metallic perfume bottle with silver center oval label and silver crown-style cap, placed against a soft neutral background with lush French marketing copy below.
+
+---
+
+### 52. `122213881382207032_2.jpg`
+* **Classification:** Promotional Product Graphic with Text Overlay
+* **Usability:** ✅ Usable as secondary product / marketing asset
+* **Reason:** Product clearly shown with fracture notes in French, attractive packaging and bottle.
+* **Product Identification:** Lattafa - Oud & Roses (Eau de Parfum, 100ml)
+* **Detailed OCR / Text Transcription:**
+  * Bottle center: "OUD", "ROSES", "Eau de Parfum", "Natural Spray", "100 ML", "Lattafa"
+  * Olfactory notes (French):
+    * Haut: "Floral, rose de Turquie, lavande, pivoine citronnée"
+    * Cœur: "Doux, bois de santal, fleur blanche"
+    * Base: "Musc, bois d'agar, bois de cèdre, musc, vanille"
+* **Visual Description:** Elegant rectangular bottle with black-to-purple gradient liquid, gold band accent, tassel charm, and gold cap, accompanied by gold matching box with Arabic embossing.
+
+---
+
+### 53. `122214146696207032_1.jpg`
+* **Classification:** Luxury Brand Product Shot with Box & Description
+* **Usability:** ✅ Usable as hero / gallery product image
+* **Reason:** High-end presentation with box, bottle, statue motif, and full French fragrance description.
+* **Product Identification:** Lattafa - Her Confession (Eau de Parfum, 100ml)
+* **Detailed OCR / Text Transcription:**
+  * Box text: "HER CONFESSION", "Lattafa", "EAU DE PARFUM LITERAL SPRAY | VAPORISATEUR | 100 ML 3.4 FL OZ"
+  * Bottle text: "HER CONFESSION", "HIS CONFESSION", "Lattafa"
+  * Descriptive French text block: "Dès les premières notes, ce parfum oriental dévoile une ouverture captivante, où la cannelle, la lavande et la mandarine se conjuguent pour créer une invitation à la découverte. Cette introduction intrigue et séduit. Elle prépare également les sens à l'évolution fascinante de la fragrance. Au cœur du parfum, un luxueux bouquet floral s'épanouit. L'Iris, le cyprès, le benjoin se marient avec grâce, apportant richesse et profondeur. Mais ce n'est pas tout, car le mahonial vient rehausser cette composition d'une touche subtile, mais envoûtante."
+* **Visual Description:** Gold and white sculptural bottle with Greek statue bust cap, matched with light beige textured box featuring circular statue portrait window and gold Lattafa emblem. Constellation/gold dust effects enhance the luxury aesthetic.
+
+---
+
+### 54. `122214146696207032_2.jpg`
+* **Classification:** Luxury Brand Product Shot with Detailed Notes
+* **Usability:** ✅ Usable as hero / gallery product image
+* **Reason:** High-aesthetic product shot with clear olfactory pyramid.
+* **Product Identification:** Lattafa - His Confession (Eau de Parfum, 100ml)
+* **Detailed OCR / Text Transcription:**
+  * Bottle front: "HIS CONFESSION", "Lattafa", "EAU DE PARFUM | VAPORISATEUR NATURAL SPRAY | e NET 100ML 3.4 FL.OZ"
+  * Olfactory notes (French):
+    * Notes de tête: Cannelle, Lavande, Mandarine
+    * Notes de cœur: Iris, Benjoin, Cyprès, Mahonial
+    * Notes de fond: Vanille, Tonka, Encens, Ambre, Bois de cèdre, Patchouli
+  * Descriptive French text: "Lattafa His Confession Eau De Parfum est un parfum masculin distinctif et captivant qui incarne le concept moderne de la masculinité. Ce parfum impressionne par son audace et sa sophistication, ce qui en fait le choix idéal pour les hommes confiants qui veulent être incontournables. Sa polyvalence en fait le compagnon idéal pour les occasions de jour comme de soir."
+* **Visual Description:** Dramatic split-design bottle with glossy black upper section and gold lower section featuring Arabic geometric carving, topped by a gold-trimmed black statue head cap. Rough-textured black box with gold circular cutout reveals the statue interior.
+
+---
+
+### 55. `122214790172207032_1.jpg`
+* **Classification:** Studio Product Shot with Ingredient Flat-lay & Notes
+* **Usability:** ✅ Usable as primary product catalog image
+* **Reason:** Clean isolated bottle with comprehensive fragrance note breakdown and ingredient props.
+* **Product Identification:** Lattafa - Teriaq (Eau de Parfum)
+* **Detailed OCR / Text Transcription:**
+  * Bottle front label (Gold plate): Arabic script, "TERIAQ", "Lattafa"
+  * Olfactory notes (French):
+    * NOTES DE TÊTE: Caramel, Amande amère, Poivre rose, Abricot
+    * NOTES DE COEUR: Miel, Rhubarbe, Fleurs blanches, Rose
+    * NOTES DE FOND: Vanille, Vétiver, Labdanum, Cuir, Musc
+* **Visual Description:** Cylindrical bottle with amber/gold fragrance liquid and ornate gold base featuring a golden serpent/snake motif, surrounded by gourmet ingredients including bowls of almonds, almond nuts, and warm studio ingredients on white background.
+
+---
+
+### 56. `122214790172207032_2.jpg`
+* **Classification:** Studio Lifestyle Product Shot with Ingredient Flat-lay & French Notes
+* **Usability:** ✅ Usable as primary product catalog image
+* **Reason:** Beautiful premium flat-lay with all ingredients and complete French olfactory notes visible.
+* **Product Identification:** Lattafa - Éclaire (Eau de Parfum)
+* **Detailed OCR / Text Transcription:**
+  * Bottle front: "ECLAIRE", Arabic script, "Lattafa"
+  * Olfactory notes (French):
+    * NOTES DE TÊTE: Caramel, Amande amère, Poivre rose, Abricot
+    * NOTES DE COEUR: Miel, Rhubarbe, Fleurs blanches, Rose
+    * NOTES DE FOND: Vanille, Vétiver, Labdanum, Cuir, Musc
+* **Visual Description:** Beige/cream rectangular bottle with gold melting "dripping" sculptural cap, styled within a textured white ceramic bowl filled with cinnamon sticks, vanilla pods, walnuts, and whipped cream with caramel drizzle. Warm, artisanal, confectionery-like aesthetic.
+
+---
+
+### 57. `122216635484207032_1.jpg`
+* **Classification:** Promotional Multi-Product Grid Banner
+* **Usability:** ❌ Not usable as individual product hero (usable as category/marketing banner)
+* **Reason:** Grid collage of multiple distinct perfume bottles without individual product focus.
+* **Product Identification:** Mixed feminine perfume collection (Yara, Khamrah, etc.)
+* **Detailed OCR / Text Transcription:**
+  * Arabic/French header: "استثمر" / Arabic brand mark
+  * Visible bottles: Lattafa Yara (pink), Lattafa Khamrah (amber with crystal), others with Arabic text
+* **Visual Description:** Radial/mandala-style arrangement of multiple perfume bottles on a dark tone background with Arabic decorative border frames.
+
+---
+
+### 58. `122216635484207032_2.jpg`
+* **Classification:** Promotional Multi-Product Grid Banner
+* **Usability:** ❌ Not usable as individual product hero (usable as category/marketing banner)
+* **Reason:** Grid composition of multiple male-focused perfumes.
+* **Product Identification:** Mixed masculine/oud-focused perfume collection
+* **Detailed OCR / Text Transcription:**
+  * Arabic header: "استثمر" / Arabic brand
+  * Product text visible: "Oud", Arabic script, "Lattafa"
+* **Visual Description:** Dark background collage featuring bold gold and black perfume bottles arranged in geometric/grid formation with Arabic typography and decorative border elements.
+
+---
+
+### 59. `122216635484207032_3.jpg`
+* **Classification:** Promotional Multi-Product Grid / Category Banner
+* **Usability:** ❌ Not usable as individual product hero (usable as category/marketing banner)
+* **Reason:** Contains multiple product bottles with decorative framing and Arabic text headers.
+* **Product Identification:** Mixed assorted perfume collection
+* **Detailed OCR / Text Transcription:**
+  * Arabic center text: "استثمر"
+  * Visible labels: "Lattafa", "Oud", Arabic calligraphy on multiple bottles
+* **Visual Description:** Decorative bordered banner showing multiple perfume bottles of various shapes and colors on a warmth-toned background with ornamental Arabic typography and gold decorative flourishes.
+
+---
+
+### 60. `122216635484207032_4.jpg`
+* **Classification:** Promotional Multi-Product Grid / Category Banner
+* **Usability:** ❌ Not usable as individual product hero (usable as category/marketing banner)
+* **Reason:** Contains multiple product bottles for bulk or category display.
+* **Product Identification:** Mixed assorted perfume collection
+* **Detailed OCR / Text Transcription:**
+  * Arabic center text: "استثمر"
+  * Visual bottle labels: Arabic script, "Lattafa", various gold-accented bottles
+* **Visual Description:** Warm golden-themed promotional banner with gold ornamental borders, Arabic headline text, and a grid of assorted perfume bottles in gold, black, purple, and pink packaging.
+
+---
+
 ## Batch 6 (Images 61 to 80)
 
 ### 61. `122216770556207032_1.jpg`
@@ -968,138 +1105,3 @@ This document contains a structured analysis, qualification, product identificat
 * **Visual Description:** Sculptural gold metallic bottle with twisted feminine silhouette design and textured cap, presented alongside a black box with gold abstract line art and "Masterpiece" branding. and matching red bottle with gold rectangular geometric cap, positioned above French narrative text and size specification.
 
 ---
-
-## Batch 5 (Images 51 to 60)
-
-### 51. `122213881382207032_1.jpg`
-* **Classification:** Promotional Product Graphic with Text Overlay
-* **Usability:** ✅ Usable as secondary product / marketing asset
-* **Reason:** Clear bottle presentation with complete French olfactory notes and brand watermark.
-* **Product Identification:** Lattafa - Oud Lavender (Eau de Parfum)
-* **Detailed OCR / Text Transcription:**
-  * Watermark top right: "MG PERFUME" logo
-  * Bottle front label: Arabic script, "Oud", "Lavender", "Eau de Parfum", "Lattafa"
-  * Descriptive French text block: "Ressentez la brume fraîche et revitalisante de l'océan contre votre peau sur une plage paresseuse avec cette bouteille. Parfum unisexe. Notes de parfum. Tête : Jacinthe, Lavande, Fruits. Coeur : Iris, Jasmin, Poivre Rose. Base : Vétiver, Ambre, Oud, Musc."
-* **Visual Description:** Deep purple metallic perfume bottle with silver center oval label and silver crown-style cap, placed against a soft neutral background with lush French marketing copy below.
-
----
-
-### 52. `122213881382207032_2.jpg`
-* **Classification:** Promotional Product Graphic with Text Overlay
-* **Usability:** ✅ Usable as secondary product / marketing asset
-* **Reason:** Product clearly shown with fracture notes in French, attractive packaging and bottle.
-* **Product Identification:** Lattafa - Oud & Roses (Eau de Parfum, 100ml)
-* **Detailed OCR / Text Transcription:**
-  * Bottle center: "OUD", "ROSES", "Eau de Parfum", "Natural Spray", "100 ML", "Lattafa"
-  * Olfactory notes (French):
-    * Haut: "Floral, rose de Turquie, lavande, pivoine citronnée"
-    * Cœur: "Doux, bois de santal, fleur blanche"
-    * Base: "Musc, bois d'agar, bois de cèdre, musc, vanille"
-* **Visual Description:** Elegant rectangular bottle with black-to-purple gradient liquid, gold band accent, tassel charm, and gold cap, accompanied by gold matching box with Arabic embossing.
-
----
-
-### 53. `122214146696207032_1.jpg`
-* **Classification:** Luxury Brand Product Shot with Box & Description
-* **Usability:** ✅ Usable as hero / gallery product image
-* **Reason:** High-end presentation with box, bottle, statue motif, and full French fragrance description.
-* **Product Identification:** Lattafa - Her Confession (Eau de Parfum, 100ml)
-* **Detailed OCR / Text Transcription:**
-  * Box text: "HER CONFESSION", "Lattafa", "EAU DE PARFUM LITERAL SPRAY | VAPORISATEUR | 100 ML 3.4 FL OZ"
-  * Bottle text: "HER CONFESSION", "HIS CONFESSION", "Lattafa"
-  * Descriptive French text block: "Dès les premières notes, ce parfum oriental dévoile une ouverture captivante, où la cannelle, la lavande et la mandarine se conjuguent pour créer une invitation à la découverte. Cette introduction intrigue et séduit. Elle prépare également les sens à l'évolution fascinante de la fragrance. Au cœur du parfum, un luxueux bouquet floral s'épanouit. L'Iris, le cyprès, le benjoin se marient avec grâce, apportant richesse et profondeur. Mais ce n'est pas tout, car le mahonial vient rehausser cette composition d'une touche subtile, mais envoûtante."
-* **Visual Description:** Gold and white sculptural bottle with Greek statue bust cap, matched with light beige textured box featuring circular statue portrait window and gold Lattafa emblem. Constellation/gold dust effects enhance the luxury aesthetic.
-
----
-
-### 54. `122214146696207032_2.jpg`
-* **Classification:** Luxury Brand Product Shot with Detailed Notes
-* **Usability:** ✅ Usable as hero / gallery product image
-* **Reason:** High-aesthetic product shot with clear olfactory pyramid.
-* **Product Identification:** Lattafa - His Confession (Eau de Parfum, 100ml)
-* **Detailed OCR / Text Transcription:**
-  * Bottle front: "HIS CONFESSION", "Lattafa", "EAU DE PARFUM | VAPORISATEUR NATURAL SPRAY | e NET 100ML 3.4 FL.OZ"
-  * Olfactory notes (French):
-    * Notes de tête: Cannelle, Lavande, Mandarine
-    * Notes de cœur: Iris, Benjoin, Cyprès, Mahonial
-    * Notes de fond: Vanille, Tonka, Encens, Ambre, Bois de cèdre, Patchouli
-  * Descriptive French text: "Lattafa His Confession Eau De Parfum est un parfum masculin distinctif et captivant qui incarne le concept moderne de la masculinité. Ce parfum impressionne par son audace et sa sophistication, ce qui en fait le choix idéal pour les hommes confiants qui veulent être incontournables. Sa polyvalence en fait le compagnon idéal pour les occasions de jour comme de soir."
-* **Visual Description:** Dramatic split-design bottle with glossy black upper section and gold lower section featuring Arabic geometric carving, topped by a gold-trimmed black statue head cap. Rough-textured black box with gold circular cutout reveals the statue interior.
-
----
-
-### 55. `122214790172207032_1.jpg`
-* **Classification:** Studio Product Shot with Ingredient Flat-lay & Notes
-* **Usability:** ✅ Usable as primary product catalog image
-* **Reason:** Clean isolated bottle with comprehensive fragrance note breakdown and ingredient props.
-* **Product Identification:** Lattafa - Teriaq (Eau de Parfum)
-* **Detailed OCR / Text Transcription:**
-  * Bottle front label (Gold plate): Arabic script, "TERIAQ", "Lattafa"
-  * Olfactory notes (French):
-    * NOTES DE TÊTE: Caramel, Amande amère, Poivre rose, Abricot
-    * NOTES DE COEUR: Miel, Rhubarbe, Fleurs blanches, Rose
-    * NOTES DE FOND: Vanille, Vétiver, Labdanum, Cuir, Musc
-* **Visual Description:** Cylindrical bottle with amber/gold fragrance liquid and ornate gold base featuring a golden serpent/snake motif, surrounded by gourmet ingredients including bowls of almonds, almond nuts, and warm studio ingredients on white background.
-
----
-
-### 56. `122214790172207032_2.jpg`
-* **Classification:** Studio Lifestyle Product Shot with Ingredient Flat-lay & French Notes
-* **Usability:** ✅ Usable as primary product catalog image
-* **Reason:** Beautiful premium flat-lay with all ingredients and complete French olfactory notes visible.
-* **Product Identification:** Lattafa - Éclaire (Eau de Parfum)
-* **Detailed OCR / Text Transcription:**
-  * Bottle front: "ECLAIRE", Arabic script, "Lattafa"
-  * Olfactory notes (French):
-    * NOTES DE TÊTE: Caramel, Amande amère, Poivre rose, Abricot
-    * NOTES DE COEUR: Miel, Rhubarbe, Fleurs blanches, Rose
-    * NOTES DE FOND: Vanille, Vétiver, Labdanum, Cuir, Musc
-* **Visual Description:** Beige/cream rectangular bottle with gold melting "dripping" sculptural cap, styled within a textured white ceramic bowl filled with cinnamon sticks, vanilla pods, walnuts, and whipped cream with caramel drizzle. Warm, artisanal, confectionery-like aesthetic.
-
----
-
-### 57. `122216635484207032_1.jpg`
-* **Classification:** Promotional Multi-Product Grid Banner
-* **Usability:** ❌ Not usable as individual product hero (usable as category/marketing banner)
-* **Reason:** Grid collage of multiple distinct perfume bottles without individual product focus.
-* **Product Identification:** Mixed feminine perfume collection (Yara, Khamrah, etc.)
-* **Detailed OCR / Text Transcription:**
-  * Arabic/French header: "استثمر" / Arabic brand mark
-  * Visible bottles: Lattafa Yara (pink), Lattafa Khamrah (amber with crystal), others with Arabic text
-* **Visual Description:** Radial/mandala-style arrangement of multiple perfume bottles on a dark tone background with Arabic decorative border frames.
-
----
-
-### 58. `122216635484207032_2.jpg`
-* **Classification:** Promotional Multi-Product Grid Banner
-* **Usability:** ❌ Not usable as individual product hero (usable as category/marketing banner)
-* **Reason:** Grid composition of multiple male-focused perfumes.
-* **Product Identification:** Mixed masculine/oud-focused perfume collection
-* **Detailed OCR / Text Transcription:**
-  * Arabic header: "استثمر" / Arabic brand
-  * Product text visible: "Oud", Arabic script, "Lattafa"
-* **Visual Description:** Dark background collage featuring bold gold and black perfume bottles arranged in geometric/grid formation with Arabic typography and decorative border elements.
-
----
-
-### 59. `122216635484207032_3.jpg`
-* **Classification:** Promotional Multi-Product Grid / Category Banner
-* **Usability:** ❌ Not usable as individual product hero (usable as category/marketing banner)
-* **Reason:** Contains multiple product bottles with decorative framing and Arabic text headers.
-* **Product Identification:** Mixed assorted perfume collection
-* **Detailed OCR / Text Transcription:**
-  * Arabic center text: "استثمر"
-  * Visible labels: "Lattafa", "Oud", Arabic calligraphy on multiple bottles
-* **Visual Description:** Decorative bordered banner showing multiple perfume bottles of various shapes and colors on a warmth-toned background with ornamental Arabic typography and gold decorative flourishes.
-
----
-
-### 60. `122216635484207032_4.jpg`
-* **Classification:** Promotional Multi-Product Grid / Category Banner
-* **Usability:** ❌ Not usable as individual product hero (usable as category/marketing banner)
-* **Reason:** Contains multiple product bottles for bulk or category display.
-* **Product Identification:** Mixed assorted perfume collection
-* **Detailed OCR / Text Transcription:**
-  * Arabic center text: "استثمر"
-  * Visual bottle labels: Arabic script, "Lattafa", various gold-accented bottles
-* **Visual Description:** Warm golden-themed promotional banner with gold ornamental borders, Arabic headline text, and a grid of assorted perfume bottles in gold, black, purple, and pink packaging.

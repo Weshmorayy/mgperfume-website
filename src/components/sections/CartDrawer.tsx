@@ -312,7 +312,7 @@ export function CartDrawer({
               <div className="space-y-1">
                 <label className="text-[10px] font-bold text-[#171513] flex items-center gap-1 uppercase tracking-wider">
                   <MapPin className="w-3 h-3 text-[#C59B3F]" />
-                  Zone de Livraison (Dakar & Régions)
+                  Zone de Livraison
                 </label>
                 <select
                   value={selectedZoneId}
@@ -321,7 +321,7 @@ export function CartDrawer({
                 >
                   {zonesList.map(zone => (
                     <option key={zone.id} value={zone.id}>
-                      {zone.name} (+{zone.price.toLocaleString('fr-FR')} FCFA) — {zone.delay}
+                      {zone.name} ({zone.delay})
                     </option>
                   ))}
                 </select>

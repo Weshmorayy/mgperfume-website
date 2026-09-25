@@ -115,7 +115,7 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
               <div className="flex items-center gap-2 p-2.5 rounded-xl bg-[#FAF8F5] border border-[#E8DCC2] text-xs text-[#171513]">
                 <ShieldCheck className="w-4 h-4 text-[#967120] flex-shrink-0" />
                 <span>
-                  <strong className="text-[#967120]">Livraison offerte</strong> sur ce parfum partout à Dakar.
+                  <strong className="text-[#967120]">Livraison offerte</strong> sur ce parfum.
                 </span>
               </div>
             )}
