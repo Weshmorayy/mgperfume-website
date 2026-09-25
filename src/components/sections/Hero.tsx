@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Sparkles, ShieldCheck, Truck, ArrowRight } from 'lucide-react';
 import { siteConfig } from '@/config/site';
+import { useStore } from '@/context/StoreContext';
 import { PerfumeProduct } from '@/types';
 
 interface HeroProps {
