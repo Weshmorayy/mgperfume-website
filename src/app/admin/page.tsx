@@ -2998,7 +2998,8 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                     })}
                   </div>
                 </div>
-              )}
+              </div>
+            )}
 
               {/* ------------------------------------------------------------- */}
               {/* SUBTAB 3: BIBLIOTHÈQUE & GESTIONNAIRE DE BADGES MARKETING */}
@@ -3172,7 +3173,8 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                     })}
                   </div>
                 </div>
-              )}
+              </div>
+            )}
 
             </div>
           )}
@@ -3830,7 +3832,12 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
               <div className="pt-4 border-t border-[#E8DCC2] flex justify-end">
                 <button
                   onClick={async () => {
-                    await updateSettings(localContact, localSocial);
+                    const updatedContact = {
+                      ...localContact,
+                      phoneFormatted: localContact.phoneFormatted || localContact.phone,
+                      whatsappNumber: localContact.whatsappNumber || localContact.phone
+                    };
+                    await updateSettings(updatedContact, localSocial);
                     setHasUnsavedChanges(false);
                     showFeedback('Coordonnées et réseaux sociaux enregistrés avec succès');
                   }}

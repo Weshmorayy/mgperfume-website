@@ -6,9 +6,11 @@ import { Footer } from '@/components/layout/Footer';
 import { CartDrawer } from '@/components/sections/CartDrawer';
 import { Phone, Mail, MapPin, Send, MessageCircle } from 'lucide-react';
 import { siteConfig } from '@/config/site';
+import { useStore } from '@/context/StoreContext';
 import { CartItem } from '@/types';
 
 export default function ContactPage() {
+  const { contact } = useStore();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
@@ -20,6 +22,11 @@ export default function ContactPage() {
   }, []);
 
   const totalCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+  const activePhone = contact?.phone || siteConfig.contact.phone;
+  const activePhoneFormatted = contact?.phoneFormatted || contact?.phone || siteConfig.contact.phoneFormatted;
+  const activeEmail = contact?.email || siteConfig.contact.email;
+  const activeAddress = contact?.address || siteConfig.contact.address;
+  const activeWhatsapp = contact?.whatsappNumber || contact?.phone || siteConfig.contact.whatsappNumber;
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-[#171513]">
@@ -49,8 +56,8 @@ export default function ContactPage() {
                 <Phone className="w-5 h-5 text-[#C59B3F] flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="font-bold text-[#171513]">Téléphone & WhatsApp</p>
-                  <a href={`tel:${siteConfig.contact.phone}`} className="hover:text-[#967120]">
-                    {siteConfig.contact.phoneFormatted}
+                  <a href={`tel:${activePhone}`} className="hover:text-[#967120]">
+                    {activePhoneFormatted}
                   </a>
                 </div>
               </div>
@@ -59,7 +66,7 @@ export default function ContactPage() {
                 <Mail className="w-5 h-5 text-[#C59B3F] flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="font-bold text-[#171513]">Email</p>
-                  <p>{siteConfig.contact.email}</p>
+                  <p>{activeEmail}</p>
                 </div>
               </div>
 
@@ -67,14 +74,14 @@ export default function ContactPage() {
                 <MapPin className="w-5 h-5 text-[#C59B3F] flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="font-bold text-[#171513]">Localisation</p>
-                  <p>{siteConfig.contact.address}</p>
+                  <p>{activeAddress}</p>
                 </div>
               </div>
             </div>
 
             <div className="pt-4 border-t border-[#E8DCC2]">
               <a
-                href={`https://wa.me/${siteConfig.contact.whatsappNumber}?text=${encodeURIComponent("Bonjour MG Perfume, je vous contacte depuis votre site internet.")}`}
+                href={`https://wa.me/${activeWhatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent("Bonjour MG Perfume, je vous contacte depuis votre site internet.")}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full py-3 rounded-full bg-[#25D366] text-white font-bold text-xs tracking-wider uppercase flex items-center justify-center gap-2 hover:bg-[#1ebd59] transition-colors"
@@ -90,12 +97,12 @@ export default function ContactPage() {
               Horaires & Informations
             </h2>
             <p className="text-xs text-[#6B655E] leading-relaxed">
-              Nous sommes disponibles pour répondre à toutes vos demandes du Lundi au Samedi de 09h00 à 20h00.
+              Nous sommes disponibles pour répondre à toutes vos demandes du Lundi au Samedi.
             </p>
             <div className="p-4 rounded-2xl bg-[#FAF8F5] border border-[#E8DCC2] text-xs space-y-1">
-              <p className="font-bold text-[#171513]">Lundi — Samedi :</p>
-              <p className="text-[#6B655E]">09h00 - 20h00 (Livraison non-stop)</p>
-              <p className="font-bold text-[#171513] pt-2">Dimanche :</p>
+              <p className="font-bold text-[#171513]">Horaires de Service :</p>
+              <p className="text-[#6B655E]">{contact?.hours || siteConfig.contact.hours}</p>
+              <p className="font-bold text-[#171513] pt-2">Dimanche & Jours Fériés :</p>
               <p className="text-[#6B655E]">Sur rendez-vous WhatsApp</p>
             </div>
           </div>
