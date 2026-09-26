@@ -2862,9 +2862,27 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                     </div>
                   </div>
 
-                  {/* Individual Products Pricing & Quick Promo Cards */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {products.map(product => {
+                  {/* Search & Filter Toolbar */}
+                  <div className={`p-4 rounded-2xl border space-y-3 ${cardBgClass}`}>
+                    <div className="relative">
+                      <Search className="w-4 h-4 text-[#9E968D] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <input
+                        type="text"
+                        placeholder="Rechercher un parfum par nom ou marque pour appliquer une remise..."
+                        value={promoSearch}
+                        onChange={e => setPromoSearch(e.target.value)}
+                        className={`w-full text-xs pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Scrollable Individual Products Pricing & Quick Promo Cards */}
+                  <div className="max-h-[500px] overflow-y-auto pr-2 border-t border-[#E8DCC2]/40 pt-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {products
+                        .filter(p => !p.isArchived)
+                        .filter(p => !promoSearch || p.name.toLowerCase().includes(promoSearch.toLowerCase()) || p.brand?.toLowerCase().includes(promoSearch.toLowerCase()))
+                        .map(product => {
                       const isSelectedForBulk = selectedPromoProductIds.includes(product.id);
                       const hasDiscount = Boolean(product.originalPrice && product.originalPrice > product.price);
                       const discountPct = hasDiscount && product.originalPrice
@@ -3056,9 +3074,27 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                     </div>
                   </div>
 
-                  {/* Badges Product Matrix */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {products.map(product => {
+                  {/* Search Bar */}
+                  <div className={`p-4 rounded-2xl border space-y-3 ${cardBgClass}`}>
+                    <div className="relative">
+                      <Search className="w-4 h-4 text-[#9E968D] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <input
+                        type="text"
+                        placeholder="Rechercher un parfum par nom ou marque pour attribuer un badge..."
+                        value={promoSearch}
+                        onChange={e => setPromoSearch(e.target.value)}
+                        className={`w-full text-xs pl-10 pr-4 py-2.5 rounded-xl border focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Scrollable Badges Product Matrix */}
+                  <div className="max-h-[500px] overflow-y-auto pr-2 border-t border-[#E8DCC2]/40 pt-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {products
+                        .filter(p => !p.isArchived)
+                        .filter(p => !promoSearch || p.name.toLowerCase().includes(promoSearch.toLowerCase()) || p.brand?.toLowerCase().includes(promoSearch.toLowerCase()))
+                        .map(product => {
                       const isSelectedForBulk = selectedPromoProductIds.includes(product.id);
 
                       return (

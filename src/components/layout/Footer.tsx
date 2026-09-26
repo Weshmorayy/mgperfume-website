@@ -102,7 +102,7 @@ export function Footer() {
             <p className="flex items-center gap-2">
               <Phone className="w-3.5 h-3.5 text-[#C59B3F]" />
               <a href={`tel:${contact?.phone || siteConfig.contact.phone}`} className="hover:text-white">
-                {contact?.phoneFormatted || siteConfig.contact.phoneFormatted}
+                {contact?.phoneFormatted || contact?.phone || siteConfig.contact.phoneFormatted}
               </a>
             </p>
             <p className="flex items-center gap-2">
@@ -111,7 +111,7 @@ export function Footer() {
             </p>
             <p className="flex items-center gap-2">
               <MapPin className="w-3.5 h-3.5 text-[#C59B3F]" />
-              <span>{siteConfig.city}, {siteConfig.country}</span>
+              <span>{contact?.address || `${siteConfig.city}, ${siteConfig.country}`}</span>
             </p>
           </div>
         </div>
