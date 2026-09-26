@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { Phone, Mail, MapPin } from 'lucide-react';
+import { siteConfig } from '@/config/site';
 import { useStore } from '@/context/StoreContext';
 
 export function Footer() {
@@ -100,17 +101,17 @@ export function Footer() {
           <div className="space-y-2 text-xs">
             <p className="flex items-center gap-2">
               <Phone className="w-3.5 h-3.5 text-[#C59B3F]" />
-              <a href={`tel:${siteConfig.contact.phone}`} className="hover:text-white">
-                {siteConfig.contact.phoneFormatted}
+              <a href={`tel:${contact?.phone || siteConfig.contact.phone}`} className="hover:text-white">
+                {contact?.phoneFormatted || siteConfig.contact.phoneFormatted}
               </a>
             </p>
             <p className="flex items-center gap-2">
               <Mail className="w-3.5 h-3.5 text-[#C59B3F]" />
-              <span>{siteConfig.contact.email}</span>
+              <span>{contact?.email || siteConfig.contact.email}</span>
             </p>
             <p className="flex items-center gap-2">
               <MapPin className="w-3.5 h-3.5 text-[#C59B3F]" />
-              <span>{siteConfig.city}, {siteConfig.country}</span>
+              <span>{contact?.city || siteConfig.city}, {siteConfig.country}</span>
             </p>
           </div>
         </div>
