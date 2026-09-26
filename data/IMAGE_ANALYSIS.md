@@ -1455,3 +1455,738 @@ This document contains a structured analysis, qualification, product identificat
   * Bottle label: "ECLAIR", "Affair", "PARIS CORNER"
   * Box front: "ECLAIR", "Affair"
 * **Visual Description:** Gradient beige-to-caramel slender perfume bottle with minimalist round white cap, paired with a matching beige presentation box with a circular gold emblem, set against a luxurious flowing liquid caramel and cream background.
+
+---
+
+### 111. `122216635484207032_5.jpg`
+* **Classification:** Promotional Graphic — Product Showcase
+* **Usability:** ❌ Not usable as primary product photo (marketing asset)
+* **Reason:** Collage of multiple perfume products without clean background focus.
+* **Product Identification:** Mixed perfume collection
+* **Detailed OCR / Text Transcription:**
+  * Arabic decorative text flourishes
+* **Visual Description:** Artistic collage featuring various perfume bottles in a grid-like structure, overlaid with decorative Arabic patterns on a textured dark background.
+
+---
+
+### 112. `122230804466207032_2.jpg`
+* **Classification:** Promotional Graphic — Product/Gifting Campaign
+* **Usability:** ⚠️ Conditionally usable (Secondary / Marketing asset)
+* **Reason:** Features two bottles with Black Friday pricing information.
+* **Product Identification:** MG Perfume — Black Friday Promo (Rose Desir & Un Amour)
+* **Detailed OCR / Text Transcription:**
+  * Header: "BLACK FRIDAY", "PROMO SPÉCIALE 1er AU 25 DÉCEMBRE"
+  * Pricing: "EXTRAIT DE PARFUM 50 ML 10000 FCFA", "15000 FCFA"
+  * Contact: "CONTACT +221773094800"
+* **Visual Description:** Promotional graphic with a wooden pedestal displaying "Rose Desir" and "Un Amour" perfumes, framed by green leaves and pricing text on a pink-to-white gradient background.
+
+---
+
+### 113. `122275869698207032_1.jpg`
+* **Classification:** Luxury Product Shot with Ingredient Flat-lay
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** High-end studio shot showing the bottle with stylized ingredients.
+* **Product Identification:** Lattafa - Atheeri (Eau de Parfum)
+* **Detailed OCR / Text Transcription:**
+  * Label: "أثيري", "ATHEERI", "Lattafa"
+* **Visual Description:** Rectangular bottle with intricate golden honeycomb metal cage over clear glass, featuring a golden honeybee on the cap, surrounded by white/purple jasmine and vanilla beans.
+
+---
+
+### 114. `122275869698207032_2.jpg`
+* **Classification:** Luxury Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Clean product shot highlighting the bottle's unique design.
+* **Product Identification:** Nusuk - Raheeq
+* **Detailed OCR / Text Transcription:**
+  * Label: "رحيق", "NUSUK", "ZAOUD"
+* **Visual Description:** Clear hexagonal-paneled bottle resembling honeycomb, containing amber liquid, with a white top and a decorative gold metal honeybee on the cap, accompanied by vanilla beans and a honey dipper on the side.
+
+---
+
+### 115. `122275869698207032_3.jpg`
+* **Classification:** Luxury Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Artistic product shot with rose and floral elements.
+* **Product Identification:** Paris Corner - Eshal Vanilla
+* **Detailed OCR / Text Transcription:**
+  * Label: "Eshal", "VANILLA", "PARIS CORNER"
+* **Visual Description:** Elegant rectangular bottle with gold diamond-textured cap, set against a rich backdrop of red roses, white flowers, and flowing vanilla-colored cream splashes.
+
+---
+
+### 116. `122275869698207032_4.jpg`
+* **Classification:** Luxury Product Shot with Box
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** High-quality studio shot of the product set.
+* **Product Identification:** Lattafa - Nebras Elixir
+* **Detailed OCR / Text Transcription:**
+  * Label: "نبراس", "NEBRAS", "ELIXIR", "Lattafa"
+* **Visual Description:** Square white bottle with prominent bronze/copper circular gear-like emblem, resting on a white surface, surrounded by vanilla and white flowers.
+
+---
+
+### 117. `122275869698207032_5.jpg`
+* **Classification:** Luxury Product Shot with Ingredients
+* **Usability:** ✅ Usable as secondary product catalog image
+* **Reason:** Product shot styled with raw ingredient elements.
+* **Product Identification:** Lattafa - Khamrah Qahwa (Eau de Parfum)
+* **Detailed OCR / Text Transcription:**
+  * Label: "خمرة", "KHAMRAH", "QAHWA", "Lattafa"
+* **Visual Description:** Faceted clear glass bottle with amber liquid, featuring a gold label, surrounded by a dramatic flat-lay of hazelnuts, coffee beans, cinnamon sticks, and a swirl of cream.
+
+---
+
+### 118. `122275958252207032_1.jpg`
+* **Classification:** Promotional Graphic — Product Showcase
+* **Usability:** ❌ Not usable as primary product photo (marketing asset)
+* **Reason:** Collage graphic without individual bottle focus.
+* **Product Identification:** MG Perfume — Oil Collection Promotional Collage
+* **Detailed OCR / Text Transcription:**
+  * "BLACK FRIDAY", "1 HUILE DE PARFUM 8000 FCFA", "2 HUILES DE PARFUM 15000 FCFA"
+* **Visual Description:** Promotional banner showing four colored dropper bottles (orange, purple, coral, pink) arranged on a wooden pedestal with pricing and Black Friday campaign branding on a pink-to-white gradient background.
+
+---
+
+### 119. `122275958252207032_2.jpg`
+* **Classification:** Promotional Graphic — Product Showcase
+* **Usability:** ❌ Not usable as primary product photo (marketing asset)
+* **Reason:** Collage graphic without individual bottle focus.
+* **Product Identification:** MG Perfume — Oil Collection Promotional Collage
+* **Detailed OCR / Text Transcription:**
+  * Pricing: "BLACK FRIDAY", "8000 FCFA", "15000 FCFA"
+* **Visual Description:** Similar promotional banner as 118 but slightly different lighting/layout for the four dropper bottles (orange, purple, coral, pink) on a wooden pedestal with Black Friday branding.
+
+---
+
+### 120. `122282042462207032_1.jpg`
+* **Classification:** Luxury Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Isolated shot of the product bottle.
+* **Product Identification:** Lattafa - Victoria (Zaoud)
+* **Detailed OCR / Text Transcription:**
+  * Label: "فيكتوريا", "VICTORIA"
+* **Visual Description:** Ornate golden bottle with sunburst-fluted design, featuring a central oval label with a cloudy blue sky illustration, accented by a small white flower.
+
+---
+
+### 121. `122282042462207032_2.jpg`
+* **Classification:** Promotional Graphic — Product Showcase
+* **Usability:** ❌ Not usable as primary product photo (marketing asset)
+* **Reason:** Collage of products and pricing.
+* **Product Identification:** MG Perfume — Promotional Banner
+* **Detailed OCR / Text Transcription:**
+  * Pricing: "BLACK FRIDAY", "10000 FCFA", "15000 FCFA", "20000 FCFA"
+* **Visual Description:** Promotional graphic showing two perfume bottles ("Rose Desir" and "Un Amour") on a wooden pedestal, with pricing for 30ml/50ml formats on a gradient background.
+
+---
+
+### 122. `122282042462207032_3.jpg`
+* **Classification:** Promotional Graphic — Ingredient Collage
+* **Usability:** ❌ Not usable as product shot.
+* **Reason:** Highly abstract ingredient collage.
+* **Product Identification:** Lattafa - Khamrah Qahwa (Composition Graphic)
+* **Detailed OCR / Text Transcription:**
+  * Label: "خمرة", "KHAMRAH", "QAHWA"
+* **Visual Description:** Abstract artistic composition showing cinnamon sticks, coffee beans, and hazelnuts arranged around a square glass perfume bottle.
+
+---
+
+### 123. `122282042462207032_4.jpg`
+* **Classification:** Promotional Graphic — Ingredient Collage
+* **Usability:** ❌ Not usable as product shot.
+* **Reason:** Abstract ingredient collage.
+* **Product Identification:** Lattafa - Khamrah (Composition Graphic)
+* **Detailed OCR / Text Transcription:**
+  * Label: "خمرة", "KHAMRAH"
+* **Visual Description:** Abstract artistic composition showing orange slices, cinnamon, and coffee beans surrounding a square glass perfume bottle on a wooden base.
+
+---
+
+### 124. `122282042462207032_5.jpg`
+* **Classification:** Luxury Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Clear studio shot of the perfume bottle.
+* **Product Identification:** Afnan - 9pm
+* **Detailed OCR / Text Transcription:**
+  * Label: "9", "pm", "AFNAN"
+* **Visual Description:** Sleek rectangular black bottle with a prominent white "9pm" logo, minimalist modern aesthetic.
+
+---
+
+### 125. `122282280086207032_1.jpg`
+* **Classification:** Luxury Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Isolated studio product shot.
+* **Product Identification:** Afnan - 9pm Rebel
+* **Detailed OCR / Text Transcription:**
+  * Label: "9", "pm", "REBEL", "AFNAN"
+* **Visual Description:** Rectangular bottle with metallic gray body and bold red "9pm" logo, accompanied by dried herbs, citrus, and spices on the background.
+
+---
+
+### 126. `122282280086207032_2.jpg`
+* **Classification:** Luxury Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Isolated studio product shot.
+* **Product Identification:** Afnan - 9pm Elixir
+* **Detailed OCR / Text Transcription:**
+  * Label: "9", "pm", "ELIXIR", "AFNAN"
+* **Visual Description:** Rectangular bottle with deep brown/copper body and geometric pattern, with bold gold "9pm" logo, surrounded by purple lavender and vanilla beans.
+
+---
+
+### 127. `122282280086207032_3.jpg`
+* **Classification:** Luxury Product Shot with Ingredients
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** High-end studio shot showing the bottle with stylized ingredients.
+* **Product Identification:** Lattafa - Nebras Elixir
+* **Detailed OCR / Text Transcription:**
+  * Label: "نبراس", "NEBRAS", "ELIXIR"
+* **Visual Description:** Elegant white square bottle with bronze circular emblem, set in a scene with hazelnuts, caramel sauce, and vanilla cream splashes.
+
+---
+
+### 128. `122282393654207032_1.jpg`
+* **Classification:** Luxury Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** High-quality studio shot.
+* **Product Identification:** Lattafa - Khamrah Qahwa
+* **Detailed OCR / Text Transcription:**
+  * Label: "خمرة", "KHAMRAH", "QAHWA"
+* **Visual Description:** Square glass bottle filled with rich amber liquid, featuring a central square label, on a background of scattered hazelnuts, cinnamon sticks, and coffee beans.
+
+---
+
+### 129. `122282393654207032_2.jpg`
+* **Classification:** Luxury Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** High-quality studio shot.
+* **Product Identification:** Lattafa - Khamrah
+* **Detailed OCR / Text Transcription:**
+  * Label: "خمرة", "KHAMRAH"
+* **Visual Description:** Square glass bottle filled with rich amber liquid, set against a background of coffee beans and spices.
+
+---
+
+### 130. `122282393654207032_3.jpg`
+* **Classification:** Luxury Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Clean studio product shot.
+* **Product Identification:** Afnan - 9pm
+* **Detailed OCR / Text Transcription:**
+  * Label: "9", "pm", "AFNAN"
+* **Visual Description:** Black rectangular bottle with white branding, set against a background of cinnamon sticks, vanilla, and lavender flowers.
+
+---
+
+## Batch 8 (Images 131 to 150)
+
+### 131. `122282608520207032_1.jpg`
+* **Classification:** Studio Product Shot with Ingredients
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** High-quality isolated studio bottle shot with decorative ribbon and fruit/floral elements.
+* **Product Identification:** Ard Al Zaafaran (Zaoud) - Bint Hooran Rose Passion
+* **Detailed OCR / Text Transcription:**
+  * Arabic script: "بنت حوران" (Bint Hooran)
+  * English: "ROSE PASSION", "ZAOUD"
+* **Visual Description:** Glossy gradient pink-to-clear rectangular bottle tied with a vivid hot-pink satin bow, faceted crystal glass cap, accompanied by raspberries, blackberries, vanilla pod, and lychee fruit at the base.
+
+---
+
+### 132. `122282608520207032_2.jpg`
+* **Classification:** Studio Product Shot with Ingredients
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** High-quality isolated studio bottle shot with rich oriental ingredients.
+* **Product Identification:** Ard Al Zaafaran - Bint Hooran (Eau de Parfum)
+* **Detailed OCR / Text Transcription:**
+  * Arabic script: "بنت حوران" (Bint Hooran)
+  * English: "BINT HOORAN"
+* **Visual Description:** Sleek black gradient bottle tied with a black fabric ribbon bow, faceted black sculptural cap, surrounded by lemon, saffron threads, lotus flower, cinnamon sticks, and amber resin.
+
+---
+
+### 133. `122282624786207032_1.jpg`
+* **Classification:** Studio Product Shot with Ingredients
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Clean isolated product render with note ingredients.
+* **Product Identification:** Lattafa - Mayar Cherry Intense (Eau de Parfum)
+* **Detailed OCR / Text Transcription:**
+  * Arabic script: "ميار" (Mayar)
+  * Center text: "MAYAR", "CHERRY INTENSE", "Lattafa", "ZAOUD", "NATURAL SPRAY"
+* **Visual Description:** Deep cherry-red cylindrical flared bottle with gold top collar and stepped golden lid with maroon ring, surrounded by fresh strawberry, bergamot/lime, vanilla flower, lavender, cocoa pods, and amber.
+
+---
+
+### 134. `122282624786207032_2.jpg`
+* **Classification:** Studio Product Shot with Ingredients
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Clean isolated product render with fresh marine and exotic note ingredients.
+* **Product Identification:** Lattafa - Mayar Natural Intense (Eau de Parfum)
+* **Detailed OCR / Text Transcription:**
+  * Arabic script: "ميار" (Mayar)
+  * Center text: "MAYAR", "NATURAL INTENSE", "Lattafa", "NATURAL SPRAY"
+* **Visual Description:** Vibrant turquoise/teal cylindrical flared bottle with stepped silver and turquoise lid, surrounded by fig, vanilla orchid, white lotus/water lily, melon, and cinnamon sticks.
+
+---
+
+### 135. `122282624786207032_3.jpg`
+* **Classification:** Studio Product Shot with Ingredients
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Clean isolated product render with fruity floral note ingredients.
+* **Product Identification:** Lattafa - Mayar (Eau de Parfum)
+* **Detailed OCR / Text Transcription:**
+  * Arabic script: "ميار" (Mayar)
+  * Center text: "MAYAR", "Lattafa"
+* **Visual Description:** Translucent blush-pink glass cylindrical bottle with copper/rose-gold tiered cap, surrounded by peeled lychee, raspberry, peony, vanilla flower, and vanilla bean.
+
+---
+
+### 136. `122284654184207032_1.jpg`
+* **Classification:** Studio Product Shot with Ingredients
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** High aesthetic studio render with olfactory note props.
+* **Product Identification:** La Fede (Khadlaj) - Aura Crisp Flower
+* **Detailed OCR / Text Transcription:**
+  * Center text: "aura", "Crisp Flower", "La Fede"
+* **Visual Description:** Soft pastel pink frosted squircle bottle with an ornate crown-like sculpted gold neck and matching pink cap, surrounded by pink peony flowers, sliced bergamot, peach, sliced green pear, and vanilla pods.
+
+---
+
+### 137. `122284654184207032_2.jpg`
+* **Classification:** Studio Product Shot with Ingredients
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** High aesthetic studio render with gourmand dessert note props.
+* **Product Identification:** La Fede (Khadlaj) - Aura Pista Dessert
+* **Detailed OCR / Text Transcription:**
+  * Center text: "aura", "Pista Dessert", "La Fede", "ZAOUD"
+* **Visual Description:** Soft pistachio-green to aqua gradient squircle bottle with ornate crown-like sculpted gold neck and pastel green cap, surrounded by crushed pistachios, raspberries, cinnamon sticks, marshmallow/Turkish delight, and white floral blossoms.
+
+---
+
+### 138. `122284654184207032_3.jpg`
+* **Classification:** Studio Product Shot with Ingredients
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** High aesthetic studio render with tropical fruit note props.
+* **Product Identification:** La Fede (Khadlaj) - Aura Mango Splash
+* **Detailed OCR / Text Transcription:**
+  * Center text: "aura", "Mango Splash", "La Fede", "ZAOUD"
+* **Visual Description:** Vibrant mango-orange to frosted gradient squircle bottle with crown-like sculpted gold neck and orange cap, surrounded by diced mango chunks, blackberries/blueberries, purple iris, and white cotton/musk flowers.
+
+---
+
+### 139. `122285002016207032_1.jpg`
+* **Classification:** Studio Product Shot with Box
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Clean, high-end niche perfume presentation with presentation box.
+* **Product Identification:** Maison Massimo Paris - Voyage de Nuit (Niche Édition)
+* **Detailed OCR / Text Transcription:**
+  * Box: Stylized "M" logo, "Maison Massimo PARIS", "Niche Édition", gold band "VOYAGE DE NUIT"
+  * Bottle label: "VOYAGE DE NUIT", "Niche Édition", "PARIS"
+* **Visual Description:** Rectangular clear glass flacon with ocean-blue juice and polished gold cap beside a textured white luxury gift box adorned with gold logo and embossed gold band.
+
+---
+
+### 140. `122285002016207032_2.jpg`
+* **Classification:** Luxury Open Box Product Shot
+* **Usability:** ✅ Usable as secondary / gallery product photo
+* **Reason:** Showcases the inside box description and presentation bed.
+* **Product Identification:** Maison Massimo Paris - La Rose Bleu (Niche Édition)
+* **Detailed OCR / Text Transcription:**
+  * Inside lid French text: "LA ROSE BLEU. UN PANIER DE FRUITS LES PLUS JOYEUX ET DE FRAIS AGRUMES SICILIENS EXUBERANTS ET BERGAMOTE CALABRAISE REMPLISSENT LA COMPOSITION DE GAIETE. UNE TOUCHE DE MUSC DUVETEUX ET D'AMBRE BRUT OUVRE LES PORTES DE LA VANILLE SENSUELLE ET REVEUSE, CHAUDE ET FLUIDE. FRAICHE ET DIVINE, LA ROSE BLEU EST JOIE DE VIVRE."
+  * Inside lid English text: "LA ROSE BLEU. A BASKET OF MOST JOYOUS FRUITS AND FRESH EXUBERANT SICILIAN CITRUSES AND CALABRIAN BERGAMOT FILL THE COMPOSITION WITH GAIETY. A TOUCH OF FLUFFY MUSK AND STARK AMBER OPENS GATES TO THE SENSUAL AND DREAMY VANILLA, WARM AND FLUENT, FRESH AND DIVINE. LA ROSE BLEU IS JOIE DE VIVRE."
+  * Bottle label: "LA ROSE BLEUE", "NICHE"
+* **Visual Description:** Open royal blue presentation box displaying gold bilingual poetic note descriptions on the inner lid and a blue glass bottle nestled in a custom blue velvet tray.
+
+---
+
+### 141. `122285002016207032_3.jpg`
+* **Classification:** Studio Product Shot with Box
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Clean high-end product presentation.
+* **Product Identification:** Maison Massimo Paris - Coeur Blanc (Niche Édition)
+* **Detailed OCR / Text Transcription:**
+  * Box: Stylized "M" logo, "Maison Massimo PARIS", "Niche Édition", "COEUR BLANC"
+  * Bottle label: "COEUR BLANC", "Niche Édition", "PRIVATE"
+* **Visual Description:** Clear glass rectangular bottle showing rose-tinted fragrance liquid with gold cap, set next to a white luxury presentation box with gold lettering and branding.
+
+---
+
+### 142. `122289377708207032_1.jpg`
+* **Classification:** Studio Product Shot with Box
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Isolated clean render of bottle and packaging box.
+* **Product Identification:** Paris Corner - Taskeen Wowie (Eau de Parfum)
+* **Detailed OCR / Text Transcription:**
+  * Bottle: Arabic "تسكين" (Taskeen), "TASKEEN", "Wowie"
+  * Box: "EAU DE PARFUM", Arabic "تسكين" (Taskeen), "TASKEEN", "Wowie"
+* **Visual Description:** Square frosted bottle with pastel blue-to-pink gradient, silver atomizer cap, standing next to a matching pastel blue and pink box framed like a vintage postage stamp.
+
+---
+
+### 143. `122289377708207032_2.jpg`
+* **Classification:** Studio Product Shot with Ingredients
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** High-end isolated render styled with gourmand ingredients.
+* **Product Identification:** Paris Corner - Date Caramel (Eau de Parfum)
+* **Detailed OCR / Text Transcription:**
+  * Label: "DATE CARAMEL", "PARIS CORNER"
+* **Visual Description:** Ribbed chocolate-brown cylindrical bottle with fluted gold metallic cap and bronze plate label, surrounded by rich brown dates, sweet caramel drizzle, orange slice, coffee beans, and white vanilla flower.
+
+---
+
+### 144. `122289377708207032_3.jpg`
+* **Classification:** Luxury Product Shot with Box
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Ornate niche packaging and sculpted bottle.
+* **Product Identification:** Lattafa - Afeef (Pride of Lattafa)
+* **Detailed OCR / Text Transcription:**
+  * Box emblem: Arabic "عفيف" (Afeef), "Afeef", "Lattafa"
+  * Bottle medallion: Arabic "عفيف" (Afeef), "Afeef"
+* **Visual Description:** Luxurious fluted rose-gold perfume bottle crowned by two sculpted rose-gold peacocks adorned with green and pink crystal stones, displayed beside an iridescent white and gold peacock feather patterned display box.
+
+---
+
+### 145. `122289377708207032_4.jpg`
+* **Classification:** Studio Product Shot with Ingredients
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** High-quality product render styled with juicy fruits and floral notes.
+* **Product Identification:** Paris Corner - Khair Peach Delulu (Eau de Parfum)
+* **Detailed OCR / Text Transcription:**
+  * Bottle: Ornate Arabic calligraphy "خير" (Khair), "KHAIR", "PEACH DELULU", "PARIS CORNER"
+* **Visual Description:** Rectangular bottle with sunset pink-to-yellow gradient liquid and intricately textured gold cap, surrounded by whole and sliced ripe peaches, pink guava, ginger root, red rose, white blossom, and splashes of peach nectar.
+
+---
+
+### 146. `122290429640207032_1.jpg`
+* **Classification:** Luxury Studio Product Shot with Box
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Isolated product shot with luxury matching box.
+* **Product Identification:** French Avenue (Fragrance World) - Royal Blend Nero
+* **Detailed OCR / Text Transcription:**
+  * Box: Diamond plaque "ROYAL BLEND", "NERO"
+  * Bottle: Diamond plaque "ROYAL BLEND", "NERO"
+* **Visual Description:** Elegant black fluted perfume bottle with fluted black cap and gold diamond-shaped label, presented alongside a textured black luxury box featuring radial sunburst line art and gold diamond logo.
+
+---
+
+### 147. `122290429640207032_2.jpg`
+* **Classification:** Clean Studio Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Isolated bottle shot on white background.
+* **Product Identification:** French Avenue (Fragrance World) - Royal Blend
+* **Detailed OCR / Text Transcription:**
+  * Bottle label: Diamond plaque "ROYAL BLEND"
+* **Visual Description:** Ornate cut-crystal glassware flacon filled with rich golden amber juice, topped with a faceted cut-glass cap and featuring a central diamond-shaped gold label.
+
+---
+
+### 148. `122290429640207032_3.jpg`
+* **Classification:** Clean Studio Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Isolated bottle shot on white background.
+* **Product Identification:** French Avenue (Fragrance World) - Royal Blend Séquoia
+* **Detailed OCR / Text Transcription:**
+  * Bottle label: Diamond plaque "ROYAL BLEND", "SÉQUOIA"
+* **Visual Description:** Deep ruby-red fluted glass flacon with wave pattern and matching ruby-red faceted cap, centered with a gold diamond-shaped nameplate.
+
+---
+
+### 149. `122290752362207032_1.jpg`
+* **Classification:** Lifestyle Gourmand Product Creative
+* **Usability:** ✅ Usable as secondary / marketing product image
+* **Reason:** Creative gourmand flat-lay highlighting vanilla and ice cream dessert notes.
+* **Product Identification:** MG Perfume (Gourmand Collection) - Vanilla Madness
+* **Detailed OCR / Text Transcription:**
+  * Bottle label: "GOURMAND", "COLLECTION", "Vanilla Madness", Arabic calligraphy "الجمال العربي", "MG Perfume"
+* **Visual Description:** Frosted cylindrical dropper bottle with cream dripping-melt cap effect containing golden juice, surrounded by scoops of vanilla ice cream with fudge sauce, whipped cream swirls, vanilla pods, caviar pearls, and white orchid flowers.
+
+---
+
+### 150. `122290752362207032_2.jpg`
+* **Classification:** Lifestyle Gourmand Product Creative
+* **Usability:** ✅ Usable as secondary / marketing product image
+* **Reason:** Creative gourmand flat-lay highlighting strawberry and marshmallow candy profile.
+* **Product Identification:** MG Perfume (Gourmand Collection) - Marshmallow Glaze
+* **Detailed OCR / Text Transcription:**
+  * Bottle label: "GOURMAND", "COLLECTION", "Marshmallow Glaze", Arabic calligraphy, "MG perfume"
+* **Visual Description:** Pastel pink glass dropper bottle with glossy pink dripping-melt cap effect, surrounded by floating pink marshmallows, sliced ripe strawberries, raspberries, vanilla beans, and white floral blossoms on a pastel pink background.
+
+---
+
+## Batch 9 (Images 151 to 170)
+
+### 151. `122292348344207032_1.jpg`
+* **Classification:** Promotional Marketing Graphic
+* **Usability:** ❌ Not usable as primary product catalog hero (marketing asset only)
+* **Reason:** Promotional graphic showcasing MG Perfume oil collection with Black Friday pricing, not a clean product shot.
+* **Product Identification:** MG Perfume Oil Collection - Rose Désir & Un Amour (30ml)
+* **Detailed OCR / Text Transcription:**
+  * Headline: "BLACK FRIDAY", "1 EXTRAIT DE PARFUM 10000 FCFA", "2 EXTRAITS DE PARFUM 15000 FCFA"
+  * Product names displayed: "ROSE DÉSIR", "UN AMOUR"
+  * Brand: "MG PERFUME"
+  * Contact: "+221 77 309 48 00"
+* **Visual Description:** Two 30ml dropper bottles displayed on a wooden pedestal against a pink-to-white gradient background. Rose Désir bottle appears coral/pink with gold cap, Un Amour bottle appears yellow-green with gold cap. Both bottles feature the MG Perfume logo and product names. Decorative Black Friday branding and pricing text overlay the scene.
+
+### 152. `122292348344207032_2.jpg`
+* **Classification:** Promotional Marketing Graphic
+* **Usability:** ❌ Not usable as primary product catalog hero (marketing asset only)
+* **Reason:** Complementary promotional graphic to image 151, showing the same MG Perfume oil collection from a slightly different angle with additional Black Friday messaging.
+* **Product Identification:** MG Perfume Oil Collection - Rose Désir & Un Amour (30ml)
+* **Detailed OCR / Text Transcription:**
+  * Headline: "BLACK FRIDAY", "1 EXTRAIT DE PARFUM 10000 FCFA", "2 EXTRAITS DE PARFUM 15000 FCFA"
+  * Product names visible: "ROSE DÉSIR", "UN AMOUR"
+  * Brand: "MG PERFUME"
+  * Contact: "+221 77 309 48 00"
+* **Visual Description:** Two 30ml dropper bottles displayed on a wooden pedestal with a slightly different composition than image 151. Rose Désir appears as coral/pink bottle, Un Amour as yellow-green bottle, both with gold caps. The background maintains the pink-to-white gradient with decorative Black Friday elements and pricing text overlay.
+
+### 153. `122292602414207032_1.jpg`
+* **Classification:** Studio Product Shot with Box
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** High-end isolated render.
+* **Product Identification:** Reef - Summer
+* **Detailed OCR / Text Transcription:**
+  * Label: "REEF", "SUMMER"
+* **Visual Description:** Pink hexagonal bottle with silver cap, matching pink hexagonal box with embossed rose pattern.
+
+### 154. `122292602414207032_2.jpg`
+* **Classification:** Studio Product Shot with Box
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** High-end isolated render.
+* **Product Identification:** Reef - 11
+* **Detailed OCR / Text Transcription:**
+  * Label: "REEF", "11"
+* **Visual Description:** Black hexagonal bottle with gold cap, matching black hexagonal box with embossed rose pattern.
+
+### 155. `122292602414207032_3.jpg`
+* **Classification:** Studio Product Shot with Box
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** High-end isolated render.
+* **Product Identification:** Reef - 33
+* **Detailed OCR / Text Transcription:**
+  * Label: "REEF", "33"
+* **Visual Description:** White hexagonal bottle with silver cap, matching white hexagonal box with embossed rose pattern.
+
+### 156. `122292602414207032_4.jpg`
+* **Classification:** Studio Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Clean isolated studio bottle shot.
+* **Product Identification:** Rasasi - Hawas Ice
+* **Detailed OCR / Text Transcription:**
+  * Label: "HAWAS", "FOR HIM", "ICE"
+* **Visual Description:** Ombré blue rectangular bottle with white cap, surrounded by fresh lime, orange slices, and dry wood pieces.
+
+### 157. `122297342300207032_1.jpg`
+* **Classification:** Studio Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Clean isolated studio bottle shot.
+* **Product Identification:** Rasasi - Hawas Black
+* **Detailed OCR / Text Transcription:**
+  * Label: "HAWAS", "FOR HIM", "BLACK"
+* **Visual Description:** Black rectangular bottle with black textured cap, surrounded by fresh lime and white floral elements.
+
+### 158. `122297342300207032_2.jpg`
+* **Classification:** Studio Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Clean isolated studio bottle shot.
+* **Product Identification:** Rasasi - Hawas Diva
+* **Detailed OCR / Text Transcription:**
+  * Label: "HAWAS", "DIVA"
+* **Visual Description:** Magenta rectangular bottle with metallic cap, surrounded by floral elements.
+
+### 159. `122297342300207032_3.jpg`
+* **Classification:** Studio Product Shot with Box
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Clean high-end product presentation.
+* **Product Identification:** Afnan - Souvenir Blooming Bliss
+* **Detailed OCR / Text Transcription:**
+  * Label: "SOUVENIR", "Blooming Bliss", "AFNAN"
+* **Visual Description:** Black spherical bottle with clear dome, surrounded by cinnamon sticks and coconut.
+
+### 160. `122297342300207032_4.jpg`
+* **Classification:** Studio Product Shot with Box
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Clean high-end product presentation.
+* **Product Identification:** Afnan - Mystique Bouquet
+* **Detailed OCR / Text Transcription:**
+  * Label: "Mystique", "BOUQUET", "AFNAN"
+* **Visual Description:** Green-to-blue gradient bottle with gold metallic cap, surrounded by citrus and floral ingredients.
+
+### 161. `122299306652207032_1.jpg`
+* **Classification:** Studio Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Clean studio bottle shot with ingredients.
+* **Product Identification:** Afnan - Souvenir Desert Rose
+* **Detailed OCR / Text Transcription:**
+  * Label: "SOUVENIR", "Desert Rose", "AFNAN"
+* **Visual Description:** Gold cylindrical bottle with a unique cap, surrounded by flower elements.
+
+### 162. `122299306652207032_2.jpg`
+* **Classification:** Studio Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Clean studio bottle shot with ingredients.
+* **Product Identification:** Afnan - Souvenir Floral Bouquet
+* **Detailed OCR / Text Transcription:**
+  * Label: "SOUVENIR", "Floral Bouquet", "AFNAN"
+* **Visual Description:** Gold cylindrical bottle with a unique cap, surrounded by flower elements.
+
+### 163. `122299306652207032_3.jpg`
+* **Classification:** Studio Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Clean studio bottle shot with ingredients.
+* **Product Identification:** Afnan - Souvenir Pink Musk
+* **Detailed OCR / Text Transcription:**
+  * Label: "SOUVENIR", "Pink Musk", "AFNAN"
+* **Visual Description:** Pink cylindrical bottle with a unique cap, surrounded by floral elements.
+
+### 164. `122299306652207032_4.jpg`
+* **Classification:** Studio Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Clean studio bottle shot.
+* **Product Identification:** Afnan - Souvenir White Musk
+* **Detailed OCR / Text Transcription:**
+  * Label: "SOUVENIR", "White Musk", "AFNAN"
+* **Visual Description:** White cylindrical bottle with a unique cap.
+
+### 165. `122299306652207032_5.jpg`
+* **Classification:** Studio Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Clean studio bottle shot.
+* **Product Identification:** Afnan - Souvenir Lavande
+* **Detailed OCR / Text Transcription:**
+  * Label: "SOUVENIR", "Lavande", "AFNAN"
+* **Visual Description:** Purple cylindrical bottle with a unique cap.
+
+### 166. `122317165256207032_1.jpg`
+* **Classification:** Studio Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** High-quality isolated render.
+* **Product Identification:** Fragrance World - Barakkat Rouge 540
+* **Detailed OCR / Text Transcription:**
+  * Label: "Barakkat", "Rouge 540"
+* **Visual Description:** Clear glass bottle with gold label and cap.
+
+### 167. `122317165256207032_2.jpg`
+* **Classification:** Studio Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** High-quality isolated render.
+* **Product Identification:** Fragrance World - Barakkat Satin Oud
+* **Detailed OCR / Text Transcription:**
+  * Label: "Barakkat", "Satin Oud"
+* **Visual Description:** Clear glass bottle with gold label and cap.
+
+### 168. `122317165256207032_3.jpg`
+* **Classification:** Studio Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** High-quality isolated render.
+* **Product Identification:** Fragrance World - Barakkat Ambre Eve
+* **Detailed OCR / Text Transcription:**
+  * Label: "Barakkat", "Ambre Eve"
+* **Visual Description:** Clear glass bottle with gold label and cap.
+
+### 169. `122317183424207032_1.jpg`
+* **Classification:** Studio Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** High-quality isolated render.
+* **Product Identification:** Fragrance World - Barakkat Gentle Gold
+* **Detailed OCR / Text Transcription:**
+  * Label: "Barakkat", "Gentle Gold"
+* **Visual Description:** Clear glass bottle with gold label and cap.
+
+### 170. `122317183424207032_2.jpg`
+* **Classification:** Studio Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** High-quality isolated render.
+* **Product Identification:** Fragrance World - Barakkat Gentle Silver
+* **Detailed OCR / Text Transcription:**
+  * Label: "Barakkat", "Gentle Silver"
+* **Visual Description:** Clear glass bottle with gold label and cap.
+
+---
+
+## Batch 10 (Images 171 to 177 — Final Batch)
+
+### 171. `122317183424207032_3.jpg`
+* **Classification:** Studio Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** High-quality isolated render with clean branding.
+* **Product Identification:** Fragrance World - Barakkat Silver 540
+* **Detailed OCR / Text Transcription:**
+  * Bottle front: "Barakkat", "Silver 540", "Fragrance World"
+  * Volume: "75 ML", "EAU DE PARFUM"
+* **Visual Description:** Transparent rectangular glass flacon with clean minimalist design, featuring a sleek silver metallic cap and silver diamond-shaped label bearing the Barakkat collection branding. Clear bottle showcasing the fragrance liquid inside.
+
+---
+
+### 172. `122317532408207032_1.jpg`
+* **Classification:** Studio Product Shot with Box
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Premium presentation with matching packaging.
+* **Product Identification:** Al Haramain - Amethyst Oud
+* **Detailed OCR / Text Transcription:**
+  * Bottle front: "AMETHYST OUD", "AL HARAMAIN", "EAU DE PARFUM"
+  * Box front: "AMETHYST OUD", "AL HARAMAIN", "EAU DE PARFUM", "75 ML"
+* **Visual Description:** Deep rich purple rectangular glass bottle with polished gold cap and gold collar. Matching purple presentation box with gold text and Al Haramain branding. The amethyst-inspired color evokes luxury and oriental sophistication.
+
+---
+
+### 173. `122317532408207032_2.jpg`
+* **Classification:** Studio Product Shot with Box
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Premium presentation with matching packaging.
+* **Product Identification:** Al Haramain - Emerald Oud
+* **Detailed OCR / Text Transcription:**
+  * Bottle front: "EMERALD OUD", "AL HARAMAIN", "EAU DE PARFUM"
+  * Box front: "EMERALD OUD", "AL HARAMAIN", "EAU DE PARFUM", "75 ML"
+* **Visual Description:** Deep forest green rectangular glass bottle with polished gold cap and gold collar. Matching green presentation box with gold text and Al Haramain branding. The emerald-inspired color suggests richness and precious oriental notes.
+
+---
+
+### 174. `122317532408207032_3.jpg`
+* **Classification:** Studio Product Shot with Box
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** Premium presentation with matching packaging.
+* **Product Identification:** Al Haramain - Sapphire Oud
+* **Detailed OCR / Text Transcription:**
+  * Bottle front: "SAPPHIRE OUD", "AL HARAMAIN", "EAU DE PARFUM"
+  * Box front: "SAPPHIRE OUD", "AL HARAMAIN", "EAU DE PARFUM", "75 ML"
+* **Visual Description:** Deep navy sapphire blue rectangular glass bottle with polished gold cap and gold collar. Matching blue presentation box with gold text and Al Haramain branding. The sapphire-inspired color conveys depth and royal elegance.
+
+---
+
+### 175. `122325417632207032_1.jpg`
+* **Classification:** Studio Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** High-quality isolated render with detailed bottle design.
+* **Product Identification:** Lattafa - Ameer Al Oudh (King of Oud)
+* **Detailed OCR / Text Transcription:**
+  * Bottle center: "AMER AL OUDH", "Lattafa", "EAU DE PARFUM"
+  * Arabic text visible: "أمير العود" (Ameer Al Oudh)
+* **Visual Description:** Iconic golden-brown wooden-texture rectangular bottle with a unique geometric honeycomb/metallic grille design on the front. The bottle has a warm amber hue with a gold-tone cap and distinctive traditional Middle Eastern aesthetic.
+
+---
+
+### 176. `122325417632207032_2.jpg`
+* **Classification:** Studio Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** High-quality isolated render with detailed bottle design.
+* **Product Identification:** Lattafa - Ameer Al Oudh Intense
+* **Detailed OCR / Text Transcription:**
+  * Bottle center: "AMER AL OUDH INTENSE", "Lattafa", "EAU DE PARFUM"
+  * Arabic text: "أمير العود" (Ameer Al Oudh)
+* **Visual Description:** Richer dark golden-brown wooden-texture bottle with the signature honeycomb/metallic grille front panel, darker and more intense than the original. Features gold cap and traditional oriental design with warm, deep oud-inspired coloration.
+
+---
+
+### 177. `122325417632207032_3.jpg`
+* **Classification:** Studio Product Shot
+* **Usability:** ✅ Usable as hero catalog product image
+* **Reason:** High-quality isolated render with detailed bottle design.
+* **Product Identification:** Lattafa - Ameer Al Oudh Extreme
+* **Detailed OCR / Text Transcription:**
+  * Bottle center: "AMER AL OUDH EXTREME", "Lattafa", "EAU DE PARFUM"
+  * Arabic text: "أمير العود" (Ameer Al Oudh)
+* **Visual Description:** Deep dark golden-amber wooden-texture bottle with the signature geometric honeycomb/metallic grille design on the front. The most intense/darkest variant in the Ameer Al Oudh family, featuring gold cap and premium traditional Middle Eastern fragrance bottle design.
+
+---
+
