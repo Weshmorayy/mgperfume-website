@@ -41,7 +41,7 @@ export function CartDrawer({
   onRemoveItem,
   onClearCart,
 }: CartDrawerProps) {
-  const { shippingZones, saveOrder } = useStore();
+  const { shippingZones, saveOrder, social } = useStore();
 
   const zonesList = shippingZones && shippingZones.length > 0 ? shippingZones : siteConfig.shippingZones;
 
@@ -442,10 +442,31 @@ export function CartDrawer({
                 </button>
               </div>
 
-              {/* Trust Badge */}
-              <div className="flex items-center justify-center gap-1.5 text-[10px] text-[#9E968D] text-center pt-0.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Paiements sécurisés & garantie 100% parfums authentiques</span>
+              {/* Trust Badge & Social Links */}
+              <div className="space-y-2 text-center pt-0.5">
+                <div className="flex items-center justify-center gap-1.5 text-[10px] text-[#9E968D]">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Paiements sécurisés & garantie 100% parfums authentiques</span>
+                </div>
+                {social && (social.facebook || social.instagram || social.tiktok) && (
+                  <div className="flex items-center justify-center gap-3 pt-1">
+                    {social.facebook && (
+                      <a href={social.facebook} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-[#967120] hover:text-[#171513]">
+                        Facebook
+                      </a>
+                    )}
+                    {social.instagram && (
+                      <a href={social.instagram} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-[#967120] hover:text-[#171513]">
+                        Instagram
+                      </a>
+                    )}
+                    {social.tiktok && (
+                      <a href={social.tiktok} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-[#967120] hover:text-[#171513]">
+                        TikTok
+                      </a>
+                    )}
+                  </div>
+                )}
               </div>
 
             </div>

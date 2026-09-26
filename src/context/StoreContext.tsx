@@ -24,6 +24,7 @@ interface StoreContextType {
   saveOrder: (order: Order) => Promise<{ success: boolean; error?: string }>;
   updateOrderStatus: (id: string, order_status: OrderStatus, payment_status?: PaymentStatus) => Promise<{ success: boolean; error?: string }>;
   deleteOrder: (id: string) => Promise<{ success: boolean; error?: string }>;
+  updateSettings: (contact: SiteConfig['contact'], social: SiteConfig['social']) => Promise<{ success: boolean; error?: string }>;
 }
 
 const StoreContext = createContext<StoreContextType | null>(null);
@@ -355,6 +356,21 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Update Site Contact & Social Settings
+
+  const updateSettings = async (newContact: SiteConfig['contact'], newSocial: SiteConfig['social']) => {
+    try {
+      setContact(newContact);
+      setSocial(newSocial);
+      if (supabase) {
+        await supabase.from('site_settings').upsert({ id: 'main', contact: newContact, social: newSocial });
+      }
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  };
+
   const heroProduct = products.find(p => p.isHero) || products[0] || siteConfig.products[0];
   const popularList = products.filter(p => p.isPopular);
   const selectionDuMoment = popularList.length >= 2 ? popularList : products.slice(0, 4);
@@ -380,6 +396,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         saveOrder,
         updateOrderStatus,
         deleteOrder,
+        updateSettings,
       }}
     >
       {children}

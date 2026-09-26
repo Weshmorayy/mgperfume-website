@@ -39,11 +39,44 @@ export function Catalog({
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<'default' | 'price-asc' | 'price-desc'>('default');
   const [addedId, setAddedId] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  
+  // Page persistence via SessionStorage & URL hash/query
+  const [currentPage, setCurrentPage] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const p = urlParams.get('page');
+        if (p && !isNaN(Number(p))) return Math.max(1, Number(p));
+        const saved = sessionStorage.getItem('mg_catalog_page');
+        if (saved) return Math.max(1, Number(saved));
+      } catch (_) {}
+    }
+    return 1;
+  });
+
+  // Sync page change to sessionStorage & URL
+  const changePage = (newPage: number) => {
+    setCurrentPage(newPage);
+    if (typeof window !== 'undefined') {
+      try {
+        sessionStorage.setItem('mg_catalog_page', String(newPage));
+        const url = new URL(window.location.href);
+        url.searchParams.set('page', String(newPage));
+        window.history.replaceState({}, '', url.toString());
+      } catch (_) {}
+      const elem = document.getElementById('catalog-products-grid') || document.getElementById('catalogue');
+      if (elem) {
+        elem.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  };
 
   // Reset pagination when filters change
   useEffect(() => {
     setCurrentPage(1);
+    if (typeof window !== 'undefined') {
+      try { sessionStorage.setItem('mg_catalog_page', '1'); } catch (_) {}
+    }
   }, [selectedFamily, selectedBrand, searchQuery, sortBy]);
 
   // Extract brands dynamically from ALL products
@@ -234,7 +267,7 @@ export function Catalog({
       ) : (
         <>
           {/* Products Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div id="catalog-products-grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 scroll-mt-24">
             {paginatedProducts.map(product => (
               <div
                 key={product.id}
@@ -357,42 +390,38 @@ export function Catalog({
             ))}
           </div>
 
-          {/* Pagination Controls */}
+          {/* Pagination Controls with Direct Page Selector */}
           {totalPages > 1 && (
-            <div className="mt-10 flex items-center justify-center gap-2">
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
               <button
-                onClick={() => {
-                  setCurrentPage(prev => Math.max(prev - 1, 1));
-                  const elem = document.getElementById('catalogue');
-                  if (elem) {
-                    elem.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                  } else {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }
-                }}
+                onClick={() => changePage(Math.max(currentPage - 1, 1))}
                 disabled={currentPage === 1}
-                className="p-2 rounded-full border border-[#E8DCC2] bg-white text-[#171513] disabled:opacity-30 disabled:cursor-not-allowed hover:border-[#C59B3F] transition-all"
+                className="p-2.5 rounded-full border border-[#E8DCC2] bg-white text-[#171513] disabled:opacity-30 disabled:cursor-not-allowed hover:border-[#C59B3F] transition-all shadow-xs"
                 aria-label="Page précédente"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               
-              <div className="flex items-center gap-1 px-3 text-xs font-bold text-[#171513]">
-                <span>Page {currentPage} sur {totalPages}</span>
+              <div className="flex items-center gap-2 px-3.5 py-1.5 bg-white border border-[#E8DCC2] rounded-full shadow-xs text-xs font-bold text-[#171513]">
+                <span>Page</span>
+                <select
+                  value={currentPage}
+                  onChange={e => changePage(Number(e.target.value))}
+                  className="bg-[#FAF8F5] border border-[#E8DCC2] rounded-lg px-2 py-0.5 text-xs font-extrabold text-[#967120] focus:outline-none focus:border-[#C59B3F] cursor-pointer"
+                >
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                    <option key={p} value={p}>
+                      {p}
+                    </option>
+                  ))}
+                </select>
+                <span>sur {totalPages}</span>
               </div>
 
               <button
-                onClick={() => {
-                  setCurrentPage(prev => Math.min(prev + 1, totalPages));
-                  const elem = document.getElementById('catalogue');
-                  if (elem) {
-                    elem.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                  } else {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }
-                }}
+                onClick={() => changePage(Math.min(currentPage + 1, totalPages))}
                 disabled={currentPage === totalPages}
-                className="p-2 rounded-full border border-[#E8DCC2] bg-white text-[#171513] disabled:opacity-30 disabled:cursor-not-allowed hover:border-[#C59B3F] transition-all"
+                className="p-2.5 rounded-full border border-[#E8DCC2] bg-white text-[#171513] disabled:opacity-30 disabled:cursor-not-allowed hover:border-[#C59B3F] transition-all shadow-xs"
                 aria-label="Page suivante"
               >
                 <ChevronRight className="w-4 h-4" />

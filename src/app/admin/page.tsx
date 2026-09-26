@@ -89,6 +89,7 @@ export default function AdminDashboardPage() {
     saveOrder,
     updateOrderStatus,
     deleteOrder,
+    updateSettings,
     refreshStore,
   } = useStore();
 
@@ -175,6 +176,8 @@ export default function AdminDashboardPage() {
 
   // Promotions & Badges Studio Advanced State
   const [promoSubTab, setPromoSubTab] = useState<'featured' | 'discounts' | 'badges'>('featured');
+  const [promoSearch, setPromoSearch] = useState<string>('');
+  const [heroSearch, setHeroSearch] = useState<string>('');
   const [selectedPromoProductIds, setSelectedPromoProductIds] = useState<string[]>([]);
   const [bulkDiscountPercent, setBulkDiscountPercent] = useState<number>(10);
   const [bulkCustomBadge, setBulkCustomBadge] = useState<string>('Offre Spéciale');
@@ -2550,11 +2553,25 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
 
                     {/* Switch Hero Selector */}
                     <div className="space-y-3 pt-1">
-                      <label className="text-xs font-bold uppercase tracking-wider text-[#967120] block">
-                        Cliquez pour désigner un autre parfum comme Édition Phare :
-                      </label>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {products.map(product => {
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <label className="text-xs font-bold uppercase tracking-wider text-[#967120] block">
+                          Cliquez pour désigner un autre parfum comme Édition Phare :
+                        </label>
+                        <div className="relative w-full sm:w-64">
+                          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                          <input
+                            type="text"
+                            placeholder="Rechercher un parfum..."
+                            value={heroSearch}
+                            onChange={e => setHeroSearch(e.target.value)}
+                            className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-[#E8DCC2] bg-white focus:outline-none focus:border-[#C59B3F]"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-80 overflow-y-auto pr-1">
+                        {products
+                          .filter(p => !heroSearch || p.name.toLowerCase().includes(heroSearch.toLowerCase()) || p.brand?.toLowerCase().includes(heroSearch.toLowerCase()))
+                          .map(product => {
                           const isSelected = product.id === heroProduct.id;
                           return (
                             <button
@@ -2592,9 +2609,9 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                       <div>
                         <div className="flex items-center gap-2">
                           <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
-                            selectionDuMoment.length < 2 ? 'bg-red-100 text-red-700' : 'bg-[#171513] text-[#F3E5AB]'
+                            selectionDuMoment.length >= 4 ? 'bg-amber-100 text-amber-800 font-extrabold border border-amber-300' : selectionDuMoment.length < 2 ? 'bg-red-100 text-red-700' : 'bg-[#171513] text-[#F3E5AB]'
                           }`}>
-                            {selectionDuMoment.length} / 4 Slots
+                            {selectionDuMoment.length} / 4 Slots Maximum
                           </span>
                           <h3 className="font-luxury text-lg font-bold flex items-center gap-2">
                             <Sparkles className="w-5 h-5 text-[#C59B3F]" />
@@ -2602,7 +2619,7 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                           </h3>
                         </div>
                         <p className="text-xs opacity-75 mt-1">
-                          Activez ou désactivez les 2 à 4 parfums présentés dans la section vedette de la page d'accueil.
+                          Choisissez entre 2 et 4 parfums présentés en vedette sur la page d'accueil (Slot limité à 4).
                         </p>
                       </div>
 
@@ -2614,44 +2631,65 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                       )}
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {products.map(product => {
-                        const isSelected = Boolean(product.isPopular);
-                        return (
-                          <div
-                            key={product.id}
-                            className={`p-3.5 rounded-2xl border flex items-center justify-between gap-3 transition-all ${
-                              isSelected ? 'border-[#C59B3F] bg-[#FAF8F5] shadow-xs' : 'bg-white'
-                            }`}
-                          >
-                            <div className="flex items-center gap-2.5 min-w-0">
-                              <div className="relative w-11 h-11 bg-white rounded-xl p-1 border flex-shrink-0">
-                                <Image src={product.image} alt={product.name} fill className="object-contain" />
-                              </div>
-                              <div className="min-w-0">
-                                <div className="font-bold text-xs truncate">{product.name}</div>
-                                <div className="text-[10px] opacity-70">{product.brand} • {product.price.toLocaleString('fr-FR')} FCFA</div>
-                                {isSelected && (
-                                  <span className="inline-block mt-0.5 text-[9px] font-bold text-[#967120] uppercase">
-                                    ★ En vedette
-                                  </span>
-                                )}
-                              </div>
-                            </div>
+                    {/* Quick Search Input */}
+                    <div className="relative">
+                      <Search className="w-4 h-4 text-[#9E968D] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        placeholder="Rechercher un parfum dans la sélection du moment..."
+                        value={promoSearch}
+                        onChange={e => setPromoSearch(e.target.value)}
+                        className={`w-full text-xs pl-10 pr-4 py-2.5 rounded-2xl border focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
+                      />
+                    </div>
 
-                            <button
-                              onClick={() => handleTogglePopular(product.id)}
-                              className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all flex-shrink-0 ${
-                                isSelected 
-                                  ? 'bg-[#171513] text-[#F3E5AB] hover:bg-red-600 hover:text-white' 
-                                  : 'border border-[#E8DCC2] hover:bg-[#C59B3F] hover:text-white'
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {products
+                        .filter(p => !promoSearch || p.name.toLowerCase().includes(promoSearch.toLowerCase()) || p.brand?.toLowerCase().includes(promoSearch.toLowerCase()))
+                        .map(product => {
+                          const isSelected = Boolean(product.isPopular);
+                          const isLimitReached = selectionDuMoment.length >= 4 && !isSelected;
+                          return (
+                            <div
+                              key={product.id}
+                              className={`p-3.5 rounded-2xl border flex items-center justify-between gap-3 transition-all ${
+                                isSelected ? 'border-[#C59B3F] bg-[#FAF8F5] shadow-xs' : 'bg-white'
                               }`}
                             >
-                              {isSelected ? 'Retirer' : 'Ajouter'}
-                            </button>
-                          </div>
-                        );
-                      })}
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <div className="relative w-11 h-11 bg-white rounded-xl p-1 border flex-shrink-0">
+                                  <Image src={product.image} alt={product.name} fill className="object-contain" />
+                                </div>
+                                <div className="min-w-0">
+                                  <div className="font-bold text-xs truncate">{product.name}</div>
+                                  <div className="text-[10px] opacity-70">{product.brand} • {product.price.toLocaleString('fr-FR')} FCFA</div>
+                                  {isSelected && (
+                                    <span className="inline-block mt-0.5 text-[9px] font-bold text-[#967120] uppercase">
+                                      ★ En vedette
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+
+                              <button
+                                onClick={() => {
+                                  if (isLimitReached) return;
+                                  handleTogglePopular(product.id);
+                                }}
+                                disabled={isLimitReached}
+                                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all flex-shrink-0 ${
+                                  isSelected 
+                                    ? 'bg-[#171513] text-[#F3E5AB] hover:bg-red-600 hover:text-white' 
+                                    : isLimitReached
+                                    ? 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
+                                    : 'border border-[#E8DCC2] hover:bg-[#C59B3F] hover:text-white'
+                                }`}
+                              >
+                                {isSelected ? 'Retirer' : isLimitReached ? 'Complet' : 'Ajouter'}
+                              </button>
+                            </div>
+                          );
+                        })}
                     </div>
                   </div>
                 </div>
@@ -3640,6 +3678,35 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                       setLocalSocial({ ...localSocial, facebook: e.target.value });
                       setHasUnsavedChanges(true);
                     }}
+                    placeholder="https://facebook.com/..."
+                    className={`w-full px-3 py-2 text-xs rounded-xl border focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-bold text-[#967120] uppercase">Compte Instagram</label>
+                  <input
+                    type="text"
+                    value={localSocial.instagram || ''}
+                    onChange={e => {
+                      setLocalSocial({ ...localSocial, instagram: e.target.value });
+                      setHasUnsavedChanges(true);
+                    }}
+                    placeholder="https://instagram.com/..."
+                    className={`w-full px-3 py-2 text-xs rounded-xl border focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-bold text-[#967120] uppercase">Compte TikTok</label>
+                  <input
+                    type="text"
+                    value={localSocial.tiktok || ''}
+                    onChange={e => {
+                      setLocalSocial({ ...localSocial, tiktok: e.target.value });
+                      setHasUnsavedChanges(true);
+                    }}
+                    placeholder="https://tiktok.com/@..."
                     className={`w-full px-3 py-2 text-xs rounded-xl border focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
                   />
                 </div>
@@ -3660,7 +3727,11 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
 
               <div className="pt-4 border-t border-[#E8DCC2] flex justify-end">
                 <button
-                  onClick={() => showFeedback('Coordonnées enregistrées avec succès')}
+                  onClick={async () => {
+                    await updateSettings(localContact, localSocial);
+                    setHasUnsavedChanges(false);
+                    showFeedback('Coordonnées et réseaux sociaux enregistrés avec succès');
+                  }}
                   className="px-5 py-2.5 rounded-full bg-[#171513] text-white font-bold text-xs uppercase tracking-wider hover:bg-[#C59B3F] flex items-center gap-2"
                 >
                   <Save className="w-4 h-4" />

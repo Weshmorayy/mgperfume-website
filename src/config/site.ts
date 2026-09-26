@@ -19,6 +19,8 @@ export const siteConfig: SiteConfig = {
   },
   social: {
     facebook: 'https://www.facebook.com/MGPERFUMEE/',
+    instagram: 'https://www.instagram.com/mg_perfume_dakar/',
+    tiktok: 'https://www.tiktok.com/@mg_perfume_dakar',
   },
   shippingZones: [
     { id: 'dakar-centre', name: 'Dakar Centre / Plateau / Fann / Mermoz', price: 2000, delay: 'Sous 2h à 4h' },

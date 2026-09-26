@@ -120,6 +120,7 @@ export interface SiteConfig {
   social: {
     facebook?: string;
     instagram?: string;
+    tiktok?: string;
     whatsappChannel?: string;
   };
   shippingZones: ShippingZone[];

@@ -1,9 +1,13 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
-import { Phone, Mail, MapPin } from 'lucide-react';
-import { siteConfig } from '@/config/site';
+import { Phone, Mail, MapPin, Facebook, Instagram } from 'lucide-react';
+import { useStore } from '@/context/StoreContext';
 
 export function Footer() {
+  const { contact, social } = useStore();
+
   return (
     <footer className="bg-[#171513] border-t border-[#E8DCC2]/20 pt-16 pb-12 px-4 sm:px-6 lg:px-8 text-[#A8A196]">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10">
@@ -32,19 +36,43 @@ export function Footer() {
             Haute parfumerie, créations orientales et fragrances de caractère à Dakar. 
             Flacons authentiques sélectionnés pour leur tenue exceptionnelle.
           </p>
-          {siteConfig.social.facebook && (
-            <div className="pt-1">
+
+          {/* Social Media Icons */}
+          <div className="pt-2 flex items-center gap-3">
+            {social?.facebook && (
               <a
-                href={siteConfig.social.facebook}
+                href={social.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-xs font-semibold text-[#F3E5AB] hover:text-[#C59B3F] transition-colors"
+                className="p-2.5 rounded-full bg-white/5 hover:bg-[#C59B3F] text-[#F3E5AB] hover:text-[#171513] transition-all border border-white/10"
+                aria-label="Facebook"
               >
-                <span>Rejoignez-nous sur Facebook</span>
-                <span>→</span>
+                <Facebook className="w-4 h-4" />
               </a>
-            </div>
-          )}
+            )}
+            {social?.instagram && (
+              <a
+                href={social.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2.5 rounded-full bg-white/5 hover:bg-[#C59B3F] text-[#F3E5AB] hover:text-[#171513] transition-all border border-white/10"
+                aria-label="Instagram"
+              >
+                <Instagram className="w-4 h-4" />
+              </a>
+            )}
+            {social?.tiktok && (
+              <a
+                href={social.tiktok}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2.5 rounded-full bg-white/5 hover:bg-[#C59B3F] text-[#F3E5AB] hover:text-[#171513] transition-all border border-white/10 font-bold text-xs flex items-center justify-center w-9 h-9"
+                aria-label="TikTok"
+              >
+                ♪
+              </a>
+            )}
+          </div>
         </div>
 
         {/* Col 2 */}
