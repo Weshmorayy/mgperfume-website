@@ -111,7 +111,7 @@ export function Footer() {
             </p>
             <p className="flex items-center gap-2">
               <MapPin className="w-3.5 h-3.5 text-[#C59B3F]" />
-              <span>{contact?.city || siteConfig.city}, {siteConfig.country}</span>
+              <span>{siteConfig.city}, {siteConfig.country}</span>
             </p>
           </div>
         </div>
