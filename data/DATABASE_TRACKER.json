@@ -109,7 +109,7 @@
   },
   {
     "id": "prada-l-homme",
-    "name": "L\u2019HOMME PRADA",
+    "name": "L’HOMME PRADA",
     "brand": "Prada",
     "price": 75000,
     "image": "https://xnmolqmcfnjvcblizahu.supabase.co/storage/v1/object/public/products/122200626116207032_3.jpg",
@@ -145,7 +145,7 @@
   },
   {
     "id": "mg-naimez-que-moi-30ml",
-    "name": "N\u2019AIMEZ QUE MOI",
+    "name": "N’AIMEZ QUE MOI",
     "brand": "MG Perfume",
     "price": 10000,
     "image": "https://xnmolqmcfnjvcblizahu.supabase.co/storage/v1/object/public/products/IMG-20260920-WA0010.jpg",
@@ -169,7 +169,7 @@
   },
   {
     "id": "mg-seduction-30ml",
-    "name": "S\u00c9DUCTION",
+    "name": "SÉDUCTION",
     "brand": "MG Perfume",
     "price": 10000,
     "image": "https://xnmolqmcfnjvcblizahu.supabase.co/storage/v1/object/public/products/IMG-20260920-WA0008.jpg",
@@ -193,7 +193,7 @@
   },
   {
     "id": "mg-profond-desire-30ml",
-    "name": "PROFOND D\u00c9SIR",
+    "name": "PROFOND DÉSIR",
     "brand": "MG Perfume",
     "price": 10000,
     "image": "https://xnmolqmcfnjvcblizahu.supabase.co/storage/v1/object/public/products/IMG-20260920-WA0012.jpg",
@@ -277,7 +277,7 @@
   },
   {
     "id": "mg-rose-desir-90ml",
-    "name": "ROSE D\u00c9SIR",
+    "name": "ROSE DÉSIR",
     "brand": "MG Perfume",
     "price": 15000,
     "image": "https://xnmolqmcfnjvcblizahu.supabase.co/storage/v1/object/public/products/IMG-20260920-WA0011.jpg",
@@ -397,7 +397,7 @@
   },
   {
     "id": "paris-corner-juicy-melange",
-    "name": "Juicy M\u00e9lange",
+    "name": "Juicy Mélange",
     "brand": "Paris Corner",
     "price": 18000,
     "image": "https://xnmolqmcfnjvcblizahu.supabase.co/storage/v1/object/public/products/122184664580207032_3.jpg",
@@ -493,8 +493,8 @@
   },
   {
     "id": "collection-privee-intense",
-    "name": "Intense (N\u00b07)",
-    "brand": "Collection Priv\u00e9e",
+    "name": "Intense (N°7)",
+    "brand": "Collection Privée",
     "price": 25000,
     "image": "https://xnmolqmcfnjvcblizahu.supabase.co/storage/v1/object/public/products/122213559464207032_1.jpg",
     "volume": "50 ml",
@@ -506,7 +506,7 @@
   {
     "id": "collection-privee-baccara",
     "name": "Baccara",
-    "brand": "Collection Priv\u00e9e",
+    "brand": "Collection Privée",
     "price": 25000,
     "image": "https://xnmolqmcfnjvcblizahu.supabase.co/storage/v1/object/public/products/122213559464207032_4.jpg",
     "volume": "50 ml",
@@ -518,7 +518,7 @@
   {
     "id": "collection-privee-moula",
     "name": "Moula",
-    "brand": "Collection Priv\u00e9e",
+    "brand": "Collection Privée",
     "price": 25000,
     "image": "https://xnmolqmcfnjvcblizahu.supabase.co/storage/v1/object/public/products/122213559464207032_5.jpg",
     "volume": "50 ml",
@@ -961,7 +961,7 @@
   },
   {
     "id": "french-avenue-royal-blend-sequoia",
-    "name": "Royal Blend S\u00e9quoia",
+    "name": "Royal Blend Séquoia",
     "brand": "French Avenue",
     "price": 32000,
     "image": "https://xnmolqmcfnjvcblizahu.supabase.co/storage/v1/object/public/products/122290429640207032_3.jpg",
