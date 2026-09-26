@@ -40,9 +40,9 @@ export function Header({ cartCount, onOpenCart }: HeaderProps) {
     <>
       <header className="sticky top-0 z-30 w-full bg-white/95 backdrop-blur-md border-b border-[#E8DCC2] shadow-xs">
         {/* Top micro banner */}
-        <div className="bg-[#171513] text-[#F3E5AB] text-[11px] py-1.5 px-4 text-center border-b border-[#C59B3F]/20 flex items-center justify-center gap-2">
-          <Sparkles className="w-3.5 h-3.5 text-[#C59B3F] flex-shrink-0 animate-pulse" />
-          <span className="font-medium tracking-wide">
+        <div className="bg-[#171513] text-[#F3E5AB] text-[9.5px] sm:text-[11px] py-1 px-2 text-center border-b border-[#C59B3F]/20 flex items-center justify-center gap-1.5 whitespace-nowrap overflow-hidden">
+          <Sparkles className="w-3 h-3 text-[#C59B3F] flex-shrink-0 animate-pulse" />
+          <span className="font-medium tracking-wide truncate">
             Livraison Express Dakar (2h-4h) • 100% Parfums Originaux & Certifiés
           </span>
         </div>
