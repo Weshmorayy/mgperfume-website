@@ -79,15 +79,19 @@ export function Catalog({
     }
   }, [selectedFamily, selectedBrand, searchQuery, sortBy]);
 
-  // Extract brands dynamically from ALL products
-  const brands = useMemo(() => {
-    return Array.from(new Set(rawProducts.map(p => p.brand).filter(Boolean))).sort() as string[];
+  // Public active products (exclude archived)
+  const activeProducts = useMemo(() => {
+    return rawProducts.filter(p => !p.isArchived);
   }, [rawProducts]);
+
+  // Extract brands dynamically from ACTIVE products
+  const brands = useMemo(() => {
+    return Array.from(new Set(activeProducts.map(p => p.brand).filter(Boolean))).sort() as string[];
+  }, [activeProducts]);
 
   // Filter & Search Logic
   const filteredProducts = useMemo(() => {
-    // Hide archived products on public store
-    let result = rawProducts.filter(p => !p.isArchived);
+    let result = activeProducts;
 
     // Filter by Brand
     if (selectedBrand !== 'all') {
@@ -122,7 +126,7 @@ export function Catalog({
     }
 
     return result;
-  }, [rawProducts, searchQuery, selectedBrand, selectedFamily, sortBy]);
+  }, [activeProducts, searchQuery, selectedBrand, selectedFamily, sortBy]);
 
   // Pagination Logic
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
@@ -178,10 +182,10 @@ export function Catalog({
                     : 'bg-[#FAF8F5] text-[#6B655E] border border-[#E8DCC2] hover:border-[#C59B3F]'
                 }`}
               >
-                Toutes ({rawProducts.length})
+                Toutes ({activeProducts.length})
               </button>
               {brands.map(brand => {
-                const count = rawProducts.filter(p => p.brand?.toLowerCase() === brand.toLowerCase()).length;
+                const count = activeProducts.filter(p => p.brand?.toLowerCase() === brand.toLowerCase()).length;
                 return (
                   <button
                     key={brand}

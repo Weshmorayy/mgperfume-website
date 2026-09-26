@@ -100,6 +100,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         if (parsed.banners && Array.isArray(parsed.banners)) setBanners(parsed.banners);
         if (parsed.shippingZones && Array.isArray(parsed.shippingZones)) setShippingZones(parsed.shippingZones);
         if (parsed.faqs && Array.isArray(parsed.faqs)) setFaqs(parsed.faqs);
+        if (parsed.contact) setContact(parsed.contact);
+        if (parsed.social) setSocial(parsed.social);
       }
       const cachedOrders = localStorage.getItem('mg_orders_cache');
       if (cachedOrders) {
@@ -116,12 +118,19 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           { data: dbBanners, error: bannerErr },
           { data: dbShipping, error: shipErr },
           { data: dbFaqs, error: faqErr },
+          { data: dbSettings, error: settingsErr },
         ] = await Promise.all([
           supabase.from('products').select('*').order('created_at', { ascending: true }),
           supabase.from('editorial_banners').select('*').order('display_order', { ascending: true }),
           supabase.from('shipping_zones').select('*'),
           supabase.from('faqs').select('*').order('display_order', { ascending: true }),
+          supabase.from('site_settings').select('*').eq('id', 'main').single(),
         ]);
+
+        if (!settingsErr && dbSettings) {
+          if (dbSettings.contact) setContact(dbSettings.contact);
+          if (dbSettings.social) setSocial(dbSettings.social);
+        }
 
         if (!prodErr && dbProds && dbProds.length > 0) {
           const mapped = dbProds.map(mapDbProduct);

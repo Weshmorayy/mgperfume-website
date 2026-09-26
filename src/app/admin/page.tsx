@@ -2399,9 +2399,9 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                 </div>
               )}
 
-              {/* ADMIN PRODUCTS PAGINATION CONTROLS */}
+              {/* ADMIN PRODUCTS PAGINATION CONTROLS WITH PAGE SELECTOR */}
               {totalAdminProductPages > 1 && (
-                <div className="flex items-center justify-center gap-2 pt-4">
+                <div className="flex flex-wrap items-center justify-center gap-3 pt-6 border-t border-[#E8DCC2]/60">
                   <button
                     onClick={() => {
                       setAdminProductPage(prev => Math.max(prev - 1, 1));
@@ -2414,8 +2414,43 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                     <ChevronLeft className="w-4 h-4" />
                   </button>
 
-                  <div className="flex items-center gap-1 px-3 text-xs font-bold text-[#171513]">
-                    <span>Page {adminProductPage} sur {totalAdminProductPages}</span>
+                  {/* Direct Page Dropdown Selector */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-[#171513]">Page</span>
+                    <select
+                      value={adminProductPage}
+                      onChange={e => {
+                        setAdminProductPage(Number(e.target.value));
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className="text-xs font-bold px-3 py-1.5 rounded-xl border border-[#E8DCC2] bg-white text-[#171513] focus:outline-none focus:border-[#C59B3F]"
+                    >
+                      {Array.from({ length: totalAdminProductPages }, (_, i) => i + 1).map(p => (
+                        <option key={p} value={p}>
+                          {p} / {totalAdminProductPages}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Quick Page Number Pills */}
+                  <div className="flex items-center gap-1 overflow-x-auto max-w-xs py-1">
+                    {Array.from({ length: totalAdminProductPages }, (_, i) => i + 1).map(p => (
+                      <button
+                        key={p}
+                        onClick={() => {
+                          setAdminProductPage(p);
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        className={`w-7 h-7 rounded-lg text-xs font-bold transition-all flex items-center justify-center ${
+                          adminProductPage === p
+                            ? 'bg-[#171513] text-[#F3E5AB]'
+                            : 'bg-white text-[#6B655E] border border-[#E8DCC2] hover:border-[#C59B3F]'
+                        }`}
+                      >
+                        {p}
+                      </button>
+                    ))}
                   </div>
 
                   <button
@@ -2611,7 +2646,7 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                           <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
                             selectionDuMoment.length >= 4 ? 'bg-amber-100 text-amber-800 font-extrabold border border-amber-300' : selectionDuMoment.length < 2 ? 'bg-red-100 text-red-700' : 'bg-[#171513] text-[#F3E5AB]'
                           }`}>
-                            {selectionDuMoment.length} / 4 Slots Maximum
+                            {selectionDuMoment.length} / 4 Slots Occupés
                           </span>
                           <h3 className="font-luxury text-lg font-bold flex items-center gap-2">
                             <Sparkles className="w-5 h-5 text-[#C59B3F]" />
@@ -2619,7 +2654,7 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                           </h3>
                         </div>
                         <p className="text-xs opacity-75 mt-1">
-                          Choisissez entre 2 et 4 parfums présentés en vedette sur la page d'accueil (Slot limité à 4).
+                          Présentez 2 à 4 parfums en vedette sur l’accueil. Vous pouvez ajouter ou retirer des parfums librement.
                         </p>
                       </div>
 
@@ -2631,65 +2666,96 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                       )}
                     </div>
 
+                    {/* Active Selected Slots Panel */}
+                    <div className="bg-[#FAF8F5] p-4 rounded-2xl border border-[#E8DCC2]/80 space-y-3">
+                      <div className="text-xs font-bold text-[#171513] uppercase tracking-wider flex items-center justify-between">
+                        <span>Slots Actifs ({selectionDuMoment.length}/4) :</span>
+                        <span className="text-[10px] text-[#8C8377] font-normal">Cliquez sur X pour libérer un slot</span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        {selectionDuMoment.map((product, idx) => (
+                          <div key={product.id} className="bg-white p-3 rounded-xl border border-[#C59B3F] flex items-center justify-between gap-2 shadow-xs">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <div className="relative w-9 h-9 bg-[#FAF8F5] rounded-lg p-0.5 border flex-shrink-0">
+                                <Image src={product.image} alt={product.name} fill className="object-contain" />
+                              </div>
+                              <div className="min-w-0">
+                                <div className="font-bold text-xs truncate text-[#171513]">{product.name}</div>
+                                <div className="text-[9px] text-[#8C8377] font-medium">Slot #{idx + 1}</div>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => handleTogglePopular(product.id)}
+                              className="p-1.5 rounded-full hover:bg-red-50 text-red-500 hover:text-red-700 transition-colors"
+                              title="Retirer de la sélection"
+                              aria-label="Retirer du moment"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
                     {/* Quick Search Input */}
                     <div className="relative">
-                      <Search className="w-4 h-4 text-[#9E968D] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <Search className="w-4 h-4 text-[#9E968D] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                       <input
                         type="text"
-                        placeholder="Rechercher un parfum dans la sélection du moment..."
+                        placeholder="Rechercher un parfum dans le catalogue à ajouter..."
                         value={promoSearch}
                         onChange={e => setPromoSearch(e.target.value)}
                         className={`w-full text-xs pl-10 pr-4 py-2.5 rounded-2xl border focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {products
-                        .filter(p => !promoSearch || p.name.toLowerCase().includes(promoSearch.toLowerCase()) || p.brand?.toLowerCase().includes(promoSearch.toLowerCase()))
-                        .map(product => {
-                          const isSelected = Boolean(product.isPopular);
-                          const isLimitReached = selectionDuMoment.length >= 4 && !isSelected;
-                          return (
-                            <div
-                              key={product.id}
-                              className={`p-3.5 rounded-2xl border flex items-center justify-between gap-3 transition-all ${
-                                isSelected ? 'border-[#C59B3F] bg-[#FAF8F5] shadow-xs' : 'bg-white'
-                              }`}
-                            >
-                              <div className="flex items-center gap-2.5 min-w-0">
-                                <div className="relative w-11 h-11 bg-white rounded-xl p-1 border flex-shrink-0">
-                                  <Image src={product.image} alt={product.name} fill className="object-contain" />
-                                </div>
-                                <div className="min-w-0">
-                                  <div className="font-bold text-xs truncate">{product.name}</div>
-                                  <div className="text-[10px] opacity-70">{product.brand} • {product.price.toLocaleString('fr-FR')} FCFA</div>
-                                  {isSelected && (
-                                    <span className="inline-block mt-0.5 text-[9px] font-bold text-[#967120] uppercase">
-                                      ★ En vedette
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-
-                              <button
-                                onClick={() => {
-                                  if (isLimitReached) return;
-                                  handleTogglePopular(product.id);
-                                }}
-                                disabled={isLimitReached}
-                                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all flex-shrink-0 ${
-                                  isSelected 
-                                    ? 'bg-[#171513] text-[#F3E5AB] hover:bg-red-600 hover:text-white' 
-                                    : isLimitReached
-                                    ? 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
-                                    : 'border border-[#E8DCC2] hover:bg-[#C59B3F] hover:text-white'
+                    {/* Scrollable Product Picker Grid */}
+                    <div className="max-h-[380px] overflow-y-auto pr-2 space-y-2 border-t border-[#E8DCC2]/40 pt-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {products
+                          .filter(p => !p.isArchived)
+                          .filter(p => !promoSearch || p.name.toLowerCase().includes(promoSearch.toLowerCase()) || p.brand?.toLowerCase().includes(promoSearch.toLowerCase()))
+                          .map(product => {
+                            const isSelected = Boolean(product.isPopular);
+                            const isLimitReached = selectionDuMoment.length >= 4 && !isSelected;
+                            return (
+                              <div
+                                key={product.id}
+                                className={`p-3 rounded-2xl border flex items-center justify-between gap-3 transition-all ${
+                                  isSelected ? 'border-[#C59B3F] bg-[#FAF8F5] shadow-xs' : 'bg-white'
                                 }`}
                               >
-                                {isSelected ? 'Retirer' : isLimitReached ? 'Complet' : 'Ajouter'}
-                              </button>
-                            </div>
-                          );
-                        })}
+                                <div className="flex items-center gap-2.5 min-w-0">
+                                  <div className="relative w-10 h-10 bg-[#FAF8F5] rounded-xl p-1 border flex-shrink-0">
+                                    <Image src={product.image} alt={product.name} fill className="object-contain" />
+                                  </div>
+                                  <div className="min-w-0">
+                                    <div className="font-bold text-xs truncate">{product.name}</div>
+                                    <div className="text-[10px] opacity-70">{product.brand} • {product.price.toLocaleString('fr-FR')} FCFA</div>
+                                    {isSelected && (
+                                      <span className="inline-block mt-0.5 text-[9px] font-bold text-[#967120] uppercase">
+                                        ★ En vedette
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <button
+                                  onClick={() => handleTogglePopular(product.id)}
+                                  className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all flex-shrink-0 ${
+                                    isSelected 
+                                      ? 'bg-red-50 text-red-600 hover:bg-red-600 hover:text-white border border-red-200' 
+                                      : isLimitReached
+                                      ? 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100'
+                                      : 'border border-[#E8DCC2] hover:bg-[#C59B3F] hover:text-white'
+                                  }`}
+                                >
+                                  {isSelected ? 'Retirer' : isLimitReached ? 'Remplacer' : 'Ajouter'}
+                                </button>
+                              </div>
+                            );
+                          })}
+                      </div>
                     </div>
                   </div>
                 </div>
