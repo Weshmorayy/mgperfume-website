@@ -21,6 +21,7 @@ export default function RootLayout({
   return (
     <html lang="fr" className="dark scroll-smooth">
       <head>
+        <meta name="facebook-domain-verification" content="27pr9xnm0f1tj7b409rxfa4726ixf1" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link

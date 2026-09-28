@@ -40,5 +40,10 @@ export function generatePageMetadata({
       index: !noIndex,
       follow: !noIndex,
     },
+    verification: {
+      other: {
+        'facebook-domain-verification': ['27pr9xnm0f1tj7b409rxfa4726ixf1'],
+      },
+    },
   };
 }
