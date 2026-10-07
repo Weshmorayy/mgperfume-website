@@ -123,6 +123,21 @@ export function Catalog({
       result = [...result].sort((a, b) => a.price - b.price);
     } else if (sortBy === 'price-desc') {
       result = [...result].sort((a, b) => b.price - a.price);
+    } else {
+      // Tri par défaut : les nouveautés en tête de catalogue.
+      // Les produits sans date connue gardent leur ordre d'origine, à la suite.
+      result = result
+        .map((p, i) => ({ p, i, t: p.createdAt ? Date.parse(p.createdAt) : NaN }))
+        .sort((a, b) => {
+          const aUndated = Number.isNaN(a.t);
+          const bUndated = Number.isNaN(b.t);
+          if (aUndated && bUndated) return a.i - b.i;
+          if (aUndated) return 1;
+          if (bUndated) return -1;
+          if (b.t !== a.t) return b.t - a.t;
+          return a.i - b.i;
+        })
+        .map(x => x.p);
     }
 
     return result;
@@ -238,7 +253,7 @@ export function Catalog({
                   onChange={e => setSortBy(e.target.value as any)}
                   className="text-xs font-semibold px-3 py-1.5 rounded-full bg-white border border-[#E8DCC2] text-[#171513] focus:outline-none focus:border-[#C59B3F]"
                 >
-                  <option value="default">Recommandés</option>
+                  <option value="default">Nouveautés</option>
                   <option value="price-asc">Prix croissant</option>
                   <option value="price-desc">Prix décroissant</option>
                 </select>

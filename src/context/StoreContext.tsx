@@ -63,6 +63,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       inStock: row.in_stock !== false,
       isArchived: Boolean(row.is_archived),
       freeDelivery: Boolean(row.free_delivery),
+      createdAt: row.created_at || undefined,
     };
   };
 

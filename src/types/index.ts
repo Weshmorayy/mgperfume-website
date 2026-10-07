@@ -21,6 +21,8 @@ export interface PerfumeProduct {
   inStock?: boolean;
   isArchived?: boolean;
   freeDelivery?: boolean;
+  /** Date de création en base (ISO). Sert au tri « nouveautés d'abord ». */
+  createdAt?: string;
 }
 
 export type PaymentMethod = 'paytech' | 'whatsapp' | 'cod';
