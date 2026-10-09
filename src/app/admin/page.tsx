@@ -70,6 +70,7 @@ import { siteConfig } from '@/config/site';
 import { PerfumeProduct, EditorialBanner, ShippingZone, FAQItem, ScentFamily, SiteBackup, Order, OrderStatus, PaymentStatus } from '@/types';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { useStore } from '@/context/StoreContext';
+import { compareNewestFirst } from '@/lib/productSort';
 
 export default function AdminDashboardPage() {
   const {
@@ -1004,7 +1005,8 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
       if (sortBy === 'price-desc') return b.price - a.price;
       if (sortBy === 'name-asc') return a.name.localeCompare(b.name);
       if (sortBy === 'name-desc') return b.name.localeCompare(a.name);
-      return 0;
+      // Même ordre que la boutique : les nouveautés en tête.
+      return compareNewestFirst(a, b);
     });
 
   // Admin Products Pagination
@@ -1969,7 +1971,7 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                       onChange={e => setSortBy(e.target.value)}
                       className={`w-full px-3 py-2 rounded-xl border text-xs focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
                     >
-                      <option value="default">Ordre par défaut</option>
+                      <option value="default">Nouveautés</option>
                       <option value="price-asc">Prix : Croissant</option>
                       <option value="price-desc">Prix : Décroissant</option>
                       <option value="name-asc">Nom : A à Z</option>

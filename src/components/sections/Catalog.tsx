@@ -6,6 +6,7 @@ import { Plus, Eye, Check, Sparkles, ArrowUpDown, Search, X, ChevronLeft, Chevro
 import { PerfumeProduct, ScentFamily } from '@/types';
 import { siteConfig } from '@/config/site';
 import { useStore } from '@/context/StoreContext';
+import { sortNewestFirst } from '@/lib/productSort';
 
 interface CatalogProps {
   onAddToCart: (product: PerfumeProduct) => void;
@@ -125,19 +126,7 @@ export function Catalog({
       result = [...result].sort((a, b) => b.price - a.price);
     } else {
       // Tri par défaut : les nouveautés en tête de catalogue.
-      // Les produits sans date connue gardent leur ordre d'origine, à la suite.
-      result = result
-        .map((p, i) => ({ p, i, t: p.createdAt ? Date.parse(p.createdAt) : NaN }))
-        .sort((a, b) => {
-          const aUndated = Number.isNaN(a.t);
-          const bUndated = Number.isNaN(b.t);
-          if (aUndated && bUndated) return a.i - b.i;
-          if (aUndated) return 1;
-          if (bUndated) return -1;
-          if (b.t !== a.t) return b.t - a.t;
-          return a.i - b.i;
-        })
-        .map(x => x.p);
+      result = sortNewestFirst(result);
     }
 
     return result;

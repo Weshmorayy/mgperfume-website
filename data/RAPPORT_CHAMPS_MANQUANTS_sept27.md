@@ -175,6 +175,10 @@ Le catalogue se trie maintenant **du plus récent au plus ancien**. Les 5 nouvea
 
 L'option de tri s'appelle désormais « Nouveautés » au lieu de « Recommandés ». Les tris « Prix croissant » et « Prix décroissant » restent inchangés. Le bandeau d'accueil et la « Sélection du Moment » ne sont pas touchés.
 
+**Le tableau de bord admin applique exactement le même ordre.** Sa liste de produits était elle aussi en ancien → récent ; elle passe maintenant en récent → ancien, avec l'option renommée « Nouveautés » (au lieu de « Ordre par défaut »).
+
+Le comparateur est partagé dans `src/lib/productSort.ts` et utilisé par la boutique comme par l'admin : les deux listes ne peuvent plus diverger. L'admin conserve en plus ses tris `Prix : Croissant`, `Prix : Décroissant`, `Nom : A à Z` et `Nom : Z à A`.
+
 ## 9. Règles appliquées
 
 - Les captures Facebook ont servi à **lire des informations** (prix, pyramides, prose du client). Elles n'ont **jamais** été publiées comme image de produit.
