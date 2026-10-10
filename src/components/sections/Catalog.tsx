@@ -7,6 +7,13 @@ import { PerfumeProduct, ScentFamily } from '@/types';
 import { siteConfig } from '@/config/site';
 import { useStore } from '@/context/StoreContext';
 import { sortNewestFirst } from '@/lib/productSort';
+import {
+  availableFamilies,
+  brandFacets,
+  matchesBrand,
+  matchesFamily,
+  matchesSearchQuery,
+} from '@/lib/productSearch';
 
 interface CatalogProps {
   onAddToCart: (product: PerfumeProduct) => void;
@@ -15,15 +22,6 @@ interface CatalogProps {
   products?: PerfumeProduct[];
   itemsPerPage?: number;
 }
-
-const CATEGORIES: { id: ScentFamily; label: string }[] = [
-  { id: 'all', label: 'Toutes les familles' },
-  { id: 'oriental', label: 'Orientaux & Épices' },
-  { id: 'gourmand', label: 'Gourmands & Sucrés' },
-  { id: 'boise', label: 'Boisés & Cèdre' },
-  { id: 'floral', label: 'Floraux & Fruités' },
-  { id: 'aquatique', label: 'Frais & Hespéridés' },
-];
 
 export function Catalog({
   onAddToCart,
@@ -85,52 +83,44 @@ export function Catalog({
     return rawProducts.filter(p => !p.isArchived);
   }, [rawProducts]);
 
-  // Extract brands dynamically from ACTIVE products
-  const brands = useMemo(() => {
-    return Array.from(new Set(activeProducts.map(p => p.brand).filter(Boolean))).sort() as string[];
-  }, [activeProducts]);
+  // Familles réellement présentes dans le catalogue actif : aucun onglet vide.
+  const familyOptions = useMemo(() => availableFamilies(activeProducts), [activeProducts]);
 
-  // Filter & Search Logic
+  // Étape 1 — recherche texte. Elle ne dépend ni du tri ni des autres filtres :
+  // choisir « Nouveautés » ne doit retirer aucun résultat.
+  const searchMatched = useMemo(
+    () =>
+      searchQuery.trim()
+        ? activeProducts.filter(p => matchesSearchQuery(p, searchQuery))
+        : activeProducts,
+    [activeProducts, searchQuery]
+  );
+
+  // Étape 2 — famille olfactive.
+  const familyMatched = useMemo(
+    () => searchMatched.filter(p => matchesFamily(p, selectedFamily)),
+    [searchMatched, selectedFamily]
+  );
+
+  // Compteurs « Maison » calculés après recherche et famille : ils suivent la frappe.
+  const { total: brandMatchedTotal, facets: brandOptions } = useMemo(
+    () => brandFacets(familyMatched, selectedBrand),
+    [familyMatched, selectedBrand]
+  );
+
+  // Étape 3 — maison, puis tri. Le tri réordonne, il ne filtre jamais.
   const filteredProducts = useMemo(() => {
-    let result = activeProducts;
+    const result = familyMatched.filter(p => matchesBrand(p, selectedBrand));
 
-    // Filter by Brand
-    if (selectedBrand !== 'all') {
-      result = result.filter(p => p.brand?.toLowerCase() === selectedBrand.toLowerCase());
-    }
-
-    // Filter by Scent Family
-    if (selectedFamily !== 'all') {
-      result = result.filter(p => p.family === selectedFamily);
-    }
-
-    // Filter by Search Query
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
-      result = result.filter(
-        p =>
-          p.name.toLowerCase().includes(q) ||
-          p.brand?.toLowerCase().includes(q) ||
-          p.tagline.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q) ||
-          p.topNotes.some(n => n.toLowerCase().includes(q)) ||
-          p.heartNotes.some(n => n.toLowerCase().includes(q)) ||
-          p.baseNotes.some(n => n.toLowerCase().includes(q))
-      );
-    }
-
-    // Sort
     if (sortBy === 'price-asc') {
-      result = [...result].sort((a, b) => a.price - b.price);
-    } else if (sortBy === 'price-desc') {
-      result = [...result].sort((a, b) => b.price - a.price);
-    } else {
-      // Tri par défaut : les nouveautés en tête de catalogue.
-      result = sortNewestFirst(result);
+      return [...result].sort((a, b) => a.price - b.price);
     }
-
-    return result;
-  }, [activeProducts, searchQuery, selectedBrand, selectedFamily, sortBy]);
+    if (sortBy === 'price-desc') {
+      return [...result].sort((a, b) => b.price - a.price);
+    }
+    // Tri par défaut : les nouveautés en tête de catalogue.
+    return sortNewestFirst(result);
+  }, [familyMatched, selectedBrand, sortBy]);
 
   // Pagination Logic
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
@@ -186,24 +176,21 @@ export function Catalog({
                     : 'bg-[#FAF8F5] text-[#6B655E] border border-[#E8DCC2] hover:border-[#C59B3F]'
                 }`}
               >
-                Toutes ({activeProducts.length})
+                Toutes ({brandMatchedTotal})
               </button>
-              {brands.map(brand => {
-                const count = activeProducts.filter(p => p.brand?.toLowerCase() === brand.toLowerCase()).length;
-                return (
-                  <button
-                    key={brand}
-                    onClick={() => setSelectedBrand(brand)}
-                    className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
-                      selectedBrand.toLowerCase() === brand.toLowerCase()
-                        ? 'bg-[#171513] text-white shadow-xs'
-                        : 'bg-[#FAF8F5] text-[#6B655E] border border-[#E8DCC2] hover:border-[#C59B3F]'
-                    }`}
-                  >
-                    {brand} ({count})
-                  </button>
-                );
-              })}
+              {brandOptions.map(({ brand, count }) => (
+                <button
+                  key={brand}
+                  onClick={() => setSelectedBrand(brand)}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+                    selectedBrand.toLowerCase() === brand.toLowerCase()
+                      ? 'bg-[#171513] text-white shadow-xs'
+                      : 'bg-[#FAF8F5] text-[#6B655E] border border-[#E8DCC2] hover:border-[#C59B3F]'
+                  }`}
+                >
+                  {brand} ({count})
+                </button>
+              ))}
             </div>
           </div>
 
@@ -211,7 +198,7 @@ export function Catalog({
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-[#E8DCC2] pb-4">
             {/* Olfactory Tabs */}
             <div className="flex flex-wrap gap-2">
-              {CATEGORIES.map(cat => (
+              {familyOptions.map(cat => (
                 <button
                   key={cat.id}
                   onClick={() => setSelectedFamily(cat.id)}

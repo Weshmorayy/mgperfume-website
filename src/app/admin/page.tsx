@@ -71,6 +71,7 @@ import { PerfumeProduct, EditorialBanner, ShippingZone, FAQItem, ScentFamily, Si
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { useStore } from '@/context/StoreContext';
 import { compareNewestFirst } from '@/lib/productSort';
+import { availableFamilies, brandFacets, matchesSearchQuery } from '@/lib/productSearch';
 
 export default function AdminDashboardPage() {
   const {
@@ -967,8 +968,14 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
     if (e.target) e.target.value = '';
   };
 
-  // Extract unique brands from products
-  const uniqueBrands = Array.from(new Set(products.map(p => p.brand || 'MG Perfume').filter(Boolean)));
+  // Maisons uniques : regroupées sur la marque normalisée, sinon « Rasasi » et
+  // « Rasasi » (espace finale en base) apparaissent deux fois dans la liste.
+  const uniqueBrands = brandFacets(products, filterBrand, 500)
+    .facets.map(f => f.brand)
+    .sort((a, b) => a.localeCompare(b, 'fr'));
+
+  // Familles réellement utilisées : jamais de filtre qui ne renvoie rien.
+  const availableFamilyOptions = availableFamilies(products);
 
   // Filtered & Sorted Products
   const filteredProducts = products
@@ -977,12 +984,9 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
       if (productArchiveTab === 'active' && p.isArchived) return false;
       if (productArchiveTab === 'archived' && !p.isArchived) return false;
 
-      // Text search
-      const matchesSearch = 
-        p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
-        (p.brand && p.brand.toLowerCase().includes(productSearch.toLowerCase())) ||
-        (p.tagline && p.tagline.toLowerCase().includes(productSearch.toLowerCase()));
-      if (!matchesSearch) return false;
+      // Recherche texte — mêmes champs que la boutique (notes, description,
+      // catégorie, badge, contenance) et insensible aux accents.
+      if (!matchesSearchQuery(p, productSearch)) return false;
 
       // Family filter
       if (filterFamily !== 'all' && p.family !== filterFamily) return false;
@@ -1915,12 +1919,9 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                       onChange={e => setFilterFamily(e.target.value)}
                       className={`w-full px-3 py-2 rounded-xl border text-xs focus:outline-none focus:border-[#C59B3F] capitalize ${inputBg}`}
                     >
-                      <option value="all">Toutes les familles</option>
-                      <option value="oriental">Oriental</option>
-                      <option value="boise">Boisé</option>
-                      <option value="gourmand">Gourmand</option>
-                      <option value="floral">Floral</option>
-                      <option value="aquatique">Aquatique / Frais</option>
+                      {availableFamilyOptions.map(family => (
+                        <option key={family.id} value={family.id}>{family.label}</option>
+                      ))}
                     </select>
                   </div>
 
