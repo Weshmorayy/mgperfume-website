@@ -16,12 +16,14 @@ interface StoreContextType {
   selectionDuMoment: PerfumeProduct[];
   orders: Order[];
   isLoading: boolean;
+  freeForAllDelivery: boolean;
   refreshStore: () => Promise<void>;
   saveProduct: (product: PerfumeProduct) => Promise<{ success: boolean; error?: string }>;
   deleteProduct: (id: string) => Promise<{ success: boolean; error?: string }>;
   setHeroProduct: (id: string) => Promise<{ success: boolean; error?: string }>;
   toggleSelectionDuMoment: (id: string) => Promise<{ success: boolean; error?: string }>;
-  saveOrder: (order: Order) => Promise<{ success: boolean; error?: string }>;
+  saveOrder: (order: Order, honeypot?: string) => Promise<{ success: boolean; error?: string; order?: Order }>;
+  saveDeliverySettings: (freeForAll: boolean) => Promise<{ success: boolean; error?: string }>;
   updateOrderStatus: (id: string, order_status: OrderStatus, payment_status?: PaymentStatus) => Promise<{ success: boolean; error?: string }>;
   deleteOrder: (id: string) => Promise<{ success: boolean; error?: string }>;
   updateSettings: (contact: SiteConfig['contact'], social: SiteConfig['social']) => Promise<{ success: boolean; error?: string }>;
@@ -37,6 +39,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [contact, setContact] = useState<SiteConfig['contact']>(siteConfig.contact);
   const [social, setSocial] = useState<SiteConfig['social']>(siteConfig.social);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [freeForAllDelivery, setFreeForAllDelivery] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   // Helper to normalize DB product to PerfumeProduct
@@ -103,6 +106,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         if (parsed.faqs && Array.isArray(parsed.faqs)) setFaqs(parsed.faqs);
         if (parsed.contact) setContact(parsed.contact);
         if (parsed.social) setSocial(parsed.social);
+        if (typeof parsed.freeForAllDelivery === 'boolean') setFreeForAllDelivery(parsed.freeForAllDelivery);
       }
       const cachedOrders = localStorage.getItem('mg_orders_cache');
       if (cachedOrders) {
@@ -131,6 +135,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         if (!settingsErr && dbSettings) {
           if (dbSettings.contact) setContact(dbSettings.contact);
           if (dbSettings.social) setSocial(dbSettings.social);
+          if (dbSettings.delivery && typeof dbSettings.delivery.freeForAll === 'boolean') {
+            setFreeForAllDelivery(dbSettings.delivery.freeForAll);
+          }
         }
 
         if (!prodErr && dbProds && dbProds.length > 0) {
@@ -190,10 +197,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     try {
       localStorage.setItem(
         'mg_store_cache',
-        JSON.stringify({ products, banners, shippingZones, faqs, contact, social })
+        JSON.stringify({ products, banners, shippingZones, faqs, contact, social, freeForAllDelivery })
       );
     } catch (_) {}
-  }, [products, banners, shippingZones, faqs, contact, social]);
+  }, [products, banners, shippingZones, faqs, contact, social, freeForAllDelivery]);
 
   useEffect(() => {
     try {
@@ -281,43 +288,53 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     return saveProduct(updatedProduct);
   };
 
-  // Save / Register Order
-  const saveOrder = async (order: Order) => {
+  // Save / Register Order — passe par le RPC create_order (prix et livraison recalculés côté serveur)
+  const saveOrder = async (order: Order, honeypot?: string) => {
     try {
-      setOrders(prev => [order, ...prev.filter(o => o.id !== order.id)]);
-      try {
-        const cached = localStorage.getItem('mg_orders_cache');
-        const list = cached ? JSON.parse(cached) : [];
-        localStorage.setItem('mg_orders_cache', JSON.stringify([order, ...list.filter((o: any) => o.id !== order.id)]));
-      } catch (_) {}
+      if (supabase && isSupabaseConfigured) {
+        const { data, error } = await supabase.rpc('create_order', {
+          p_items: order.items,
+          p_customer_name: order.customer_name,
+          p_customer_phone: order.customer_phone,
+          p_customer_address: order.customer_address,
+          p_shipping_zone_id: order.shipping_zone_id,
+          p_payment_method: order.payment_method,
+          p_notes: order.notes || null,
+          p_honeypot: honeypot || null,
+        });
 
-      if (supabase) {
-        const dbPayload = {
-          id: order.id,
-          ref_command: order.ref_command,
-          customer_name: order.customer_name,
-          customer_phone: order.customer_phone,
-          customer_address: order.customer_address,
-          shipping_zone_id: order.shipping_zone_id,
-          shipping_zone_name: order.shipping_zone_name,
-          shipping_cost: order.shipping_cost,
-          subtotal: order.subtotal,
-          total_amount: order.total_amount,
-          items: order.items,
-          payment_method: order.payment_method,
-          payment_status: order.payment_status,
-          order_status: order.order_status,
-          paytech_token: order.paytech_token || null,
-          paytech_redirect_url: order.paytech_redirect_url || null,
-          notes: order.notes || '',
-        };
-        const { error } = await supabase.from('orders').upsert(dbPayload, { onConflict: 'id' });
         if (error) {
-          console.warn('Erreur Supabase sauvegarde commande (table non créée ?):', error.message);
+          console.warn('Commande refusée par le serveur:', error.message);
+          return { success: false, error: error.message };
         }
+
+        const row: any = Array.isArray(data) ? data[0] : data;
+        if (!row) {
+          return { success: false, error: 'Commande non confirmée par le serveur.' };
+        }
+
+        const confirmed: Order = {
+          ...order,
+          id: row.order_id,
+          ref_command: row.ref_command,
+          subtotal: Number(row.subtotal),
+          shipping_cost: Number(row.shipping_cost),
+          total_amount: Number(row.total_amount),
+        };
+
+        setOrders(prev => [confirmed, ...prev.filter(o => o.id !== confirmed.id)]);
+        try {
+          const cached = localStorage.getItem('mg_orders_cache');
+          const list = cached ? JSON.parse(cached) : [];
+          localStorage.setItem('mg_orders_cache', JSON.stringify([confirmed, ...list.filter((o: any) => o.id !== confirmed.id)]));
+        } catch (_) {}
+
+        return { success: true, order: confirmed };
       }
 
-      return { success: true };
+      // Repli hors ligne (Supabase non configuré) : on conserve l'objet local
+      setOrders(prev => [order, ...prev.filter(o => o.id !== order.id)]);
+      return { success: true, order };
     } catch (err: any) {
       console.error('Erreur saveOrder:', err);
       return { success: false, error: err.message };
@@ -381,6 +398,29 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Livraison offerte pour tous les produits (réglage global)
+  const saveDeliverySettings = async (freeForAll: boolean) => {
+    try {
+      setFreeForAllDelivery(freeForAll);
+      if (supabase && isSupabaseConfigured) {
+        const { data: current } = await supabase
+          .from('site_settings')
+          .select('delivery')
+          .eq('id', 'main')
+          .single();
+        const nextDelivery = { ...(current?.delivery || {}), freeForAll };
+        const { error } = await supabase
+          .from('site_settings')
+          .upsert({ id: 'main', delivery: nextDelivery });
+        if (error) throw error;
+      }
+      return { success: true };
+    } catch (err: any) {
+      setFreeForAllDelivery(!freeForAll);
+      return { success: false, error: err.message };
+    }
+  };
+
   const heroProduct = products.find(p => p.isHero) || products[0] || siteConfig.products[0];
   const popularList = products.filter(p => p.isPopular);
   const selectionDuMoment = popularList.length >= 2 ? popularList : products.slice(0, 4);
@@ -398,6 +438,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         selectionDuMoment,
         orders,
         isLoading,
+        freeForAllDelivery,
         refreshStore,
         saveProduct,
         deleteProduct,
@@ -407,6 +448,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         updateOrderStatus,
         deleteOrder,
         updateSettings,
+        saveDeliverySettings,
       }}
     >
       {children}

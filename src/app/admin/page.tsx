@@ -84,6 +84,7 @@ export default function AdminDashboardPage() {
     heroProduct,
     selectionDuMoment,
     orders,
+    freeForAllDelivery,
     saveProduct,
     deleteProduct,
     setHeroProduct,
@@ -92,6 +93,7 @@ export default function AdminDashboardPage() {
     updateOrderStatus,
     deleteOrder,
     updateSettings,
+    saveDeliverySettings,
     refreshStore,
   } = useStore();
 
@@ -1570,7 +1572,7 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                   <div className="text-xl sm:text-2xl font-extrabold text-emerald-700">
                     {orders.filter(o => o.payment_method === 'paytech').length}
                   </div>
-                  <p className="text-[10px] text-[#6B655E]">Wave • OM • Free • Carte</p>
+                  <p className="text-[10px] text-[#6B655E]">Wave • OM • Free</p>
                 </div>
               </div>
 
@@ -3734,6 +3736,38 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                 <p className="text-xs opacity-75">
                   Mettez à jour le numéro WhatsApp pour les commandes directes et vos liens sociaux.
                 </p>
+              </div>
+
+              {/* Livraison offerte pour tous les produits */}
+              <div className={`rounded-2xl border p-4 flex items-center justify-between gap-4 ${isDark ? 'border-white/10 bg-white/5' : 'border-[#E8DCC2] bg-[#FAF8F5]'}`}>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold flex items-center gap-2">
+                    <Truck className="w-4 h-4 text-[#C59B3F]" />
+                    Livraison offerte pour tous les produits
+                  </p>
+                  <p className="text-[10px] text-[#6B655E] mt-1">
+                    {freeForAllDelivery
+                      ? 'Activé : toutes les commandes sont livrées gratuitement, quel que soit le panier.'
+                      : 'Désactivé : la livraison est offerte uniquement pour les parfums marqués « Livraison Gratuite ».'}
+                  </p>
+                </div>
+                <button
+                  onClick={async () => {
+                    const next = !freeForAllDelivery;
+                    const res = await saveDeliverySettings(next);
+                    if (res.success) {
+                      showFeedback(next
+                        ? 'Livraison offerte activée pour tous les produits'
+                        : 'Livraison offerte limitée aux parfums sélectionnés');
+                    } else {
+                      showFeedback(res.error || 'Erreur lors de l’enregistrement de la livraison');
+                    }
+                  }}
+                  className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors ${freeForAllDelivery ? 'bg-emerald-500' : 'bg-[#D8CFC0]'}`}
+                  aria-label="Activer ou désactiver la livraison offerte pour tous les produits"
+                >
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${freeForAllDelivery ? 'translate-x-6' : 'translate-x-1'}`} />
+                </button>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

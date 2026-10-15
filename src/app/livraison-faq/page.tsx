@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { CartDrawer } from '@/components/sections/CartDrawer';
-import { Truck, CreditCard, Clock, HelpCircle, MapPin } from 'lucide-react';
+import { Truck, Clock, HelpCircle, MapPin } from 'lucide-react';
 import { siteConfig } from '@/config/site';
 import { CartItem } from '@/types';
 

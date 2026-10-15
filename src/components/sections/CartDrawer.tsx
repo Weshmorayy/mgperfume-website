@@ -41,7 +41,7 @@ export function CartDrawer({
   onRemoveItem,
   onClearCart,
 }: CartDrawerProps) {
-  const { shippingZones, saveOrder, social } = useStore();
+  const { shippingZones, saveOrder, social, freeForAllDelivery } = useStore();
 
   const zonesList = shippingZones && shippingZones.length > 0 ? shippingZones : siteConfig.shippingZones;
 
@@ -51,6 +51,7 @@ export function CartDrawer({
   const [clientAddress, setClientAddress] = useState<string>('');
   const [isProcessingPaytech, setIsProcessingPaytech] = useState<boolean>(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [honeypot, setHoneypot] = useState<string>('');
 
   // Synchroniser la zone par défaut si zonesList change
   useEffect(() => {
@@ -83,7 +84,7 @@ export function CartDrawer({
   const itemsSubtotal = items.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
   
   // Si au moins un produit du panier bénéficie de la livraison gratuite (ou tous les articles), la livraison est offerte !
-  const isFreeDeliveryQualified = items.length > 0 && items.some(item => item.product.freeDelivery);
+  const isFreeDeliveryQualified = items.length > 0 && (freeForAllDelivery || items.some(item => item.product.freeDelivery));
   const effectiveShippingCost = isFreeDeliveryQualified ? 0 : currentZone.price;
   const grandTotal = items.length > 0 ? itemsSubtotal + effectiveShippingCost : 0;
 
@@ -143,16 +144,24 @@ export function CartDrawer({
     setFormError(null);
 
     const order = buildOrderObject('paytech');
+    let confirmedRef = order.ref_command;
 
     try {
-      // Sauvegarder d'abord dans Supabase / State local pour ne jamais perdre la commande
-      await saveOrder(order);
+      // Enregistrer la commande via le RPC sécurisé (livraison et prix recalculés côté serveur)
+      const saved = await saveOrder(order, honeypot);
+      if (!saved.success || !saved.order) {
+        setFormError(saved.error || 'Commande refusée. Vérifiez vos informations.');
+        setIsProcessingPaytech(false);
+        return;
+      }
+      const confirmedOrder = saved.order;
+      confirmedRef = confirmedOrder.ref_command;
 
       // Appeler le serveur Next.js pour initier PayTech de façon sécurisée
       const res = await fetch('/api/paytech/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order }),
+        body: JSON.stringify({ order: confirmedOrder }),
       });
 
       const data = await res.json();
@@ -166,7 +175,7 @@ export function CartDrawer({
       }
     } catch (err: any) {
       // Fallback gracieux si l'API route n'est pas joignable (ex: mode export statique pur)
-      window.location.href = `/commande-confirmee?ref=${encodeURIComponent(order.ref_command)}&mode=sandbox&total=${grandTotal}`;
+      window.location.href = `/commande-confirmee?ref=${encodeURIComponent(confirmedRef)}&mode=sandbox&total=${grandTotal}`;
     }
   };
 
@@ -176,8 +185,13 @@ export function CartDrawer({
 
     const order = buildOrderObject('whatsapp');
 
-    // Sauvegarder dans Supabase pour que la commande apparaisse immédiatement dans le tableau de bord Admin !
-    await saveOrder(order);
+    // Enregistrer via le RPC sécurisé : le serveur recalcule la livraison et renvoie la référence officielle
+    const saved = await saveOrder(order, honeypot);
+    if (!saved.success || !saved.order) {
+      setFormError(saved.error || 'Commande refusée. Vérifiez vos informations.');
+      return;
+    }
+    const confirmedOrder = saved.order;
 
     const orderLines = items.map(
       (item) => `• *${item.product.name}* (${item.product.brand}) x${item.quantity} — ${(item.product.price * item.quantity).toLocaleString('fr-FR')} FCFA`
@@ -186,17 +200,19 @@ export function CartDrawer({
     const message = [
       '👑 *NOUVELLE COMMANDE — MG PERFUME DAKAR*',
       '━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
-      `🔖 *Référence :* #${order.ref_command}`,
+      `🔖 *Référence :* #${confirmedOrder.ref_command}`,
       `👤 *Client :* ${clientName.trim()}`,
       `📞 *Téléphone :* ${clientPhone.trim()}`,
       `📍 *Adresse / Quartier :* ${clientAddress.trim()}`,
-      `🚚 *Zone :* ${currentZone.name} (+${currentZone.price.toLocaleString('fr-FR')} FCFA)`,
+      confirmedOrder.shipping_cost > 0
+        ? `🚚 *Zone :* ${currentZone.name} (+${confirmedOrder.shipping_cost.toLocaleString('fr-FR')} FCFA)`
+        : `🚚 *Zone :* ${currentZone.name} — Livraison offerte`,
       `⏱️ *Délai estimé :* ${currentZone.delay}`,
       '━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
       '🛍️ *Articles commandés :*',
       ...orderLines,
       '━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
-      `💰 *TOTAL À PAYER : ${grandTotal.toLocaleString('fr-FR')} FCFA*`,
+      `💰 *TOTAL À PAYER : ${Number(confirmedOrder.total_amount).toLocaleString('fr-FR')} FCFA*`,
       '💳 *Mode :* Paiement à la livraison (Espèces ou Wave)',
       '',
       'Bonjour MG Perfume, je souhaite valider cette commande svp ! 🙏',
@@ -374,6 +390,18 @@ export function CartDrawer({
                 </div>
               </div>
 
+              {/* Champ anti-robot (honeypot) — invisible pour un visiteur humain */}
+              <input
+                type="text"
+                name="company_website"
+                value={honeypot}
+                onChange={e => setHoneypot(e.target.value)}
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                className="hidden"
+              />
+
               {/* Form Validation Alert */}
               {formError && (
                 <div className="p-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-[11px] flex items-center gap-2">
@@ -422,7 +450,7 @@ export function CartDrawer({
                       <span>Payer en ligne • {grandTotal.toLocaleString('fr-FR')} FCFA</span>
                     </div>
                     <span className="text-[9px] text-[#F3E5AB] font-normal normal-case opacity-90">
-                      Wave • Orange Money • Free Money • Carte Bancaire
+                      Wave • Orange Money • Free Money
                     </span>
                   </button>
                 )}
