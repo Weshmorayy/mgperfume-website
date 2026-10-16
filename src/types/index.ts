@@ -124,6 +124,15 @@ export interface SiteConfig {
     whatsappChannel?: string;
   };
   shippingZones: ShippingZone[];
+  /**
+   * Repli statique des réglages de livraison. La source de vérité à
+   * l'exécution reste `site_settings.delivery` en base (voir StoreContext) :
+   * ces valeurs ne servent que si Supabase est injoignable.
+   */
+  delivery?: {
+    freeForAll?: boolean;
+    freeFrom?: number;
+  };
   editorialBanners?: EditorialBanner[];
   faqs?: FAQItem[];
   products: PerfumeProduct[];

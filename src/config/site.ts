@@ -27,8 +27,20 @@ export const siteConfig: SiteConfig = {
     { id: 'almadies-ngor', name: 'Almadies / Ngor / Ouakam / Yoff', price: 2000, delay: 'Sous 2h à 4h' },
     { id: 'banlieue-proche', name: 'Grand Yoff / Liberté / Sacré-Cœur / Parcelles', price: 2500, delay: 'Même jour' },
     { id: 'banlieue-eloignee', name: 'Guédiawaye / Pikine / Rufisque / Keur Massar', price: 3000, delay: '24h' },
-    { id: 'regions', name: 'Régions (Thiès, Mbour, Saint-Louis...)', price: 4000, delay: '24h à 48h (GP)' },
+    { id: 'regions', name: 'Régions (Thiès, Mbour, Saint-Louis...)', price: 4000, delay: '24h à 48h' },
   ],
+  /**
+   * Interrupteur global « livraison offerte partout » (`delivery.freeForAll`).
+   *
+   * Il rend les frais de port nuls sur tout le site sans toucher aux zones ni
+   * à leurs tarifs : le vendeur peut offrir la livraison pendant une
+   * promotion, puis la rétablir en décochant une case, sans ressaisir un seul
+   * prix. `freeFrom` (le seuil) reste actif en parallèle.
+   */
+  delivery: {
+    freeForAll: true,
+    freeFrom: 50000,
+  },
   editorialBanners: [
     {
       id: 'naimez-que-moi',

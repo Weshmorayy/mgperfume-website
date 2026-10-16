@@ -39,7 +39,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [contact, setContact] = useState<SiteConfig['contact']>(siteConfig.contact);
   const [social, setSocial] = useState<SiteConfig['social']>(siteConfig.social);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [freeForAllDelivery, setFreeForAllDelivery] = useState(false);
+  const [freeForAllDelivery, setFreeForAllDelivery] = useState(
+    siteConfig.delivery?.freeForAll ?? true
+  );
   const [isLoading, setIsLoading] = useState(true);
 
   // Helper to normalize DB product to PerfumeProduct

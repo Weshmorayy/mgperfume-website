@@ -4,13 +4,15 @@ import React, { useState, useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { CartDrawer } from '@/components/sections/CartDrawer';
-import { Truck, Clock, HelpCircle, MapPin } from 'lucide-react';
+import { Truck, HelpCircle } from 'lucide-react';
 import { siteConfig } from '@/config/site';
+import { useStore } from '@/context/StoreContext';
 import { CartItem } from '@/types';
 
 export default function LivraisonFaqPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const { shippingZones, freeForAllDelivery } = useStore();
 
   useEffect(() => {
     try {
@@ -21,6 +23,7 @@ export default function LivraisonFaqPage() {
 
   const totalCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   const faqs = siteConfig.faqs || [];
+  const zones = shippingZones && shippingZones.length > 0 ? shippingZones : siteConfig.shippingZones;
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-[#171513]">
@@ -52,15 +55,21 @@ export default function LivraisonFaqPage() {
           </div>
 
           <div className="divide-y divide-[#E8DCC2]">
-            {siteConfig.shippingZones.map(zone => (
+            {zones.map(zone => (
               <div key={zone.id} className="py-3 flex items-center justify-between text-xs sm:text-sm">
                 <div>
                   <p className="font-semibold text-[#171513]">{zone.name}</p>
                   <p className="text-[11px] text-[#9E968D]">Délai estimé : {zone.delay}</p>
                 </div>
-                <div className="font-extrabold text-[#967120]">
-                  {zone.price.toLocaleString('fr-FR')} FCFA
-                </div>
+                {freeForAllDelivery || zone.price <= 0 ? (
+                  <span className="text-[11px] font-extrabold uppercase tracking-wide text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                    Offerte
+                  </span>
+                ) : (
+                  <div className="font-extrabold text-[#967120]">
+                    {zone.price.toLocaleString('fr-FR')} FCFA
+                  </div>
+                )}
               </div>
             ))}
           </div>
