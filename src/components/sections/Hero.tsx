@@ -33,8 +33,8 @@ export function Hero({ onExploreClick, onSelectProduct }: HeroProps) {
           </h1>
 
           <p className="text-sm sm:text-base text-[#6B655E] max-w-xl mx-auto lg:mx-0 leading-relaxed">
-            Sélection exclusive de parfums orientaux, gourmands et boisés à Dakar. 
-            Flacons 100% originaux, certifiés et livrés chez vous en toute discrétion.
+            Découvrez une sélection exclusive de parfums de créateurs et de fragrances
+            orientales aux accords gourmands, boisés et envoûtants.
           </p>
 
           {/* Quick Actions */}

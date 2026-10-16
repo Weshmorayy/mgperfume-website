@@ -65,6 +65,7 @@ import {
   ArchiveRestore,
   ChevronLeft,
   Box,
+  BarChart3,
 } from 'lucide-react';
 import { siteConfig } from '@/config/site';
 import { PerfumeProduct, EditorialBanner, ShippingZone, FAQItem, ScentFamily, SiteBackup, Order, OrderStatus, PaymentStatus } from '@/types';
@@ -72,6 +73,7 @@ import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { useStore } from '@/context/StoreContext';
 import { compareNewestFirst } from '@/lib/productSort';
 import { availableFamilies, brandFacets, matchesSearchQuery } from '@/lib/productSearch';
+import StatsPanel from '@/components/admin/StatsPanel';
 
 export default function AdminDashboardPage() {
   const {
@@ -111,7 +113,7 @@ export default function AdminDashboardPage() {
   const [isNavDrawerOpen, setIsNavDrawerOpen] = useState(false);
 
   // Active Tab & Unsaved Changes Detection
-  const [activeTab, setActiveTab] = useState<'orders' | 'products' | 'promotions' | 'banners' | 'shipping' | 'faq' | 'supabase' | 'settings'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'products' | 'promotions' | 'banners' | 'shipping' | 'faq' | 'supabase' | 'settings' | 'stats'>('orders');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [pendingTabSwitch, setPendingTabSwitch] = useState<string | null>(null);
 
@@ -119,7 +121,7 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     try {
       const savedTab = localStorage.getItem('mg_admin_active_tab');
-      if (savedTab && ['orders', 'products', 'promotions', 'banners', 'shipping', 'faq', 'supabase', 'settings'].includes(savedTab)) {
+      if (savedTab && ['orders', 'products', 'promotions', 'banners', 'shipping', 'faq', 'supabase', 'settings', 'stats'].includes(savedTab)) {
         setActiveTab(savedTab as any);
       }
     } catch (_) {}
@@ -171,6 +173,22 @@ export default function AdminDashboardPage() {
   const [isCreatingSnapshot, setIsCreatingSnapshot] = useState(false);
   const [restoringSnapshotId, setRestoringSnapshotId] = useState<string | null>(null);
   const [hasCopiedSql, setHasCopiedSql] = useState(false);
+
+  // Restauration de snapshot : le mot de passe est exigé puis revérifié auprès
+  // de Supabase Auth avant d'écraser quoi que ce soit. Le mot de passe vit
+  // uniquement dans cet état et repart à zéro dès la fermeture de la boîte.
+  const [snapshotPendingRestore, setSnapshotPendingRestore] = useState<SiteBackup | null>(null);
+  const [restorePassword, setRestorePassword] = useState('');
+  const [restoreError, setRestoreError] = useState('');
+  const [isVerifyingRestore, setIsVerifyingRestore] = useState(false);
+
+  // Suppression de snapshot : confirmation obligatoire, pas de mot de passe.
+  const [snapshotPendingDelete, setSnapshotPendingDelete] = useState<SiteBackup | null>(null);
+
+  // Suppression de parfum : la boîte de dialogue propose l'archivage
+  // (isArchived) plutôt que la suppression définitive.
+  const [productPendingDelete, setProductPendingDelete] = useState<PerfumeProduct | null>(null);
+  const [isDeletingProduct, setIsDeletingProduct] = useState(false);
 
   // Edit Product Modal State
   const [editingProduct, setEditingProduct] = useState<PerfumeProduct | null>(null);
@@ -371,14 +389,42 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handleDeleteProductConfirm = async (id: string) => {
-    if (confirm('Voulez-vous vraiment supprimer ce parfum du catalogue ?')) {
-      const res = await deleteProduct(id);
-      if (res.success) {
-        showFeedback('Parfum supprimé du catalogue');
-      } else {
-        alert('Erreur : ' + res.error);
-      }
+  // Ouvre la boîte de dialogue de suppression : elle détaille ce qui disparaît
+  // du site et propose l'archivage, plus sûr, juste à côté du bouton danger.
+  const handleDeleteProductConfirm = (product: PerfumeProduct) => {
+    setProductPendingDelete(product);
+  };
+
+  // Archivage depuis la boîte de dialogue : le parfum sort de la boutique
+  // publique (voir le filtre !isArchived du catalogue) mais reste en base,
+  // donc récupérable depuis l'onglet « Produits Archivés / Masqués ».
+  const handleArchiveFromDeleteDialog = async () => {
+    const product = productPendingDelete;
+    if (!product) return;
+    setIsDeletingProduct(true);
+    const res = await saveProduct({ ...product, isArchived: true });
+    setIsDeletingProduct(false);
+    setProductPendingDelete(null);
+    if (res.success) {
+      showFeedback(`"${product.name}" archivé et masqué de la boutique !`);
+    } else {
+      alert('Erreur : ' + res.error);
+    }
+  };
+
+  // Suppression définitive : n'est appelée qu'après un clic explicite sur
+  // « Supprimer » à l'intérieur de la boîte de dialogue.
+  const handleConfirmDeleteProduct = async () => {
+    const product = productPendingDelete;
+    if (!product) return;
+    setIsDeletingProduct(true);
+    const res = await deleteProduct(product.id);
+    setIsDeletingProduct(false);
+    setProductPendingDelete(null);
+    if (res.success) {
+      showFeedback('Parfum supprimé du catalogue');
+    } else {
+      alert('Erreur : ' + res.error);
     }
   };
 
@@ -712,16 +758,90 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // Restore Snapshot
-  const handleRestoreSnapshot = async (snapshot: SiteBackup) => {
-    if (!confirm(`Voulez-vous vraiment restaurer la boutique avec le snapshot "${snapshot.backup_name}" ?`)) {
+  // Ouvre la boîte de dialogue de restauration : le mot de passe n'est
+  // demandé qu'ici, jamais stocké, et repart à zéro à chaque ouverture.
+  const handleRestoreSnapshot = (snapshot: SiteBackup) => {
+    setRestorePassword('');
+    setRestoreError('');
+    setSnapshotPendingRestore(snapshot);
+  };
+
+  const handleCancelRestoreSnapshot = () => {
+    setSnapshotPendingRestore(null);
+    setRestorePassword('');
+    setRestoreError('');
+  };
+
+  // Vérification du mot de passe puis restauration. Aucun mot de passe n'est
+  // écrit dans le code : on redemande à Supabase Auth de valider l'identité de
+  // l'admin déjà connecté (l'email vient de la session en cours).
+  const handleConfirmRestoreSnapshot = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const snapshot = snapshotPendingRestore;
+    if (!snapshot) return;
+
+    if (!supabase) {
+      setRestoreError('Supabase n’est pas configuré : restauration impossible.');
       return;
     }
 
+    const password = restorePassword.trim();
+    if (!password) {
+      setRestoreError('Saisissez votre mot de passe pour continuer.');
+      return;
+    }
+
+    setIsVerifyingRestore(true);
+    setRestoreError('');
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      const email = userData?.user?.email;
+      if (!email) {
+        setRestoreError('Session expirée : reconnectez-vous pour restaurer.');
+        return;
+      }
+
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        setRestoreError('Mot de passe incorrect.');
+        return;
+      }
+    } catch (err: any) {
+      setRestoreError('Vérification impossible : ' + (err.message || err));
+      return;
+    } finally {
+      setIsVerifyingRestore(false);
+    }
+
+    // Mot de passe confirmé : on ferme la boîte et on enchaîne sur la
+    // restauration, dont la logique reste inchangée.
+    setSnapshotPendingRestore(null);
+    setRestorePassword('');
+    await performRestoreSnapshot(snapshot);
+  };
+
+  // Restore Snapshot
+  //
+  // ── Ce que cette fonction restaure, et pourquoi tout ──────────────────────
+  // handleCreateSnapshot enregistre SIX collections : produits, bannières,
+  // frais de livraison, FAQ, coordonnées, réseaux sociaux. Pendant longtemps,
+  // seuls les produits revenaient : le vendeur croyait restaurer sa boutique
+  // et n'en récupérait qu'un cinquième. Les cinq autres sont désormais
+  // réécrites ici, avec les MÊMES conversions de champs que les boutons
+  // « Enregistrer » de chaque onglet (bannières camelCase → colonnes, FAQ
+  // renumérotées, réglages via updateSettings) : restaurer doit produire
+  // exactement ce qu'aurait produit l'enregistrement manuel.
+  //
+  // Chaque collection est gardée deux fois : `Array.isArray` ET une longueur
+  // non nulle. Un instantané ancien, créé avant qu'une collection existe,
+  // arrive avec un tableau vide ; le restaurer effacerait le contenu actuel au
+  // lieu de le remettre. Une table que l'instantané ne couvre pas n'est donc
+  // jamais touchée.
+  const performRestoreSnapshot = async (snapshot: SiteBackup) => {
     setRestoringSnapshotId(snapshot.id);
     try {
-      if (snapshot.products_data && Array.isArray(snapshot.products_data)) {
-        if (supabase) {
+      if (supabase) {
+        if (Array.isArray(snapshot.products_data) && snapshot.products_data.length > 0) {
           const formatted = snapshot.products_data.map(p => ({
             id: p.id,
             name: p.name,
@@ -739,8 +859,46 @@ export default function AdminDashboardPage() {
             base_notes: p.baseNotes || [],
             description: p.description || '',
             is_popular: Boolean(p.isPopular),
+            is_archived: Boolean(p.isArchived),
           }));
           await supabase.from('products').upsert(formatted, { onConflict: 'id' });
+        }
+
+        if (Array.isArray(snapshot.banners_data) && snapshot.banners_data.length > 0) {
+          const formatted = snapshot.banners_data.map((b, i) => ({
+            id: b.id,
+            tag: b.tag,
+            title: b.title,
+            image: b.image,
+            alt: b.alt || 'Bannière MG Perfume',
+            link_text: b.linkText || 'Découvrir',
+            href: b.href || '/boutique',
+            bg_color: b.bgColor || '#171513',
+            object_position: b.objectPosition || 'center',
+            display_order: i,
+          }));
+          await supabase.from('editorial_banners').upsert(formatted, { onConflict: 'id' });
+        }
+
+        if (Array.isArray(snapshot.shipping_data) && snapshot.shipping_data.length > 0) {
+          await supabase.from('shipping_zones').upsert(snapshot.shipping_data, { onConflict: 'id' });
+        }
+
+        if (Array.isArray(snapshot.faqs_data) && snapshot.faqs_data.length > 0) {
+          const formatted = snapshot.faqs_data.map((f, i) => ({
+            id: `faq-${i}`,
+            q: f.q,
+            a: f.a,
+            display_order: i,
+          }));
+          await supabase.from('faqs').upsert(formatted, { onConflict: 'id' });
+        }
+
+        if (snapshot.contact_data || snapshot.social_data) {
+          await updateSettings(
+            snapshot.contact_data ?? contact,
+            snapshot.social_data ?? social,
+          );
         }
       }
 
@@ -753,13 +911,20 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // Delete Snapshot
-  const handleDeleteSnapshot = async (id: string) => {
-    if (!confirm('Supprimer ce snapshot cloud ?')) return;
+  // Suppression de snapshot : plus de confirm() natif, on passe par la même
+  // boîte de dialogue stylée (sans mot de passe, un snapshot reste recréable).
+  const handleDeleteSnapshot = (snapshot: SiteBackup) => {
+    setSnapshotPendingDelete(snapshot);
+  };
+
+  const handleConfirmDeleteSnapshot = async () => {
+    const snapshot = snapshotPendingDelete;
+    if (!snapshot) return;
+    setSnapshotPendingDelete(null);
     try {
       if (supabase) {
-        await supabase.from('site_backups').delete().eq('id', id);
-        setSnapshots(prev => prev.filter(s => s.id !== id));
+        await supabase.from('site_backups').delete().eq('id', snapshot.id);
+        setSnapshots(prev => prev.filter(s => s.id !== snapshot.id));
         showFeedback('Snapshot supprimé');
       }
     } catch (err: any) {
@@ -1248,6 +1413,21 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                   </button>
 
                   <button
+                    onClick={() => handleTabClick('stats')}
+                    className={`w-full flex items-center justify-between py-3 px-3.5 rounded-xl text-xs font-bold tracking-wide transition-colors ${
+                      activeTab === 'stats'
+                        ? 'bg-[#171513] text-white shadow-xs font-bold'
+                        : 'hover:bg-black/5'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <BarChart3 className="w-4 h-4 text-[#C59B3F]" />
+                      <span>Statistiques</span>
+                    </div>
+                    <ChevronRight className="w-3.5 h-3.5 opacity-60" />
+                  </button>
+
+                  <button
                     onClick={() => handleTabClick('products')}
                     className={`w-full flex items-center justify-between py-3 px-3.5 rounded-xl text-xs font-bold tracking-wide transition-colors ${
                       activeTab === 'products'
@@ -1407,6 +1587,183 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
         </div>
       )}
 
+      {/* Delete Product Modal: supprimer reste possible, mais l'archivage est
+          proposé juste à côté parce qu'il ne perd rien. */}
+      {productPendingDelete && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs"
+          onClick={() => setProductPendingDelete(null)}
+        >
+          <div
+            className={`p-6 rounded-3xl border max-w-md w-full space-y-4 shadow-2xl ${cardBgClass}`}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 text-red-600 font-bold text-sm">
+              <AlertTriangle className="w-5 h-5" />
+              <span>Supprimer « {productPendingDelete.name} » ?</span>
+            </div>
+
+            <p className="text-xs opacity-75 leading-relaxed">
+              Le parfum disparaît de la boutique, pour de bon. Les photos, les notes et
+              les prix que vous avez saisis seront perdus : on ne pourra pas le remettre.
+              Si vous voulez simplement le retirer du site le temps de refaire le stock,
+              archivez-le. Il part dans « Produits Archivés / Masqués » et vous le
+              remettez en vente quand vous voulez.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setProductPendingDelete(null)}
+                className="px-4 py-2 rounded-full border text-xs font-bold"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={handleArchiveFromDeleteDialog}
+                disabled={isDeletingProduct}
+                className="px-4 py-2 rounded-full bg-[#171513] text-white text-xs font-bold flex items-center justify-center gap-1.5 disabled:opacity-50"
+              >
+                <Archive className="w-3.5 h-3.5 text-[#C59B3F]" />
+                <span>Archiver plutôt</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDeleteProduct}
+                disabled={isDeletingProduct}
+                className="px-4 py-2 rounded-full bg-red-600 text-white text-xs font-bold flex items-center justify-center gap-1.5 disabled:opacity-50"
+              >
+                {isDeletingProduct ? (
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Trash2 className="w-3.5 h-3.5" />
+                )}
+                <span>Supprimer</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Restore Snapshot Modal: le mot de passe est exigé ici et revérifié
+          auprès de Supabase Auth avant tout écrasement du catalogue. */}
+      {snapshotPendingRestore && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs"
+          onClick={handleCancelRestoreSnapshot}
+        >
+          <form
+            onSubmit={handleConfirmRestoreSnapshot}
+            className={`p-6 rounded-3xl border max-w-md w-full space-y-4 shadow-2xl ${cardBgClass}`}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 text-amber-600 font-bold text-sm">
+              <AlertTriangle className="w-5 h-5" />
+              <span>Restaurer « {snapshotPendingRestore.backup_name} » ?</span>
+            </div>
+
+            <p className="text-xs opacity-75 leading-relaxed">
+              La sauvegarde remet en ligne tout ce qu&apos;elle avait enregistré :
+              les parfums, les bannières, les frais de livraison, la FAQ, vos
+              coordonnées et vos réseaux. Tout ce que vous avez modifié depuis —
+              prix, stocks, fiches produit, textes — sera écrasé. Ce que cette
+              sauvegarde n&apos;avait pas encore enregistré reste intact.
+            </p>
+            <p className="text-xs opacity-75">
+              Tapez votre mot de passe administrateur pour confirmer.
+            </p>
+
+            <div className="space-y-1.5">
+              <label htmlFor="restore-password" className="block text-xs font-bold">
+                Votre mot de passe
+              </label>
+              <input
+                id="restore-password"
+                type="password"
+                autoComplete="current-password"
+                value={restorePassword}
+                onChange={e => setRestorePassword(e.target.value)}
+                placeholder="••••••••"
+                autoFocus
+                className={`w-full px-4 py-2.5 rounded-xl border text-xs focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
+              />
+            </div>
+
+            {restoreError && (
+              <p className="text-xs font-bold text-red-600 flex items-center gap-1.5">
+                <AlertCircle className="w-3.5 h-3.5" />
+                <span>{restoreError}</span>
+              </p>
+            )}
+
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={handleCancelRestoreSnapshot}
+                className="px-4 py-2 rounded-full border text-xs font-bold"
+              >
+                Annuler
+              </button>
+              <button
+                type="submit"
+                disabled={isVerifyingRestore}
+                className="px-4 py-2 rounded-full bg-red-600 text-white text-xs font-bold flex items-center gap-1.5 disabled:opacity-50"
+              >
+                {isVerifyingRestore ? (
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <FolderSync className="w-3.5 h-3.5" />
+                )}
+                <span>{isVerifyingRestore ? 'Vérification...' : 'Restaurer maintenant'}</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Delete Snapshot Modal: confirmation obligatoire, sans mot de passe. */}
+      {snapshotPendingDelete && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs"
+          onClick={() => setSnapshotPendingDelete(null)}
+        >
+          <div
+            className={`p-6 rounded-3xl border max-w-md w-full space-y-4 shadow-2xl ${cardBgClass}`}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 text-red-600 font-bold text-sm">
+              <AlertTriangle className="w-5 h-5" />
+              <span>Supprimer « {snapshotPendingDelete.backup_name} » ?</span>
+            </div>
+
+            <p className="text-xs opacity-75 leading-relaxed">
+              Cette sauvegarde sera effacée de Supabase. Elle ne pourra plus être
+              restaurée : vérifiez qu’une autre sauvegarde récente existe avant de
+              la supprimer.
+            </p>
+
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setSnapshotPendingDelete(null)}
+                className="px-4 py-2 rounded-full border text-xs font-bold"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDeleteSnapshot}
+                className="px-4 py-2 rounded-full bg-red-600 text-white text-xs font-bold flex items-center gap-1.5"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Supprimer la sauvegarde</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Save Notification */}
       {saveMessage && (
         <div className="fixed bottom-6 right-6 z-50 bg-[#C59B3F] text-[#171513] px-5 py-3 rounded-2xl font-bold text-xs shadow-2xl flex items-center gap-2 animate-in slide-in-from-bottom-5">
@@ -1436,6 +1793,7 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
             </div>
             <h1 className="font-luxury text-xl sm:text-2xl font-bold mt-0.5">
               {activeTab === 'orders' && 'Commandes & Ventes (WhatsApp)'}
+              {activeTab === 'stats' && 'Statistiques de Visites'}
               {activeTab === 'products' && 'Catalogue des Parfums Orientaux'}
               {activeTab === 'promotions' && 'Promotions & Badges'}
               {activeTab === 'banners' && 'Bannières de Shooting & Visuels'}
@@ -2234,7 +2592,7 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
 
                             {/* Delete Button */}
                             <button
-                              onClick={() => handleDeleteProductConfirm(product.id)}
+                              onClick={() => handleDeleteProductConfirm(product)}
                               className="p-1.5 rounded-xl bg-red-50 hover:bg-red-600 border border-red-200 text-red-500 hover:text-white transition-colors"
                               title="Supprimer définitivement"
                               aria-label="Supprimer"
@@ -2361,7 +2719,7 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                                   <Edit3 className="w-3.5 h-3.5" />
                                 </button>
                                 <button
-                                  onClick={() => handleDeleteProductConfirm(product.id)}
+                                  onClick={() => handleDeleteProductConfirm(product)}
                                   className="p-1.5 rounded-lg border border-red-300 text-red-500 hover:bg-red-600 hover:text-white transition-colors"
                                   title="Supprimer"
                                 >
@@ -3642,7 +4000,7 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                             </button>
 
                             <button
-                              onClick={() => handleDeleteSnapshot(s.id)}
+                              onClick={() => handleDeleteSnapshot(s)}
                               className="p-2 rounded-xl border border-red-200 text-red-500 hover:bg-red-50 transition-colors"
                               title="Supprimer ce snapshot"
                             >
@@ -3695,6 +4053,11 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
 
             </div>
           )}
+
+          {/* ============================================================ */}
+          {/* TAB 8: STATISTIQUES (mesure d'audience, même contrat que Continental) */}
+          {/* ============================================================ */}
+          {activeTab === 'stats' && <StatsPanel />}
 
           {/* ============================================================ */}
           {/* TAB 7: CONTACT & RÉSEAUX */}
