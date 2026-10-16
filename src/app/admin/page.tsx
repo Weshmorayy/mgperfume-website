@@ -215,24 +215,21 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const localAuth = typeof window !== 'undefined' ? localStorage.getItem('mg_admin_auth') : null;
-        const sessionAuth = typeof window !== 'undefined' ? sessionStorage.getItem('mg_admin_auth') : null;
-        
-        if (localAuth === 'true' || sessionAuth === 'true') {
-          setIsAuthenticated(true);
-          setIsAuthChecking(false);
-          return;
-        }
-
+        // Accès accordé uniquement par une session Supabase Auth réelle :
+        // aucun drapeau côté client ne peut ouvrir l'administration.
         if (supabase) {
           const { data } = await supabase.auth.getSession();
           if (data?.session) {
             setIsAuthenticated(true);
-            try { localStorage.setItem('mg_admin_auth', 'true'); } catch (_) {}
             setIsAuthChecking(false);
             return;
           }
         }
+        // Purge l'ancien drapeau laissé par une version précédente.
+        try {
+          localStorage.removeItem('mg_admin_auth');
+          sessionStorage.removeItem('mg_admin_auth');
+        } catch (_) {}
       } catch (_) {
       } finally {
         setIsAuthChecking(false);
@@ -260,37 +257,13 @@ export default function AdminDashboardPage() {
 
         if (!error && data.session) {
           setIsAuthenticated(true);
-          try {
-            localStorage.setItem('mg_admin_auth', 'true');
-            sessionStorage.setItem('mg_admin_auth', 'true');
-          } catch (_) {}
-          setAuthError('');
-          return;
-        }
-
-        // Fallback check if network issue or direct match
-        if (cleanLogin === 'admin' && cleanPass === 'MG@D4k4r-Parfum!2026') {
-          setIsAuthenticated(true);
-          try {
-            localStorage.setItem('mg_admin_auth', 'true');
-            sessionStorage.setItem('mg_admin_auth', 'true');
-          } catch (_) {}
           setAuthError('');
           return;
         }
 
         setAuthError(error ? error.message : 'Identifiants invalides.');
       } else {
-        if (cleanLogin === 'admin' && cleanPass === 'MG@D4k4r-Parfum!2026') {
-          setIsAuthenticated(true);
-          try {
-            localStorage.setItem('mg_admin_auth', 'true');
-            sessionStorage.setItem('mg_admin_auth', 'true');
-          } catch (_) {}
-          setAuthError('');
-          return;
-        }
-        setAuthError('Identifiants invalides.');
+        setAuthError('Configuration Supabase manquante : connexion impossible.');
       }
     } catch (err: any) {
       setAuthError('Erreur de connexion : ' + (err.message || err));
