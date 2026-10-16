@@ -27,7 +27,7 @@ export const siteConfig: SiteConfig = {
     { id: 'almadies-ngor', name: 'Almadies / Ngor / Ouakam / Yoff', price: 2000, delay: 'Sous 2h à 4h' },
     { id: 'banlieue-proche', name: 'Grand Yoff / Liberté / Sacré-Cœur / Parcelles', price: 2500, delay: 'Même jour' },
     { id: 'banlieue-eloignee', name: 'Guédiawaye / Pikine / Rufisque / Keur Massar', price: 3000, delay: '24h' },
-    { id: 'regions', name: 'Régions (Thiès, Mbour, Saint-Louis...)', price: 4000, delay: '24h à 48h' },
+    { id: 'regions', name: 'Régions (Thiès, Mbour, Saint-Louis...)', price: 4000, delay: '24h à 48h (GP)' },
   ],
   /**
    * Interrupteur global « livraison offerte partout » (`delivery.freeForAll`).
