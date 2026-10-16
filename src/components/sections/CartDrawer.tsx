@@ -11,10 +11,8 @@ import {
   ShoppingBag, 
   MapPin, 
   CheckCircle, 
-  CreditCard, 
   Phone, 
   User, 
-  Loader2, 
   AlertCircle,
   ShieldCheck,
   Sparkles
@@ -22,7 +20,14 @@ import {
 import { CartItem, Order } from '@/types';
 import { siteConfig } from '@/config/site';
 import { useStore } from '@/context/StoreContext';
-import { generateOrderReference } from '@/lib/paytech';
+
+/** Référence de commande lisible, ex. MGP-20261016-4821 */
+const generateOrderReference = (): string => {
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+  const randStr = Math.floor(1000 + Math.random() * 9000).toString();
+  return `MGP-${dateStr}-${randStr}`;
+};
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -49,7 +54,6 @@ export function CartDrawer({
   const [clientName, setClientName] = useState<string>('');
   const [clientPhone, setClientPhone] = useState<string>('');
   const [clientAddress, setClientAddress] = useState<string>('');
-  const [isProcessingPaytech, setIsProcessingPaytech] = useState<boolean>(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [honeypot, setHoneypot] = useState<string>('');
 
@@ -107,7 +111,7 @@ export function CartDrawer({
   };
 
   // Helper pour construire l'objet Order standard
-  const buildOrderObject = (paymentMethod: 'paytech' | 'whatsapp'): Order => {
+  const buildOrderObject = (paymentMethod: 'whatsapp' | 'cod'): Order => {
     const ref = generateOrderReference();
     return {
       id: `order-${Date.now()}`,
@@ -136,50 +140,7 @@ export function CartDrawer({
     };
   };
 
-  // 1. PAIEMENT EN LIGNE (PAYTECH - Wave, Orange Money, Carte)
-  const handlePaytechCheckout = async () => {
-    if (!validateForm()) return;
-
-    setIsProcessingPaytech(true);
-    setFormError(null);
-
-    const order = buildOrderObject('paytech');
-    let confirmedRef = order.ref_command;
-
-    try {
-      // Enregistrer la commande via le RPC sécurisé (livraison et prix recalculés côté serveur)
-      const saved = await saveOrder(order, honeypot);
-      if (!saved.success || !saved.order) {
-        setFormError(saved.error || 'Commande refusée. Vérifiez vos informations.');
-        setIsProcessingPaytech(false);
-        return;
-      }
-      const confirmedOrder = saved.order;
-      confirmedRef = confirmedOrder.ref_command;
-
-      // Appeler le serveur Next.js pour initier PayTech de façon sécurisée
-      const res = await fetch('/api/paytech/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order: confirmedOrder }),
-      });
-
-      const data = await res.json();
-
-      if (data.success && data.redirectUrl) {
-        onClearCart();
-        window.location.href = data.redirectUrl;
-      } else {
-        setFormError(data.error || 'Erreur lors de l’initialisation du paiement PayTech.');
-        setIsProcessingPaytech(false);
-      }
-    } catch (err: any) {
-      // Fallback gracieux si l'API route n'est pas joignable (ex: mode export statique pur)
-      window.location.href = `/commande-confirmee?ref=${encodeURIComponent(confirmedRef)}&mode=sandbox&total=${grandTotal}`;
-    }
-  };
-
-  // 2. COMMANDE SUR WHATSAPP (Paiement à la livraison)
+  // COMMANDE SUR WHATSAPP (Paiement à la livraison)
   const handleWhatsAppCheckout = async () => {
     if (!validateForm()) return;
 
@@ -432,30 +393,9 @@ export function CartDrawer({
                 </div>
               </div>
 
-              {/* DUAL CHECKOUT BUTTONS */}
+              {/* CHECKOUT BUTTON */}
               <div className="space-y-2 pt-1">
-                {/* 1. PayTech Button (Temporarily hidden from UI) */}
-                {false && (
-                  <button
-                    onClick={handlePaytechCheckout}
-                    disabled={isProcessingPaytech}
-                    className="w-full py-3 px-4 rounded-2xl bg-[#171513] hover:bg-[#C59B3F] text-white font-bold text-xs uppercase tracking-wider transition-all duration-300 flex flex-col items-center justify-center gap-0.5 shadow-md disabled:opacity-50"
-                  >
-                    <div className="flex items-center gap-2">
-                      {isProcessingPaytech ? (
-                        <Loader2 className="w-4 h-4 animate-spin text-[#C59B3F]" />
-                      ) : (
-                        <CreditCard className="w-4 h-4 text-[#C59B3F]" />
-                      )}
-                      <span>Payer en ligne • {grandTotal.toLocaleString('fr-FR')} FCFA</span>
-                    </div>
-                    <span className="text-[9px] text-[#F3E5AB] font-normal normal-case opacity-90">
-                      Wave • Orange Money • Free Money
-                    </span>
-                  </button>
-                )}
-
-                {/* 2. WhatsApp Button */}
+                {/* WhatsApp Button */}
                 <button
                   onClick={handleWhatsAppCheckout}
                   className="w-full py-2.5 px-4 rounded-2xl bg-white hover:bg-[#25D366] text-[#171513] hover:text-white border border-[#E8DCC2] hover:border-[#25D366] font-bold text-xs uppercase tracking-wider transition-all duration-300 flex flex-col items-center justify-center gap-0.5 shadow-xs group"

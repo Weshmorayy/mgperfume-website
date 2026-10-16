@@ -25,7 +25,7 @@ export interface PerfumeProduct {
   createdAt?: string;
 }
 
-export type PaymentMethod = 'paytech' | 'whatsapp' | 'cod';
+export type PaymentMethod = 'whatsapp' | 'cod';
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
 export type OrderStatus = 'new' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
 
@@ -53,8 +53,6 @@ export interface Order {
   payment_method: PaymentMethod;
   payment_status: PaymentStatus;
   order_status: OrderStatus;
-  paytech_token?: string;
-  paytech_redirect_url?: string;
   notes?: string;
   created_at?: string;
   updated_at?: string;

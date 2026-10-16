@@ -51,7 +51,7 @@ import {
   Flame,
   Star,
   Clock,
-  CreditCard,
+  Banknote,
   MessageCircle,
   ShoppingBag,
   User,
@@ -1462,7 +1462,7 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
               <span className="capitalize">{activeTab}</span>
             </div>
             <h1 className="font-luxury text-xl sm:text-2xl font-bold mt-0.5">
-              {activeTab === 'orders' && 'Commandes & Ventes (PayTech / WhatsApp)'}
+              {activeTab === 'orders' && 'Commandes & Ventes (WhatsApp)'}
               {activeTab === 'products' && 'Catalogue des Parfums Orientaux'}
               {activeTab === 'promotions' && 'Promotions & Badges'}
               {activeTab === 'banners' && 'Bannières de Shooting & Visuels'}
@@ -1521,7 +1521,7 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
         <main className="space-y-6">
           
           {/* ============================================================ */}
-          {/* TAB 0: COMMANDES (PAYTECH & WHATSAPP) */}
+          {/* TAB 0: COMMANDES (WHATSAPP) */}
           {/* ============================================================ */}
           {activeTab === 'orders' && (
             <div className="space-y-6">
@@ -1566,13 +1566,13 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
 
                 <div className={`p-4 sm:p-5 rounded-2xl border ${cardBgClass} space-y-1`}>
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#9E968D]">Paiements PayTech</span>
-                    <CreditCard className="w-4 h-4 text-emerald-600" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#9E968D]">Commandes WhatsApp</span>
+                    <MessageCircle className="w-4 h-4 text-emerald-600" />
                   </div>
                   <div className="text-xl sm:text-2xl font-extrabold text-emerald-700">
-                    {orders.filter(o => o.payment_method === 'paytech').length}
+                    {orders.filter(o => o.payment_method === 'whatsapp').length}
                   </div>
-                  <p className="text-[10px] text-[#6B655E]">Wave • OM • Free</p>
+                  <p className="text-[10px] text-[#6B655E]">Paiement à la livraison</p>
                 </div>
               </div>
 
@@ -1626,8 +1626,8 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                       className={`w-full px-3 py-2 rounded-xl border text-xs focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
                     >
                       <option value="all">Tous les modes de règlement</option>
-                      <option value="paytech">PayTech (Paiement en ligne)</option>
                       <option value="whatsapp">WhatsApp (Paiement à la livraison)</option>
+                      <option value="cod">Paiement à la livraison</option>
                       <option value="paid">Payé</option>
                       <option value="pending">En attente de paiement</option>
                     </select>
@@ -1648,7 +1648,7 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                     if (!match) return false;
                   }
                   if (orderStatusFilter !== 'all' && o.order_status !== orderStatusFilter) return false;
-                  if (orderPaymentFilter === 'paytech' && o.payment_method !== 'paytech') return false;
+                  if (orderPaymentFilter === 'cod' && o.payment_method !== 'cod') return false;
                   if (orderPaymentFilter === 'whatsapp' && o.payment_method !== 'whatsapp') return false;
                   if (orderPaymentFilter === 'paid' && o.payment_status !== 'paid') return false;
                   if (orderPaymentFilter === 'pending' && o.payment_status !== 'pending') return false;
@@ -1661,7 +1661,7 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
                       <ShoppingBag className="w-10 h-10 text-[#C59B3F]/40 mx-auto" />
                       <h3 className="font-luxury text-base font-bold">Aucune commande trouvée</h3>
                       <p className="text-xs text-[#6B655E] max-w-sm mx-auto">
-                        Aucune commande ne correspond à vos filtres actuels. Dès qu’un client commande via PayTech ou WhatsApp, elle apparaîtra ici.
+                        Aucune commande ne correspond à vos filtres actuels. Dès qu’un client commande via WhatsApp, elle apparaîtra ici.
                       </p>
                     </div>
                   );
@@ -1692,19 +1692,19 @@ CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);
 
                           <div className="flex flex-wrap items-center gap-2">
                             {/* Payment Badge */}
-                            {order.payment_method === 'paytech' ? (
+                            {order.payment_method === 'cod' ? (
                               <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border flex items-center gap-1 ${
                                 order.payment_status === 'paid'
                                   ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
                                   : 'bg-amber-50 text-amber-800 border-amber-300'
                               }`}>
-                                <CreditCard className="w-3 h-3" />
-                                {order.payment_status === 'paid' ? 'Payé (PayTech)' : 'PayTech (En attente)'}
+                                <Banknote className="w-3 h-3" />
+                                {order.payment_status === 'paid' ? 'Payé (À la livraison)' : 'Paiement à la livraison'}
                               </span>
                             ) : (
                               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-sky-50 text-sky-800 border border-sky-300 flex items-center gap-1">
                                 <MessageCircle className="w-3 h-3 text-sky-600" />
-                                Paiement à la livraison
+                                Commande WhatsApp
                               </span>
                             )}
 
