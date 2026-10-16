@@ -16,7 +16,7 @@ This document defines the permanent engineering, architectural, and operational 
 - **Framework**: Next.js (App Router) + TypeScript + Tailwind CSS
 - **Icons**: `lucide-react` only.
 - **Styling**: Tailwind CSS utility classes with CSS variables defined in `src/app/globals.css`.
-- **Export Compatibility**: Every component and page must build cleanly in both `output: 'export'` (100% static HTML) and `output: 'standalone'` (Docker / Node server).
+- **Export Compatibility**: Every component and page must build cleanly in both `output: 'export'` (100% static HTML) and `output: 'standalone'` (Docker / Node server). **One deliberate exception, decided by the project owner:** `src/app/api/admin/analytics/route.ts` is a server route and cannot be statically exported. Because of it, `output: 'export'` is no longer a gate for this project; `standalone` (Docker / Coolify) is the production target. Any other new API route still requires the same explicit decision.
 - **No Client State Bloat**: Use Server Components by default. Add `'use client'` only where user interactivity is strictly required (e.g., FAQ accordion toggle, mobile navigation drawer, form submission).
 
 ---

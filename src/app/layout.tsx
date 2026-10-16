@@ -2,6 +2,13 @@ import type { Metadata, Viewport } from 'next';
 import { SchemaOrg } from '@/components/seo/SchemaOrg';
 import { generatePageMetadata } from '@/lib/seo';
 import { StoreProvider } from '@/context/StoreContext';
+import {
+  BEFORE_SEND_HANDLER,
+  BEFORE_SEND_SOURCE,
+  UMAMI_SCRIPT_SRC,
+  UMAMI_WEBSITE_ID,
+  isAnalyticsEnabled,
+} from '@/config/analytics';
 import './globals.css';
 
 export const viewport: Viewport = {
@@ -29,6 +36,34 @@ export default function RootLayout({
           rel="stylesheet"
         />
         <SchemaOrg />
+        {/*
+          * Mesure d'audience — Umami, auto-hébergé.
+          *
+          * Les deux balises sont écrites ici, dans la partie serveur du
+          * document, et non chargées par un composant client :
+          *
+          *   • la première définit le filtre que le script appellera avant
+          *     chaque envoi. Elle doit être exécutée AVANT le script, sinon
+          *     Umami ne trouverait pas la fonction et enverrait tout — y
+          *     compris les visites d'administration ;
+          *   • la seconde charge le script lui-même.
+          *
+          * Aucune des deux n'est émise tant que les variables publiques
+          * d'Umami sont absentes : sans elles, le site n'appelle rien à
+          * l'extérieur, et le panneau de statistiques reste sur son compteur
+          * de repli.
+          */}
+        {isAnalyticsEnabled && (
+          <>
+            <script dangerouslySetInnerHTML={{ __html: BEFORE_SEND_SOURCE }} />
+            <script
+              defer
+              src={UMAMI_SCRIPT_SRC}
+              data-website-id={UMAMI_WEBSITE_ID}
+              data-before-send={BEFORE_SEND_HANDLER}
+            />
+          </>
+        )}
       </head>
       <body className="min-h-screen bg-[#0A0908] text-[#FBF8F3] antialiased">
         <StoreProvider>
