@@ -7,10 +7,13 @@
  * écran de statistiques qui reste vide.
  *
  * ── Le nom du script ──────────────────────────────────────────────────────
- * `measure.js` et non `script.js`. Le nom standard figure sur les listes de
+ * `measure` et non `script.js`. Le nom standard figure sur les listes de
  * blocage publicitaire, et un visiteur sur trois utilise un bloqueur. Le nom
  * est fixé des deux côtés (côté serveur Umami, cette constante ici) : les
  * changer séparément couperait la mesure sans le moindre message d'erreur.
+ *
+ * Sans extension : Umami v3 sert le tracker à `/<TRACKER_SCRIPT_NAME>` tel
+ * quel. `/measure.js` répond 404 (vérifié par sonde HTTP le 2026-10-16).
  */
 
 /** Domaine public d'Umami, sans barre oblique finale. */
@@ -21,7 +24,7 @@ export const UMAMI_WEBSITE_ID = (process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID ?? '')
 /** `true` seulement si les deux variables publiques sont renseignées. */
 export const isAnalyticsEnabled = Boolean(UMAMI_URL && UMAMI_WEBSITE_ID);
 
-export const UMAMI_SCRIPT_SRC = isAnalyticsEnabled ? `${UMAMI_URL}/measure.js` : '';
+export const UMAMI_SCRIPT_SRC = isAnalyticsEnabled ? `${UMAMI_URL}/measure` : '';
 
 /**
  * Nom de la fonction de filtrage, telle que `data-before-send` l'attend.
