@@ -170,16 +170,24 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           setFaqs(dbFaqs.map(f => ({ q: f.q, a: f.a })));
         }
 
-        // Fetch orders (fail silently if table not yet created)
+        // Commandes : table privée (RLS). Sans session administrateur, PostgREST
+        // renvoie [] — et écrire ce [] dans le cache effacerait l'historique
+        // local du client, donc sa page de confirmation. On ne lit donc les
+        // commandes QUE si une session est ouverte, et on n'écrase jamais le
+        // cache par une liste vide.
         try {
-          const { data: dbOrders, error: orderErr } = await supabase
-            .from('orders')
-            .select('*')
-            .order('created_at', { ascending: false });
+          const { data: { session } } = await supabase.auth.getSession();
 
-          if (!orderErr && dbOrders) {
-            setOrders(dbOrders);
-            try { localStorage.setItem('mg_orders_cache', JSON.stringify(dbOrders)); } catch (_) {}
+          if (session) {
+            const { data: dbOrders, error: orderErr } = await supabase
+              .from('orders')
+              .select('*')
+              .order('created_at', { ascending: false });
+
+            if (!orderErr && dbOrders && dbOrders.length > 0) {
+              setOrders(dbOrders);
+              try { localStorage.setItem('mg_orders_cache', JSON.stringify(dbOrders)); } catch (_) {}
+            }
           }
         } catch (_) {}
       } catch (err) {
@@ -205,6 +213,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   }, [products, banners, shippingZones, faqs, contact, social, freeForAllDelivery]);
 
   useEffect(() => {
+    // Ne jamais écraser le cache par une liste vide : au premier rendu `orders`
+    // vaut [] avant la lecture du cache, et un résultat vide peut aussi venir
+    // d'un refus RLS. Écrire ce [] effacerait la commande que le client vient
+    // de passer — donc sa page de confirmation.
+    if (orders.length === 0) return;
     try {
       localStorage.setItem('mg_orders_cache', JSON.stringify(orders));
     } catch (_) {}

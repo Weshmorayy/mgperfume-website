@@ -13,10 +13,11 @@
 --   * site_settings     → table ABSENTE avant cette migration, alors que le
 --                         client l'utilisait déjà (contact / réseaux sociaux)
 --
--- NOTE D'APPLICATION : le helper `exec_sql(query text)` de la base exécute UNE
--- seule instruction par appel et ne renvoie aucune ligne. Ce fichier est la
--- référence documentaire ; l'application réelle se fait instruction par
--- instruction (voir ~/scratch/mgperfume-safeguards/mig/).
+-- NOTE D'APPLICATION : le helper `exec_sql(query text)` utilisé lors de
+-- l'application initiale a été SUPPRIMÉ depuis — il était exécutable par anon
+-- (voir 20261016_durcissement_rls.sql). Le runner DDL est désormais
+-- `mg_migrate(q text)`, réservé à service_role. Ce fichier reste la référence
+-- documentaire de la migration.
 -- ============================================================================
 
 

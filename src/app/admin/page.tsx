@@ -276,6 +276,9 @@ export default function AdminDashboardPage() {
         if (!error && data.session) {
           setIsAuthenticated(true);
           setAuthError('');
+          // Les commandes sont désormais privées (RLS) : la lecture n'aboutit
+          // qu'avec une session ouverte. On recharge donc après connexion.
+          await refreshStore();
           return;
         }
 
@@ -1005,35 +1008,165 @@ CREATE TABLE IF NOT EXISTS public.site_backups (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
+-- ==============================================================================
+-- SÉCURITÉ (RLS) — LECTURE PUBLIQUE DU CONTENU VITRINE, ÉCRITURE ADMIN SEULE
+--
+-- ⚠ Chaque policy est limitée par une clause « TO ». Une policy sans « TO »
+--   s'applique à PUBLIC, donc à « anon » — et la clé « anon » est PUBLIQUE : elle
+--   est livrée dans le bundle JavaScript du site statique.
+--   « orders » (nom, téléphone, adresse) et « site_backups » ne sont jamais
+--   lisibles publiquement.
+-- ==============================================================================
+
+CREATE TABLE IF NOT EXISTS public.site_admins (
+  user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  email TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE public.site_admins ENABLE ROW LEVEL SECURITY;
+-- RLS activée sans policy : PostgREST refuse tout accès à anon et authenticated.
+REVOKE ALL ON public.site_admins FROM PUBLIC, anon, authenticated;
+GRANT ALL ON public.site_admins TO service_role;
+
+-- Vrai si l'appelant est administrateur du site.
+CREATE OR REPLACE FUNCTION public.is_site_admin()
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path TO 'public', 'pg_catalog'
+AS $fn$ SELECT EXISTS (SELECT 1 FROM public.site_admins a WHERE a.user_id = auth.uid()) $fn$;
+
+-- Une fonction est exécutable par PUBLIC par défaut : c'est exactement l'oubli
+-- qui avait rendu l'ancien helper « exec_sql » exploitable par n'importe qui.
+REVOKE ALL ON FUNCTION public.is_site_admin() FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.is_site_admin() TO authenticated, service_role;
+
+-- Rattache le compte administrateur par son e-mail (rien si le compte n'existe pas).
+INSERT INTO public.site_admins (user_id, email)
+SELECT u.id, u.email FROM auth.users u WHERE u.email = 'admin@mgperfume.store'
+ON CONFLICT (user_id) DO NOTHING;
+
+ALTER TABLE public.products          ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.editorial_banners ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.shipping_zones ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.faqs ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.site_backups ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.shipping_zones    ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.faqs              ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.site_backups      ENABLE ROW LEVEL SECURITY;
 
+-- ── products ──────────────────────────────────────────────────────────────
 DROP POLICY IF EXISTS "Public read products" ON public.products;
-CREATE POLICY "Public read products" ON public.products FOR SELECT USING (true);
 DROP POLICY IF EXISTS "Full access products" ON public.products;
-CREATE POLICY "Full access products" ON public.products FOR ALL USING (true);
+DROP POLICY IF EXISTS "Admin insert products" ON public.products;
+DROP POLICY IF EXISTS "Admin update products" ON public.products;
+DROP POLICY IF EXISTS "Admin delete products" ON public.products;
+CREATE POLICY "Public read products" ON public.products
+  FOR SELECT TO anon, authenticated USING (true);
+CREATE POLICY "Admin insert products" ON public.products
+  FOR INSERT TO authenticated WITH CHECK (public.is_site_admin());
+CREATE POLICY "Admin update products" ON public.products
+  FOR UPDATE TO authenticated
+  USING (public.is_site_admin()) WITH CHECK (public.is_site_admin());
+CREATE POLICY "Admin delete products" ON public.products
+  FOR DELETE TO authenticated USING (public.is_site_admin());
 
+-- ── editorial_banners ─────────────────────────────────────────────────────
 DROP POLICY IF EXISTS "Public read banners" ON public.editorial_banners;
-CREATE POLICY "Public read banners" ON public.editorial_banners FOR SELECT USING (true);
 DROP POLICY IF EXISTS "Full access banners" ON public.editorial_banners;
-CREATE POLICY "Full access banners" ON public.editorial_banners FOR ALL USING (true);
+DROP POLICY IF EXISTS "Admin insert banners" ON public.editorial_banners;
+DROP POLICY IF EXISTS "Admin update banners" ON public.editorial_banners;
+DROP POLICY IF EXISTS "Admin delete banners" ON public.editorial_banners;
+CREATE POLICY "Public read banners" ON public.editorial_banners
+  FOR SELECT TO anon, authenticated USING (true);
+CREATE POLICY "Admin insert banners" ON public.editorial_banners
+  FOR INSERT TO authenticated WITH CHECK (public.is_site_admin());
+CREATE POLICY "Admin update banners" ON public.editorial_banners
+  FOR UPDATE TO authenticated
+  USING (public.is_site_admin()) WITH CHECK (public.is_site_admin());
+CREATE POLICY "Admin delete banners" ON public.editorial_banners
+  FOR DELETE TO authenticated USING (public.is_site_admin());
 
+-- ── shipping_zones ────────────────────────────────────────────────────────
 DROP POLICY IF EXISTS "Public read shipping" ON public.shipping_zones;
-CREATE POLICY "Public read shipping" ON public.shipping_zones FOR SELECT USING (true);
 DROP POLICY IF EXISTS "Full access shipping" ON public.shipping_zones;
-CREATE POLICY "Full access shipping" ON public.shipping_zones FOR ALL USING (true);
+DROP POLICY IF EXISTS "Admin insert shipping" ON public.shipping_zones;
+DROP POLICY IF EXISTS "Admin update shipping" ON public.shipping_zones;
+DROP POLICY IF EXISTS "Admin delete shipping" ON public.shipping_zones;
+CREATE POLICY "Public read shipping" ON public.shipping_zones
+  FOR SELECT TO anon, authenticated USING (true);
+CREATE POLICY "Admin insert shipping" ON public.shipping_zones
+  FOR INSERT TO authenticated WITH CHECK (public.is_site_admin());
+CREATE POLICY "Admin update shipping" ON public.shipping_zones
+  FOR UPDATE TO authenticated
+  USING (public.is_site_admin()) WITH CHECK (public.is_site_admin());
+CREATE POLICY "Admin delete shipping" ON public.shipping_zones
+  FOR DELETE TO authenticated USING (public.is_site_admin());
 
+-- ── faqs ──────────────────────────────────────────────────────────────────
 DROP POLICY IF EXISTS "Public read faqs" ON public.faqs;
-CREATE POLICY "Public read faqs" ON public.faqs FOR SELECT USING (true);
-DROP POLICY IF EXISTS "Full access faqs" ON public.faqs FOR ALL USING (true);
+DROP POLICY IF EXISTS "Full access faqs" ON public.faqs;
+DROP POLICY IF EXISTS "Admin insert faqs" ON public.faqs;
+DROP POLICY IF EXISTS "Admin update faqs" ON public.faqs;
+DROP POLICY IF EXISTS "Admin delete faqs" ON public.faqs;
+CREATE POLICY "Public read faqs" ON public.faqs
+  FOR SELECT TO anon, authenticated USING (true);
+CREATE POLICY "Admin insert faqs" ON public.faqs
+  FOR INSERT TO authenticated WITH CHECK (public.is_site_admin());
+CREATE POLICY "Admin update faqs" ON public.faqs
+  FOR UPDATE TO authenticated
+  USING (public.is_site_admin()) WITH CHECK (public.is_site_admin());
+CREATE POLICY "Admin delete faqs" ON public.faqs
+  FOR DELETE TO authenticated USING (public.is_site_admin());
 
+-- ── site_backups — PRIVÉ (un snapshot contient tout le catalogue) ─────────
 DROP POLICY IF EXISTS "Public read backups" ON public.site_backups;
-CREATE POLICY "Public read backups" ON public.site_backups FOR SELECT USING (true);
 DROP POLICY IF EXISTS "Full access backups" ON public.site_backups;
-CREATE POLICY "Full access backups" ON public.site_backups FOR ALL USING (true);`;
+DROP POLICY IF EXISTS "Admin read backups" ON public.site_backups;
+DROP POLICY IF EXISTS "Admin insert backups" ON public.site_backups;
+DROP POLICY IF EXISTS "Admin update backups" ON public.site_backups;
+DROP POLICY IF EXISTS "Admin delete backups" ON public.site_backups;
+CREATE POLICY "Admin read backups" ON public.site_backups
+  FOR SELECT TO authenticated USING (public.is_site_admin());
+CREATE POLICY "Admin insert backups" ON public.site_backups
+  FOR INSERT TO authenticated WITH CHECK (public.is_site_admin());
+CREATE POLICY "Admin update backups" ON public.site_backups
+  FOR UPDATE TO authenticated
+  USING (public.is_site_admin()) WITH CHECK (public.is_site_admin());
+CREATE POLICY "Admin delete backups" ON public.site_backups
+  FOR DELETE TO authenticated USING (public.is_site_admin());
+
+-- ── orders et site_settings ───────────────────────────────────────────────
+-- Ces deux tables ne sont pas créées ci-dessus : elles sont durcies seulement
+-- si elles existent, pour que ce script reste rejouable sur une base neuve.
+DO $guard$
+BEGIN
+  IF to_regclass('public.orders') IS NOT NULL THEN
+    EXECUTE 'ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY';
+    EXECUTE 'DROP POLICY IF EXISTS "Public select own order" ON public.orders';
+    EXECUTE 'DROP POLICY IF EXISTS "Full access orders" ON public.orders';
+    EXECUTE 'DROP POLICY IF EXISTS "Admin read orders" ON public.orders';
+    EXECUTE 'DROP POLICY IF EXISTS "Admin update orders" ON public.orders';
+    EXECUTE 'DROP POLICY IF EXISTS "Admin delete orders" ON public.orders';
+    EXECUTE 'CREATE POLICY "Admin read orders" ON public.orders FOR SELECT TO authenticated USING (public.is_site_admin())';
+    EXECUTE 'CREATE POLICY "Admin update orders" ON public.orders FOR UPDATE TO authenticated USING (public.is_site_admin()) WITH CHECK (public.is_site_admin())';
+    EXECUTE 'CREATE POLICY "Admin delete orders" ON public.orders FOR DELETE TO authenticated USING (public.is_site_admin())';
+    -- Aucune policy INSERT : la commande passe par le RPC create_order
+    -- (SECURITY DEFINER), qui recalcule prix et livraison côté serveur.
+  END IF;
+
+  IF to_regclass('public.site_settings') IS NOT NULL THEN
+    EXECUTE 'ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY';
+    EXECUTE 'DROP POLICY IF EXISTS "Public read site_settings" ON public.site_settings';
+    EXECUTE 'DROP POLICY IF EXISTS "Public insert site_settings" ON public.site_settings';
+    EXECUTE 'DROP POLICY IF EXISTS "Public update site_settings" ON public.site_settings';
+    EXECUTE 'DROP POLICY IF EXISTS "Admin insert site_settings" ON public.site_settings';
+    EXECUTE 'DROP POLICY IF EXISTS "Admin update site_settings" ON public.site_settings';
+    EXECUTE 'CREATE POLICY "Public read site_settings" ON public.site_settings FOR SELECT TO anon, authenticated USING (true)';
+    EXECUTE 'CREATE POLICY "Admin insert site_settings" ON public.site_settings FOR INSERT TO authenticated WITH CHECK (public.is_site_admin())';
+    EXECUTE 'CREATE POLICY "Admin update site_settings" ON public.site_settings FOR UPDATE TO authenticated USING (public.is_site_admin()) WITH CHECK (public.is_site_admin())';
+  END IF;
+END $guard$;
+`;
 
     navigator.clipboard.writeText(SQL_TEXT);
     setHasCopiedSql(true);
