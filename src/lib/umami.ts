@@ -217,14 +217,21 @@ async function get<T>(path: string, params: Record<string, string | number | und
 
 /* ──────────────────────────── formes de l'API ───────────────────────────── */
 
-/** Umami renvoie `{value, prev}` pour chaque compteur résumé. */
-interface Counter { value: number; prev: number }
+/**
+ * Un compteur résumé. Selon la version d'Umami : un nombre plat
+ * (`{"pageviews":2}`, la forme réellement renvoyée en production) ou un objet
+ * `{value, prev}` (la forme supposée à l'écriture du code). Ne lire que la
+ * seconde faisait afficher des zéros alors que les chiffres étaient arrivés.
+ */
+type Counter = number | { value?: number; prev?: number }
 interface Summary {
-  pageviews: Counter
-  visitors: Counter
-  visits: Counter
-  bounces: Counter
-  totaltime: Counter
+  pageviews?: Counter
+  visitors?: Counter
+  visits?: Counter
+  bounces?: Counter
+  totaltime?: Counter
+  /** Umami v3 place la période précédente dans `comparison`, pas dans `prev`. */
+  comparison?: Partial<Record<'pageviews' | 'visitors' | 'visits' | 'bounces' | 'totaltime', number>>
 }
 
 /**
@@ -237,11 +244,22 @@ interface Series { pageviews: Point[]; sessions: Point[] }
 
 /* ──────────────────────────── mise en forme ─────────────────────────────── */
 
-/** `2026-10-05 18:00:00` → `Date`. Le fuseau étant UTC+0, `Z` est exact. */
+/**
+ * `x` → `Date`. Umami a renvoyé trois formes selon ses versions :
+ * `2026-10-05`, `2026-10-05 18:00:00`, et désormais de l'ISO déjà complet
+ * (`2026-10-16T00:00:00Z`).
+ *
+ * La branche ISO manquait : sur la troisième forme, le `Z` était ajouté une
+ * seconde fois (`…ZZ`) et la date devenait invalide. `bucketKey` appelle
+ * ensuite `toISOString()`, qui lève un `RangeError` — une erreur non typée,
+ * que la route traduisait par « Umami est injoignable » alors qu'Umami venait
+ * de répondre 200. Le fuseau étant UTC+0, `Z` est exact.
+ */
 function parseX(x: string): Date {
   if (/^\d{4}$/.test(x)) return new Date(`${x}-01-01T00:00:00Z`)
   if (/^\d{4}-\d{2}$/.test(x)) return new Date(`${x}-01T00:00:00Z`)
   if (/^\d{4}-\d{2}-\d{2}$/.test(x)) return new Date(`${x}T00:00:00Z`)
+  if (/^\d{4}-\d{2}-\d{2}T/.test(x)) return new Date(x)
   return new Date(`${x.replace(' ', 'T')}Z`)
 }
 
@@ -382,11 +400,17 @@ function toSeries(
   const visitors = new Map<string, number>()
 
   for (const p of raw.pageviews ?? []) {
-    const key = bucketKey(parseX(p.x), granularity)
+    const date = parseX(p.x)
+    // Un point illisible ne doit pas emporter l'onglet entier : il est ignoré,
+    // la case reste à zéro sur l'axe.
+    if (Number.isNaN(date.getTime())) continue
+    const key = bucketKey(date, granularity)
     views.set(key, (views.get(key) ?? 0) + p.y)
   }
   for (const p of raw.sessions ?? []) {
-    const key = bucketKey(parseX(p.x), granularity)
+    const date = parseX(p.x)
+    if (Number.isNaN(date.getTime())) continue
+    const key = bucketKey(date, granularity)
     visitors.set(key, (visitors.get(key) ?? 0) + p.y)
   }
 
@@ -402,7 +426,11 @@ function toSeries(
   })
 }
 
-const n = (counter: Counter | undefined) => Math.max(0, counter?.value ?? 0)
+/** Valeur d'un compteur, quelle que soit la forme reçue. */
+const n = (counter: Counter | undefined) => {
+  const value = typeof counter === 'number' ? counter : counter?.value
+  return typeof value === 'number' && Number.isFinite(value) ? Math.max(0, value) : 0
+}
 
 /**
  * Tout ce que l'onglet Statistiques affiche côté audience, en une fois.
@@ -446,8 +474,15 @@ export async function getAudience(
   const asRows = (points: Point[]): AudienceRow[] =>
     (points ?? []).map((p) => ({ value: p.x, count: p.y }))
 
-  /** Umami rend la période précédente dans `prev`. Absente, elle vaut zéro. */
-  const prevOf = (counter: Counter | undefined) => Math.max(0, counter?.prev ?? 0)
+  /**
+   * Période précédente : `prev` dans l'ancienne forme, `comparison` dans la
+   * nouvelle. Absente, elle vaut zéro.
+   */
+  const prevOf = (counter: Counter | undefined, key: 'pageviews' | 'visitors' | 'visits') => {
+    const inCounter = typeof counter === 'object' && counter !== null ? counter.prev : undefined
+    const value = typeof inCounter === 'number' ? inCounter : summary.comparison?.[key]
+    return typeof value === 'number' && Number.isFinite(value) ? Math.max(0, value) : 0
+  }
 
   const pageviews = n(summary.pageviews)
   const visits = n(summary.visits)
@@ -458,7 +493,7 @@ export async function getAudience(
   // filtre annule l'envoi en navigation interne). Ce nettoyage est une seconde
   // barrière : une visite d'administration enregistrée avant la mise en place
   // du filtre ne doit pas figurer dans « pages les plus consultées ».
-  const publicPages = asRows(pages).filter((p) => !p.value.startsWith('/admin'))
+  const publicPages = asRows(pages).filter((p) => !String(p.value).startsWith('/admin'))
 
   return {
     configured: true,
@@ -474,9 +509,9 @@ export async function getAudience(
       bounces,
       totaltime,
       previous: {
-        pageviews: prevOf(summary.pageviews),
-        visitors: prevOf(summary.visitors),
-        visits: prevOf(summary.visits),
+        pageviews: prevOf(summary.pageviews, 'pageviews'),
+        visitors: prevOf(summary.visitors, 'visitors'),
+        visits: prevOf(summary.visits, 'visits'),
       },
     },
     derived: {

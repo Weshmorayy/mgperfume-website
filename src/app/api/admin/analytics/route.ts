@@ -139,6 +139,12 @@ export async function GET(request: Request) {
         ? error.message
         : 'Umami est injoignable depuis le serveur.'
 
+    // Une erreur non typée (format de réponse inattendu, plantage de parsing)
+    // arrivait ici sans laisser la moindre trace : l'incident se présentait
+    // comme une panne réseau et n'existait dans aucun journal — d'où des
+    // heures passées à chercher du côté du réseau et de Docker.
+    console.error('[admin/analytics] lecture Umami interrompue :', error)
+
     // 502 : c'est Umami qui n'a pas répondu, pas cette application. Le
     // message nomme la cause réelle — identifiants refusés, service éteint,
     // site inconnu — parce qu'un « erreur de chargement » obligerait à
