@@ -68,9 +68,10 @@ import {
   BarChart3,
 } from 'lucide-react';
 import { siteConfig } from '@/config/site';
-import { PerfumeProduct, EditorialBanner, ShippingZone, FAQItem, ScentFamily, SiteBackup, Order, OrderStatus, PaymentStatus } from '@/types';
+import { PerfumeProduct, EditorialBanner, ShippingZone, FAQItem, ScentFamily, SiteBackup, Order, OrderItem, OrderStatus, PaymentStatus } from '@/types';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { useStore } from '@/context/StoreContext';
+import { isTestOrder } from '@/lib/testOrder';
 import { compareNewestFirst } from '@/lib/productSort';
 import { availableFamilies, brandFacets, matchesSearchQuery } from '@/lib/productSearch';
 import StatsPanel from '@/components/admin/StatsPanel';
@@ -132,6 +133,26 @@ export default function AdminDashboardPage() {
   const [orderStatusFilter, setOrderStatusFilter] = useState<string>('all');
   const [orderPaymentFilter, setOrderPaymentFilter] = useState<string>('all');
   const [selectedOrderForView, setSelectedOrderForView] = useState<Order | null>(null);
+
+  // Archive des commandes : par défaut on n'affiche que ce qui reste à faire.
+  // Les commandes livrées et annulées sont de l'historique — utiles à
+  // consulter, mais elles ne doivent pas noyer la commande du jour.
+  const [orderArchiveTab, setOrderArchiveTab] = useState<'open' | 'delivered' | 'cancelled' | 'all'>('open');
+
+  // Article agrandi dans la fenêtre d'aperçu (nom complet du parfum, prix unitaire).
+  const [previewItem, setPreviewItem] = useState<{ item: OrderItem; order: Order } | null>(null);
+
+  // Échap ferme l'aperçu. L'écouteur n'est posé que pendant que la fenêtre est
+  // ouverte, et toujours retiré au démontage, sinon il resterait accroché au
+  // document après la fermeture.
+  useEffect(() => {
+    if (!previewItem) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setPreviewItem(null);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [previewItem]);
 
   // Products View Mode: 'cards' or 'list'
   const [productsViewMode, setProductsViewMode] = useState<'cards' | 'list'>('cards');
@@ -2040,8 +2061,42 @@ END $guard$;
                 </div>
               </div>
 
-              {/* Filters & Search */}
+              {/* Filtres & Recherche */}
               <div className={`p-4 rounded-3xl border space-y-3 ${cardBgClass}`}>
+
+                {/* Archives : on garde les commandes livrées et annulées de côté,
+                    le flux principal ne montre que ce qu'il reste à traiter. */}
+                <div className="flex flex-wrap gap-2">
+                  {([
+                    { key: 'open' as const, label: 'À traiter', icon: <Clock className="w-3.5 h-3.5" /> },
+                    { key: 'delivered' as const, label: 'Livrées', icon: <CheckSquare className="w-3.5 h-3.5" /> },
+                    { key: 'cancelled' as const, label: 'Annulées', icon: <X className="w-3.5 h-3.5" /> },
+                    { key: 'all' as const, label: 'Toutes', icon: <ShoppingBag className="w-3.5 h-3.5" /> },
+                  ]).map(tab => {
+                    const count =
+                      tab.key === 'open'
+                        ? orders.filter(o => o.order_status === 'new' || o.order_status === 'processing' || o.order_status === 'shipped').length
+                        : tab.key === 'all'
+                        ? orders.length
+                        : orders.filter(o => o.order_status === tab.key).length;
+                    return (
+                      <button
+                        key={tab.key}
+                        type="button"
+                        onClick={() => setOrderArchiveTab(tab.key)}
+                        className={`px-3.5 py-2 rounded-2xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                          orderArchiveTab === tab.key
+                            ? 'bg-[#171513] text-white shadow-xs'
+                            : `${subCardBg} text-[#6B655E] hover:border-[#C59B3F]`
+                        }`}
+                      >
+                        <span className={orderArchiveTab === tab.key ? 'text-[#C59B3F]' : ''}>{tab.icon}</span>
+                        <span>{tab.label} ({count})</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
                 <div className="relative">
                   <Search className="w-4 h-4 opacity-50 absolute left-4 top-1/2 -translate-y-1/2" />
                   <input
@@ -2068,7 +2123,22 @@ END $guard$;
                     </label>
                     <select
                       value={orderStatusFilter}
-                      onChange={e => setOrderStatusFilter(e.target.value)}
+                      onChange={e => {
+                        const nextStatus = e.target.value;
+                        setOrderStatusFilter(nextStatus);
+                        // On garde l'onglet et le filtre de statut cohérents : demander
+                        // « Livrée » alors qu'on est sur « À traiter » viderait la liste
+                        // pour une raison invisible. Dans ce cas on bascule sur « Toutes ».
+                        const tabFamily: Record<typeof orderArchiveTab, OrderStatus[]> = {
+                          open: ['new', 'processing', 'shipped'],
+                          delivered: ['delivered'],
+                          cancelled: ['cancelled'],
+                          all: ['new', 'processing', 'shipped', 'delivered', 'cancelled'],
+                        };
+                        if (nextStatus !== 'all' && !tabFamily[orderArchiveTab].includes(nextStatus as OrderStatus)) {
+                          setOrderArchiveTab('all');
+                        }
+                      }}
                       className={`w-full px-3 py-2 rounded-xl border text-xs focus:outline-none focus:border-[#C59B3F] ${inputBg}`}
                     >
                       <option value="all">Tous les statuts de livraison</option>
@@ -2111,6 +2181,11 @@ END $guard$;
                       o.customer_address?.toLowerCase().includes(q);
                     if (!match) return false;
                   }
+                  // Onglet d'archive : « À traiter » regroupe les commandes qui
+                  // demandent encore une action (nouvelle, en préparation, en livraison).
+                  if (orderArchiveTab === 'open' && !['new', 'processing', 'shipped'].includes(o.order_status)) return false;
+                  if (orderArchiveTab === 'delivered' && o.order_status !== 'delivered') return false;
+                  if (orderArchiveTab === 'cancelled' && o.order_status !== 'cancelled') return false;
                   if (orderStatusFilter !== 'all' && o.order_status !== orderStatusFilter) return false;
                   if (orderPaymentFilter === 'cod' && o.payment_method !== 'cod') return false;
                   if (orderPaymentFilter === 'whatsapp' && o.payment_method !== 'whatsapp') return false;
@@ -2120,12 +2195,26 @@ END $guard$;
                 });
 
                 if (filteredOrders.length === 0) {
+                  // Pourquoi la liste est vide ? Si c'est l'onglet d'archive qui a
+                  // tout écarté, le dire clairement — sinon le propriétaire cherche
+                  // un problème de filtre ou de recherche qui n'existe pas.
+                  const emptyFromArchiveTab = orders.length > 0 && orderArchiveTab !== 'all';
+                  const emptyArchiveMessage: Record<'open' | 'delivered' | 'cancelled', string> = {
+                    open: 'Aucune commande en attente : tout est traité. Les commandes livrées et annulées sont rangées dans leurs propres onglets « Livrées » et « Annulées ».',
+                    delivered: 'Aucune commande livrée pour le moment. Dès qu’une commande arrive à son terme, elle se range ici — et non dans « À traiter ».',
+                    cancelled: 'Aucune commande annulée pour le moment. Une commande annulée se range ici, hors du flux « À traiter ».',
+                  };
+
                   return (
                     <div className={`p-10 rounded-3xl border text-center space-y-3 ${cardBgClass}`}>
                       <ShoppingBag className="w-10 h-10 text-[#C59B3F]/40 mx-auto" />
-                      <h3 className="font-luxury text-base font-bold">Aucune commande trouvée</h3>
+                      <h3 className="font-luxury text-base font-bold">
+                        {emptyFromArchiveTab ? 'Aucune commande dans cet état' : 'Aucune commande trouvée'}
+                      </h3>
                       <p className="text-xs text-[#6B655E] max-w-sm mx-auto">
-                        Aucune commande ne correspond à vos filtres actuels. Dès qu’un client commande via WhatsApp, elle apparaîtra ici.
+                        {emptyFromArchiveTab
+                          ? emptyArchiveMessage[orderArchiveTab]
+                          : 'Aucune commande ne correspond à vos filtres actuels. Dès qu’un client commande via WhatsApp, elle apparaîtra ici.'}
                       </p>
                     </div>
                   );
@@ -2231,7 +2320,13 @@ END $guard$;
                             </span>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                               {order.items.map((item, idx) => (
-                                <div key={idx} className="flex items-center gap-2 text-xs">
+                                <button
+                                  key={idx}
+                                  type="button"
+                                  onClick={() => setPreviewItem({ item, order })}
+                                  title={item.name}
+                                  className="flex items-center gap-2 text-xs text-left rounded-xl px-1.5 py-1 -mx-1.5 transition-colors hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C59B3F]"
+                                >
                                   <div className="relative w-8 h-8 rounded-lg bg-white border border-[#E8DCC2] flex-shrink-0 p-0.5">
                                     {item.image && (
                                       <Image src={item.image} alt={item.name} fill className="object-contain" />
@@ -2244,7 +2339,9 @@ END $guard$;
                                   <span className="ml-auto font-bold text-[#967120] text-[11px]">
                                     {((item.price || 0) * (item.quantity || 1)).toLocaleString('fr-FR')} F
                                   </span>
-                                </div>
+                                  {/* Petit repère : l'article s'ouvre en grand au clic. */}
+                                  <Eye className="w-3.5 h-3.5 text-[#C59B3F] flex-shrink-0" />
+                                </button>
                               ))}
                             </div>
                           </div>
@@ -2286,19 +2383,27 @@ END $guard$;
                               <span>WhatsApp Client</span>
                             </a>
 
-                            {/* Delete Order */}
-                            <button
-                              onClick={() => {
-                                if (confirm(`Voulez-vous vraiment supprimer la commande #${order.ref_command} ?`)) {
-                                  deleteOrder(order.id);
-                                  showFeedback('Commande supprimée');
-                                }
-                              }}
-                              className="p-1.5 rounded-xl bg-red-50 text-red-500 hover:bg-red-600 hover:text-white border border-red-200 transition-colors"
-                              title="Supprimer la commande"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
+                            {/* Supprimer une commande : uniquement pour les commandes
+                                de test. Une commande client est la preuve de la vente,
+                                elle reste en base — le bouton n'est même pas rendu. */}
+                            {isTestOrder(order) && (
+                              <button
+                                onClick={async () => {
+                                  if (confirm(`Commande de test #${order.ref_command} — la supprimer définitivement ?`)) {
+                                    const res = await deleteOrder(order.id);
+                                    if (res.success) {
+                                      showFeedback('Commande de test supprimée');
+                                    } else {
+                                      showFeedback(res.error || 'Suppression impossible');
+                                    }
+                                  }
+                                }}
+                                className="p-1.5 rounded-xl bg-red-50 text-red-500 hover:bg-red-600 hover:text-white border border-red-200 transition-colors"
+                                title="Supprimer la commande de test"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
                           </div>
                         </div>
 
@@ -2308,6 +2413,93 @@ END $guard$;
                 );
               })()}
 
+            </div>
+          )}
+
+          {/* ============================================================ */}
+          {/* APERÇU D'UN ARTICLE COMMANDÉ */}
+          {/* ============================================================ */}
+          {/* Le nom d'un parfum dépasse la largeur de la ligne : ici on affiche
+              l'image et le nom en entier, pour que le vendeur sache enfin quel
+              produit le client a commandé. Fermeture : la croix, le clic à
+              côté, ou la touche Échap (voir le useEffect plus haut). */}
+          {previewItem && (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-200"
+              onClick={() => setPreviewItem(null)}
+            >
+              <div
+                className="bg-white rounded-3xl border border-[#E8DCC2] max-w-md w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto"
+                onClick={e => e.stopPropagation()}
+              >
+                <div className="flex items-start justify-between gap-3 pb-3 border-b border-[#E8DCC2]/60">
+                  <div>
+                    <span className="text-[10px] font-bold text-[#967120] uppercase tracking-wider block">
+                      Article commandé
+                    </span>
+                    <span className="font-mono text-xs font-extrabold text-[#171513]">
+                      #{previewItem.order.ref_command}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewItem(null)}
+                    className="p-1.5 rounded-xl border border-[#E8DCC2] text-[#6B655E] hover:bg-[#171513] hover:text-white transition-colors"
+                    title="Fermer l’aperçu"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="flex flex-col items-center gap-3 text-center">
+                  <div className="relative w-28 h-28 rounded-2xl bg-white border border-[#E8DCC2] p-2">
+                    {previewItem.item.image ? (
+                      <Image
+                        src={previewItem.item.image}
+                        alt={previewItem.item.name}
+                        fill
+                        className="object-contain"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[#C59B3F]/50">
+                        <ShoppingBag className="w-8 h-8" />
+                      </div>
+                    )}
+                  </div>
+                  {/* Nom complet : jamais tronqué, il peut passer sur plusieurs lignes. */}
+                  <h3 className="font-luxury text-base font-bold text-[#171513] leading-snug">
+                    {previewItem.item.name}
+                  </h3>
+                  {previewItem.item.brand && (
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#C59B3F]">
+                      {previewItem.item.brand}
+                    </span>
+                  )}
+                </div>
+
+                <div className="space-y-1.5 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#6B655E]">Prix unitaire</span>
+                    <span className="font-bold text-[#171513]">
+                      {Number(previewItem.item.price || 0).toLocaleString('fr-FR')} FCFA
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#6B655E]">Quantité</span>
+                    <span className="font-bold text-[#171513]">x{previewItem.item.quantity || 1}</span>
+                  </div>
+                  <div className="flex items-center justify-between pt-1.5 border-t border-[#E8DCC2]/60">
+                    <span className="font-bold text-[#171513]">Total de la ligne</span>
+                    <span className="font-extrabold text-[#967120]">
+                      {((previewItem.item.price || 0) * (previewItem.item.quantity || 1)).toLocaleString('fr-FR')} FCFA
+                    </span>
+                  </div>
+                </div>
+
+                <div className="text-[11px] text-[#6B655E] text-center">
+                  Client : {previewItem.order.customer_name}
+                </div>
+              </div>
             </div>
           )}
 

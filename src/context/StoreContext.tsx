@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { PerfumeProduct, EditorialBanner, ShippingZone, FAQItem, SiteConfig, Order, OrderStatus, PaymentStatus } from '@/types';
 import { siteConfig } from '@/config/site';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { isTestOrder } from '@/lib/testOrder';
 
 interface StoreContextType {
   products: PerfumeProduct[];
@@ -384,14 +385,49 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Delete Order
+  // Delete Order — réservé aux commandes de test.
+  //
+  // Défense en profondeur : l'admin masque déjà le bouton pour les vraies
+  // commandes (voir isTestOrder dans src/lib/testOrder.ts), mais une règle
+  // uniquement dans l'interface se contourne en une ligne dans la console du
+  // navigateur. On revérifie donc ici, contre l'état `orders` courant, avant
+  // d'envoyer quoi que ce soit à Supabase : une commande client ne peut pas
+  // partir sur un simple appel `deleteOrder(id)`.
   const deleteOrder = async (id: string) => {
     try {
-      setOrders(prev => prev.filter(o => o.id !== id));
-      if (supabase) {
-        const { error } = await supabase.from('orders').delete().eq('id', id);
-        if (error) throw error;
+      const target = orders.find(o => o.id === id);
+      if (!target) {
+        return { success: false, error: 'Commande introuvable : rechargez la page avant de réessayer.' };
       }
+      if (!isTestOrder(target)) {
+        return {
+          success: false,
+          error: 'Suppression refusée : seule une commande de test peut être supprimée. Une commande client est la preuve de la vente.',
+        };
+      }
+
+      // Une suppression RLS renvoie volontiers `{ data: null, error: null }`
+      // quand la policy refuse l'opération. Sans `Prefer: return=representation`
+      // et sans lecture du résultat, on annoncerait « supprimée » sur une
+      // commande toujours en base. On exige donc de voir la ligne supprimée.
+      if (supabase) {
+        const { data, error } = await supabase
+          .from('orders')
+          .delete({ count: 'exact' })
+          .eq('id', id)
+          .select('id');
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          return {
+            success: false,
+            error: 'Aucune ligne supprimée : la base a refusé l’opération (droits insuffisants). La commande est toujours là.',
+          };
+        }
+      }
+
+      setOrders(prev => prev.filter(o => o.id !== id));
       return { success: true };
     } catch (err: any) {
       return { success: false, error: err.message };
