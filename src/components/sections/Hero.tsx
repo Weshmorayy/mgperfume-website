@@ -14,7 +14,10 @@ interface HeroProps {
 }
 
 export function Hero({ onExploreClick, onSelectProduct }: HeroProps) {
-  const { heroProduct } = useStore();
+  const { heroProduct, contact } = useStore();
+
+  // Numéro WhatsApp dynamique éditable en admin (site_settings), repli sur siteConfig.
+  const activeWhatsapp = (contact?.whatsappNumber || contact?.phone || siteConfig.contact.whatsappNumber).replace(/[^0-9]/g, '');
 
   return (
     <section className="relative bg-[#FAF8F5] border-b border-[#E8DCC2] px-4 py-12 sm:py-16">
@@ -48,7 +51,7 @@ export function Hero({ onExploreClick, onSelectProduct }: HeroProps) {
             </Link>
 
             <a
-              href={`https://wa.me/${siteConfig.contact.whatsappNumber}?text=${encodeURIComponent("Bonjour MG Perfume, je souhaite un conseil personnalisé pour choisir mon parfum.")}`}
+              href={`https://wa.me/${activeWhatsapp}?text=${encodeURIComponent("Bonjour MG Perfume, je souhaite un conseil personnalisé pour choisir mon parfum.")}`}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white border border-[#E8DCC2] hover:border-[#C59B3F] text-[#171513] font-semibold text-xs tracking-wider uppercase transition-all text-center shadow-xs"

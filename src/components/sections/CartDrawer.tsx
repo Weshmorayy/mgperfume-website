@@ -46,7 +46,11 @@ export function CartDrawer({
   onRemoveItem,
   onClearCart,
 }: CartDrawerProps) {
-  const { shippingZones, saveOrder, social, freeForAllDelivery } = useStore();
+  const { shippingZones, saveOrder, social, freeForAllDelivery, contact } = useStore();
+
+  // Numéro WhatsApp boutique : valeur dynamique éditable en admin (site_settings),
+  // repli sur le numéro par défaut de siteConfig si jamais absent.
+  const activeWhatsapp = (contact?.whatsappNumber || contact?.phone || siteConfig.contact.whatsappNumber).replace(/[^0-9]/g, '');
 
   const zonesList = shippingZones && shippingZones.length > 0 ? shippingZones : siteConfig.shippingZones;
 
@@ -179,7 +183,7 @@ export function CartDrawer({
       'Bonjour MG Perfume, je souhaite valider cette commande svp ! 🙏',
     ].join('\n');
 
-    const whatsappUrl = `https://wa.me/${siteConfig.contact.whatsappNumber}?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/${activeWhatsapp}?text=${encodeURIComponent(message)}`;
 
     onClearCart();
     window.open(whatsappUrl, '_blank');

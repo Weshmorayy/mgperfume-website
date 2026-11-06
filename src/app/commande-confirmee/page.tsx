@@ -14,7 +14,10 @@ function OrderConfirmationContent() {
   const searchParams = useSearchParams();
   const ref = searchParams.get('ref') || 'MGP-OFFICIEL';
   const mode = searchParams.get('mode');
-  const { orders } = useStore();
+  const { orders, contact } = useStore();
+
+  // Numéro WhatsApp dynamique éditable en admin (site_settings), repli sur siteConfig.
+  const activeWhatsapp = (contact?.whatsappNumber || contact?.phone || siteConfig.contact.whatsappNumber).replace(/[^0-9]/g, '');
 
   const [order, setOrder] = useState<Order | null>(null);
 
@@ -95,7 +98,7 @@ function OrderConfirmationContent() {
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
         <a
-          href={`https://wa.me/${siteConfig.contact.whatsappNumber}?text=${whatsappMessage}`}
+          href={`https://wa.me/${activeWhatsapp}?text=${whatsappMessage}`}
           target="_blank"
           rel="noopener noreferrer"
           className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-[#25D366] hover:bg-[#1EBE5B] text-white font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-md"
